@@ -1,8 +1,7 @@
 import { request } from "@/utils/service"
 import type * as Project from "./types/project"
 
-
-export function getProjectList(data: Project.GetProjectRequestData) {
+export function apiGetProjectList(data: Project.GetProjectRequestData) {
   return request<Project.ProjectListResponseData>({
     url: "/business/project/list",
     method: "POST",
@@ -10,7 +9,7 @@ export function getProjectList(data: Project.GetProjectRequestData) {
   })
 }
 
-export function editProjectInfo(data: Project.EditProjectRequestData) {
+export function apiEditProjectInfo(data: Project.EditProjectRequestData) {
   return request<Project.ProjectEditResponseData>({
     url: "/business/project/edit",
     method: "POST",
@@ -18,7 +17,7 @@ export function editProjectInfo(data: Project.EditProjectRequestData) {
   })
 }
 
-export function deleteProjectInfo(data: Project.DeleteProjectRequestData) {
+export function apiDeleteProjectInfo(data: Project.DeleteProjectRequestData) {
   return request<Project.ProjectEditResponseData>({
     url: "/business/project/delete",
     method: "POST",

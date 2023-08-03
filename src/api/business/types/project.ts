@@ -1,7 +1,6 @@
-
 // 获取项目列表的结构体
 export interface GetProjectRequestData {
-  total: number;
+  total: number
   page: number // 页码
   pageSize: number // 每页大小
   name: string // 项目名称
@@ -25,8 +24,8 @@ export interface ProjectInfoResponseData {
 export interface EditProjectRequestData {
   avatar: string // 头像
   describe: string // 项目描述
-  mold: string  // 驱动程序
-  name: string  // 名称
+  mold: string // 驱动程序
+  name: string // 名称
   id: number // 项目id
 }
 
@@ -37,11 +36,11 @@ export interface DeleteProjectRequestData {
 
 // 获取项目列表的结构体
 export type ProjectListResponseData = ApiResponseData<{
-  items: ProjectInfoResponseData[];
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPage: number;
+  items: ProjectInfoResponseData[]
+  page: number
+  pageSize: number
+  total: number
+  totalPage: number
 }>
 
 export type ProjectEditResponseData = ApiResponseData<{}>

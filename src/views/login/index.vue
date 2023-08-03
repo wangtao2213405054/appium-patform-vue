@@ -24,7 +24,7 @@ const loginFormData: LoginRequestData = reactive({
 const validateUsername = (rule: any, value: any, callback: any) => {
   const re = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/
   if (!re.test(value)) {
-    callback(new Error('请输入正确的邮箱'))
+    callback(new Error("请输入正确的邮箱"))
   } else {
     callback()
   }
@@ -33,7 +33,7 @@ const validateUsername = (rule: any, value: any, callback: any) => {
 const loginFormRules: FormRules = {
   username: [
     { required: true, message: "请输入邮箱", trigger: "blur" },
-    { required: true, validator: validateUsername, trigger: 'blur' }
+    { required: true, validator: validateUsername, trigger: "blur" }
   ],
   password: [
     { required: true, message: "请输入密码", trigger: "blur" },
@@ -61,7 +61,6 @@ const handleLogin = () => {
     }
   })
 }
-
 </script>
 
 <template>

@@ -1,16 +1,16 @@
-<script setup lang="ts">
-
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <el-card>
-    <div slot="header" class="clearfix">
-      <span><b>平台介绍</b></span>
-    </div>
+    <template #header>
+      <div class="clearfix">
+        <span><b>平台介绍</b></span>
+      </div>
+    </template>
 
     <div class="user-profile">
       <div class="radius">
-        <img src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" alt="">
+        <img src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif" alt="" />
       </div>
       <div class="box-center">
         <div class="user-name text-center">UI自动化平台</div>
@@ -20,25 +20,27 @@
 
     <div class="user-bio">
       <div class="user-education user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="education" /><span><b>宗旨</b></span></div>
+        <div class="user-bio-section-header">
+          <svg-icon name="education" /><span><b>宗旨</b></span>
+        </div>
         <div class="user-bio-section-body">
-          <div class="text-muted">
-            以目标为导向，不断抽象沉淀，消除冗余。
-          </div>
+          <div class="text-muted">以目标为导向，不断抽象沉淀，消除冗余。</div>
         </div>
       </div>
 
       <div class="user-education user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="education" /><span><b>说明</b></span></div>
+        <div class="user-bio-section-header">
+          <svg-icon name="education" /><span><b>说明</b></span>
+        </div>
         <div class="user-bio-section-body">
-          <div class="text-muted">
-            支持Web、APP自动化测试
-          </div>
+          <div class="text-muted">支持Web、APP自动化测试</div>
         </div>
       </div>
 
       <div class="user-education user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="edit" /><span><b>文档</b></span></div>
+        <div class="user-bio-section-header">
+          <svg-icon name="edit" /><span><b>文档</b></span>
+        </div>
         <div class="user-bio-section-body">
           <div class="text-muted" style="text-align: center">
             <el-link type="primary">平台说明手册</el-link>
@@ -51,7 +53,7 @@
       </div>
 
       <div class="user-skills user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="skill" /><span>技能</span></div>
+        <div class="user-bio-section-header"><svg-icon name="skill" /><span>技能</span></div>
         <div class="user-bio-section-body">
           <div class="progress-item">
             <span>Vue</span>

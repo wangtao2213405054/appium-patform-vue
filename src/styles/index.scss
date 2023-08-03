@@ -51,3 +51,9 @@ a:hover {
 div:focus {
   outline: none;
 }
+
+// 右对齐所有的 el-pagination 组件
+.pagination-container {
+  display: flex;
+  justify-content: flex-end; // 将pagination组件右对齐
+}
