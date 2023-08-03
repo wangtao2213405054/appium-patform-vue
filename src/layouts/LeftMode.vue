@@ -139,7 +139,7 @@ $transition-time: 0.35s;
     width: var(--v3-sidebar-width) !important;
   }
   .main-container {
-    margin-left: 0px;
+    margin-left: 0;
   }
   .fixed-header {
     width: 100%;

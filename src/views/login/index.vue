@@ -6,7 +6,6 @@ import { type FormInstance, FormRules } from "element-plus"
 import { User, Lock } from "@element-plus/icons-vue"
 import { type LoginRequestData } from "@/api/login/types/login"
 import ThemeSwitch from "@/components/ThemeSwitch/index.vue"
-import { sha1 } from '@/utils/sha1'
 
 const router = useRouter()
 
@@ -21,9 +20,21 @@ const loginFormData: LoginRequestData = reactive({
   username: "admin@client.com",
   password: "123456"
 })
+
+const validateUsername = (rule: any, value: any, callback: any) => {
+  const re = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/
+  if (!re.test(value)) {
+    callback(new Error('请输入正确的邮箱'))
+  } else {
+    callback()
+  }
+}
 /** 登录表单校验规则 */
 const loginFormRules: FormRules = {
-  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  username: [
+    { required: true, message: "请输入邮箱", trigger: "blur" },
+    { required: true, validator: validateUsername, trigger: 'blur' }
+  ],
   password: [
     { required: true, message: "请输入密码", trigger: "blur" },
     { min: 6, max: 18, message: "长度在 6 到 18 个字符", trigger: "blur" }

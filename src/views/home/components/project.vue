@@ -1,0 +1,303 @@
+<script setup lang="ts">
+import { ref, onMounted, reactive } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  ElForm, ElFormItem, ElInput, ElRadio, ElButton,
+  ElTag, ElEmpty, ElPagination, ElDialog, ElMessageBox,
+  ElMessage, FormRules, FormInstance
+} from 'element-plus';
+import { deleteProjectInfo, editProjectInfo, getProjectList } from '@/api/business'
+import { EditProjectRequestData, GetProjectRequestData, ProjectInfoResponseData } from "@/api/business/types/project"
+
+const avatarPrefix = '?imageView2/1/w/80/h/80';
+
+const projectList = ref<ProjectInfoResponseData[]>([])
+const title = ref<string>('创建项目')
+const projectLoading = ref<boolean>(true)
+const visibleBool = ref<boolean>(false)
+const props = defineProps({
+    dialogVisible: {
+        type: Boolean,
+        default: false
+    }
+})
+const emit = defineEmits(['update:dialogVisible'])
+const requestForm: GetProjectRequestData = reactive({
+  name: '',
+  page: 1,
+  pageSize: 4,
+  total: 0,
+});
+
+const addForm: EditProjectRequestData = reactive({
+  id: 0,
+  name: '',
+  describe: '',
+  avatar: '',
+  mold: 'appium',
+})
+const addFormRef = ref<FormInstance | null>(null)
+const addFormRules: FormRules = {
+  name: [
+    { required: true, message: '请输入正确的项目名称', trigger: 'blur' },
+    { min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur' },
+  ],
+  describe: [
+    { required: true, message: '请输入正确的项目背景', trigger: 'blur' },
+    { min: 5, max: 512, message: '长度在 5 到 512 个字符', trigger: 'blur' },
+  ],
+}
+
+const router = useRouter();
+
+onMounted(async () => {
+  await getProjectListData()
+  visibleBool.value = props.dialogVisible
+});
+
+async function getProjectListData() {
+  projectLoading.value = true
+  const { items, total } = (await getProjectList(requestForm)).data
+  projectList.value = items
+  requestForm.total = total
+  projectLoading.value = false
+}
+
+function enterProjectPage(id: number, mold: string) {
+  localStorage.setItem('projectId', String(id))
+  localStorage.setItem('mold', mold)
+  router.push('/dashboard')
+}
+
+function handleCurrentChange(newPage: number) {
+  requestForm.page = newPage;
+  getProjectListData();
+  // 返回顶部
+  window.scrollTo({
+    left: 0,
+    top: 0,
+    behavior: 'smooth',
+  })
+}
+
+function closeDialog() {
+  emit('update:dialogVisible', false);
+  addForm.id = 0;
+  addForm.name = '';
+  addForm.describe = '';
+  addForm.avatar = '';
+  addForm.mold = 'appium'
+  addFormRef.value?.clearValidate()
+  title.value = '创建项目'
+}
+
+function editProjectInfoData() {
+  addFormRef.value?.validate(async (valid: boolean, fields) => {
+      if (valid) {
+        await editProjectInfo(addForm)
+        visibleBool.value = false
+        await getProjectListData()
+      } else {
+        console.error("表单校验不通过", fields)
+      }
+  })
+}
+
+function updateButton(value: any) {
+  addForm.id = value.id
+  addForm.name = value.name
+  addForm.describe = value.describe
+  addForm.avatar = value.avatar
+  addForm.mold = value.mold
+  title.value = '编辑项目'
+  visibleBool.value = true
+}
+
+async function deleteProjectData(id: number) {
+  const clickConfirmResult = await ElMessageBox.confirm(
+    '此操作将永久删除该项目, 是否继续?',
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  ).catch((err) => err);
+
+  if (clickConfirmResult !== 'confirm') {
+    return ElMessage.info('取消删除')
+  }
+
+  await deleteProjectInfo({ id })
+  await getProjectListData();
+}
+</script>
+
+<template>
+  <div v-loading="projectLoading" class="user-activity">
+    <el-dialog
+      :title="title"
+      :model-value="visibleBool"
+      width="600px"
+      @close="closeDialog"
+    >
+      <el-form
+        ref="addFormRef"
+        :model="addForm"
+        :rules="addFormRules"
+        hide-required-asterisk
+        label-width="80px"
+      >
+        <el-form-item label="项目名称" prop="name">
+          <el-input v-model="addForm.name" placeholder="请输入项目名称" clearable />
+        </el-form-item>
+        <el-form-item label="项目描述" prop="describe">
+          <el-input
+            v-model="addForm.describe"
+            placeholder="请输入项目描述"
+            type="textarea"
+            :rows="4"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="项目类型">
+          <div>
+            <el-radio v-model="addForm.mold" style="height: 55px" label="appium" border>
+                App 端
+                <el-text tag="b" type="success">基于 Appium 框架</el-text>
+            </el-radio>
+            <el-radio v-model="addForm.mold" style="height: 55px" label="selenium" border>
+                Web 端
+                <el-text tag="b" type="warning">基于 Selenium 框架</el-text>
+            </el-radio>
+          </div>
+        </el-form-item>
+      </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="visibleBool = false">取 消</el-button>
+            <el-button type="primary" @click="editProjectInfoData">确 定</el-button>
+          </span>
+        </template>
+    </el-dialog>
+    <div v-for="item in projectList" :key="item.id">
+      <div class="post" @click="enterProjectPage(item.id, item.mold)">
+        <div class="user-block">
+          <img class="img-circle" alt="" :src="item.avatar + avatarPrefix" />
+          <span class="username text-muted">{{ item.name }}</span>
+          <el-tag v-if="item.mold === 'appium'" class="mold" type="success">移动端</el-tag>
+          <el-tag v-else class="mold" type="warning">Web端</el-tag>
+          <span class="description">{{ item.label }}</span>
+        </div>
+        <p>{{ item.describe }}</p>
+        <ul class="list-inline" style="text-align: right">
+          <li>
+            <el-button icon="el-icon-edit" type="text" @click.stop="updateButton(item)">编辑</el-button>
+          </li>
+          <li>
+            <el-button class="delete-button" icon="el-icon-delete" type="text" @click.stop="deleteProjectData(item.id)">删除</el-button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <el-empty v-if="!projectList.length" description="暂无项目, 快来创建一个吧" />
+    <el-pagination
+      style="text-align: right"
+      background
+      :page-size="requestForm.pageSize"
+      layout="total, prev, pager, next"
+      :total="requestForm.total"
+      @current-change="handleCurrentChange"
+    />
+  </div>
+</template>
+
+<style scoped lang="scss">
+.user-activity {
+  .user-block {
+
+    .username,
+    .description {
+      display: block;
+      margin-left: 50px;
+      padding: 2px 0;
+    }
+
+    .username {
+      font-size: 16px;
+      color: #000;
+    }
+    .mold {
+      display: block;
+      float: right;
+      margin-right: 10px;
+      align-items: center;
+    }
+
+    :after {
+      clear: both;
+    }
+
+    .img-circle {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      float: left;
+    }
+
+    span {
+      font-weight: 500;
+      font-size: 12px;
+    }
+  }
+
+  .post {
+    font-size: 14px;
+    border-bottom: 1px solid #d2d6de;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    color: #666;
+
+    .image {
+      width: 100%;
+      height: 100%;
+
+    }
+
+    .user-images {
+      padding-top: 20px;
+    }
+  }
+
+  .list-inline {
+    padding-left: 0;
+    margin-left: -5px;
+    list-style: none;
+
+    li {
+      display: inline-block;
+      padding-right: 5px;
+      padding-left: 5px;
+      font-size: 13px;
+    }
+
+    .link-black {
+
+      &:hover,
+      &:focus {
+        color: #999;
+      }
+    }
+  }
+
+}
+
+.box-center {
+  margin: 0 auto;
+  display: table;
+}
+
+.text-muted {
+  color: #777;
+}
+</style>
