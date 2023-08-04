@@ -72,7 +72,6 @@ const props = defineProps({
 
 <style scoped lang="scss">
 .right-menu {
-  margin-right: 10px;
   height: 100%;
   display: flex;
   align-items: center;
@@ -83,6 +82,7 @@ const props = defineProps({
     .right-menu-avatar {
       display: flex;
       align-items: center;
+      margin-right: 10px;
       .el-avatar {
         margin-right: 10px;
       }

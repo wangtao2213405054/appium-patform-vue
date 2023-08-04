@@ -134,6 +134,5 @@ $transition-time: 0.35s;
   display: flex;
   justify-content: flex-end; // 将pagination组件右对齐
   background: var(--v3-header-bg-color);
-  margin-right: 0
 }
 </style>
