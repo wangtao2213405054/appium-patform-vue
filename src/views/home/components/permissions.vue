@@ -7,7 +7,7 @@ import {
   PermissionsMenuInfoResponseData
 } from "@/api/permissions/types/menu"
 import { ElButton, ElMessage, ElMessageBox, FormInstance, ElInput } from "element-plus"
-import { Search, Refresh, Plus, Sort } from "@element-plus/icons-vue"
+import { Search, Refresh, Plus, Sort, Edit, Delete } from "@element-plus/icons-vue"
 
 const menuList = ref<PermissionsMenuInfoResponseData[]>([])
 const dialogVisible = ref<boolean>(false)
@@ -206,11 +206,11 @@ function hiddenTable() {
       <el-table-column prop="updateTime" label="修改时间" align="center" width="160px" />
       <el-table-column label="操作" align="center" width="240px">
         <template #default="scope">
-          <el-button type="primary" link icon="el-icon-edit" @click="updateButton(scope.row)">修改</el-button>
-          <el-button type="success" link icon="el-icon-plus" @click="newNode(scope.row.id)">新增</el-button>
+          <el-button type="primary" link :icon="Edit" @click="updateButton(scope.row)">修改</el-button>
+          <el-button type="success" link :icon="Plus" @click="newNode(scope.row.id)">新增</el-button>
           <el-button
             class="delete-button"
-            icon="el-icon-delete"
+            :icon="Delete"
             type="danger"
             link
             @click="deletePermissionsInfo(scope.row.id)"

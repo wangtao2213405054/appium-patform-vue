@@ -54,6 +54,7 @@ div:focus {
 
 // 右对齐所有的 el-pagination 组件
 .pagination-container {
+  margin-top: 15px;
   display: flex;
   justify-content: flex-end; // 将pagination组件右对齐
 }

@@ -3,7 +3,7 @@
 <template>
   <el-card>
     <template #header>
-      <div class="clearfix">
+      <div style="height: 13px">
         <span><b>平台介绍</b></span>
       </div>
     </template>
@@ -43,8 +43,6 @@
         </div>
         <div class="user-bio-section-body">
           <div class="text-muted" style="text-align: center">
-            <el-link type="primary">平台说明手册</el-link>
-            <el-divider direction="vertical" />
             <el-link type="success">平台使用手册</el-link>
             <el-divider direction="vertical" />
             <el-link type="danger">平台使用规范</el-link>

@@ -2,12 +2,12 @@
 import { h } from "vue"
 import { useTheme } from "@/hooks/useTheme"
 import { resetConfigLayout } from "@/utils"
-import { ElNotification } from "element-plus"
+import { ElNotification, ElDialog } from "element-plus"
 // 将 Element Plus 的语言设置为中文
 import zhCn from "element-plus/es/locale/lang/zh-cn"
 
 const { initTheme } = useTheme()
-
+ElDialog.props.lockScroll.default = false  // 修复 dialog 打开时右侧出现抖动的问题
 /** 初始化主题 */
 initTheme()
 

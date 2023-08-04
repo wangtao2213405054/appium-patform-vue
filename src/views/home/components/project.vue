@@ -17,6 +17,7 @@ import {
   FormInstance
 } from "element-plus"
 import { apiDeleteProjectInfo, apiEditProjectInfo, apiGetProjectList } from "@/api/business"
+import { Edit, Delete } from '@element-plus/icons-vue'
 import { EditProjectRequestData, GetProjectRequestData, ProjectInfoResponseData } from "@/api/business/types/project"
 
 const avatarPrefix = "?imageView2/1/w/80/h/80"
@@ -194,20 +195,12 @@ async function deleteProjectData(id: number) {
           <span class="description">{{ item.label }}</span>
         </div>
         <p>{{ item.describe }}</p>
-        <ul class="list-inline" style="text-align: right">
+        <ul class="list-inline">
           <li>
-            <el-button icon="el-icon-edit" type="primary" link @click.stop="updateButton(item)">编辑</el-button>
+            <el-button :icon="Edit" type="primary" link @click.stop="updateButton(item)">编辑</el-button>
           </li>
           <li>
-            <el-button
-              class="delete-button"
-              type="danger"
-              icon="el-icon-delete"
-              link
-              @click.stop="deleteProjectData(item.id)"
-            >
-              删除
-            </el-button>
+            <el-button type="danger" :icon="Delete" link @click.stop="deleteProjectData(item.id)">删除</el-button>
           </li>
         </ul>
       </div>
@@ -283,6 +276,7 @@ async function deleteProjectData(id: number) {
     padding-left: 0;
     margin-left: -5px;
     list-style: none;
+    text-align: right;
 
     li {
       display: inline-block;
