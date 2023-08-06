@@ -22,7 +22,7 @@ const timeLine: TimelineItem[] = reactive([
 </script>
 
 <template>
-  <div class="block">
+  <el-card class="block">
     <el-timeline>
       <el-timeline-item v-for="(item, index) of timeLine" :key="index" :timestamp="item.timestamp" placement="top">
         <el-card>
@@ -31,7 +31,7 @@ const timeLine: TimelineItem[] = reactive([
         </el-card>
       </el-timeline-item>
     </el-timeline>
-  </div>
+  </el-card>
 </template>
 
 <style scoped lang="scss"></style>

@@ -22,7 +22,6 @@ const isMobile = computed(() => device.value === DeviceEnum.Mobile)
 const toggleSidebar = () => {
   appStore.toggleSidebar(false)
 }
-
 </script>
 
 <template>

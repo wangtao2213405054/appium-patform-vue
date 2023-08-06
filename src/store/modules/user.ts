@@ -76,7 +76,7 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  return { token, roles, username, avatar, setRoles, login, getInfo, changeRoles, logout, resetToken, }
+  return { token, roles, username, avatar, setRoles, login, getInfo, changeRoles, logout, resetToken }
 })
 
 /** 在 setup 外使用 */

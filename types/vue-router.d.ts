@@ -19,6 +19,10 @@ declare module "vue-router" {
      */
     hidden?: boolean
     /**
+     * 默认 false，设置 true 的时候该路由不会在侧边栏出现, 但是会出现在首页路由中
+     */
+    home?: boolean
+    /**
      * 设置该路由进入的权限，支持多个权限叠加
      */
     roles?: string[]

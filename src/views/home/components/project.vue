@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from "vue"
+import { ref, onMounted, reactive } from "vue"
 import { useRouter } from "vue-router"
 import {
   ElForm,
@@ -17,8 +17,9 @@ import {
   FormInstance
 } from "element-plus"
 import { apiDeleteProjectInfo, apiEditProjectInfo, apiGetProjectList } from "@/api/business"
-import { Edit, Delete } from '@element-plus/icons-vue'
+import { Edit, Delete, Search, Refresh, Plus } from "@element-plus/icons-vue"
 import { EditProjectRequestData, GetProjectRequestData, ProjectInfoResponseData } from "@/api/business/types/project"
+import upload from "./upload.vue"
 
 const avatarPrefix = "?imageView2/1/w/80/h/80"
 
@@ -26,13 +27,6 @@ const projectList = ref<ProjectInfoResponseData[]>([])
 const title = ref<string>("创建项目")
 const projectLoading = ref<boolean>(true)
 const visibleBool = ref<boolean>(false)
-const props = defineProps({
-  dialogVisible: {
-    type: Boolean,
-    default: false
-  }
-})
-const emit = defineEmits(["update:dialogVisible"])
 const requestForm: GetProjectRequestData = reactive({
   name: "",
   page: 1,
@@ -63,7 +57,6 @@ const router = useRouter()
 
 onMounted(async () => {
   await getProjectListData()
-  visibleBool.value = props.dialogVisible
 })
 
 // 获取项目列表
@@ -73,6 +66,12 @@ async function getProjectListData() {
   projectList.value = items
   requestForm.total = total
   projectLoading.value = false
+}
+
+// 查询项目方法
+function queryProjectListData() {
+  requestForm.page = 1
+  getProjectListData()
 }
 
 // 点击项目后跳转的钩子
@@ -94,15 +93,7 @@ function handleCurrentChange(newPage: number) {
   })
 }
 
-watch(
-  () => props.dialogVisible,
-  (newValue) => {
-    visibleBool.value = newValue
-  }
-)
-
 function closeDialog() {
-  emit("update:dialogVisible", false)
   visibleBool.value = false
   addForm.id = 0
   addForm.name = ""
@@ -126,6 +117,12 @@ function editProjectInfoData() {
   })
 }
 
+// 重置请求信息
+function refreshRequest() {
+  requestForm.name = ""
+  getProjectListData()
+}
+
 // 更新按钮
 function updateButton(value: any) {
   addForm.id = value.id
@@ -135,7 +132,6 @@ function updateButton(value: any) {
   addForm.mold = value.mold
   title.value = "编辑项目"
   visibleBool.value = true
-  console.log(visibleBool.value, "222")
 }
 
 // 删除项目的钩子
@@ -156,9 +152,12 @@ async function deleteProjectData(id: number) {
 </script>
 
 <template>
-  <div v-loading="projectLoading" class="user-activity">
+  <el-card v-loading="projectLoading" class="user-activity">
     <el-dialog :title="title" :model-value="visibleBool" width="600px" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" hide-required-asterisk label-width="80px">
+        <el-form-item label="项目头像">
+          <upload v-model="addForm.avatar" />
+        </el-form-item>
         <el-form-item label="项目名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入项目名称" clearable />
         </el-form-item>
@@ -185,6 +184,25 @@ async function deleteProjectData(id: number) {
         </span>
       </template>
     </el-dialog>
+    <el-form :model="requestForm" inline>
+      <el-form-item label="项目名称">
+        <el-input
+          v-model="requestForm.name"
+          placeholder="输入项目名称进行过滤"
+          clearable
+          @keyup.enter="queryProjectListData"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" :icon="Search" @click="queryProjectListData">查询</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" :icon="Plus" plain @click="visibleBool = true">新建项目</el-button>
+      </el-form-item>
+    </el-form>
     <div v-for="item in projectList" :key="item.id">
       <div class="post" @click="enterProjectPage(item.id, item.mold)">
         <div class="user-block">
@@ -214,7 +232,7 @@ async function deleteProjectData(id: number) {
       :total="requestForm.total"
       @current-change="handleCurrentChange"
     />
-  </div>
+  </el-card>
 </template>
 
 <style scoped lang="scss">
@@ -229,7 +247,7 @@ async function deleteProjectData(id: number) {
 
     .username {
       font-size: 16px;
-      color: #000;
+      color: var(--el-text-color-primary);
     }
 
     .mold {
@@ -260,7 +278,7 @@ async function deleteProjectData(id: number) {
     border-bottom: 1px solid #d2d6de;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    color: #666;
+    color: var(--el-text-color-secondary);
 
     .image {
       width: 100%;
@@ -301,5 +319,10 @@ async function deleteProjectData(id: number) {
 
 .text-muted {
   color: #777;
+}
+:deep(.disabled) {
+  .el-upload--picture-card {
+    display: none;
+  }
 }
 </style>

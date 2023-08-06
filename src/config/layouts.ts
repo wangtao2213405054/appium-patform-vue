@@ -31,7 +31,7 @@ export const layoutSettings: LayoutSettings = getConfigLayout() ?? {
   showSettings: true,
   showTagsView: true,
   fixedHeader: true,
-  showLogo: true,
+  showLogo: false,
   showNotify: true,
   showThemeSwitch: true,
   showScreenfull: true,

@@ -2,13 +2,13 @@
 import { Edit, Delete, Plus, Refresh, Search } from "@element-plus/icons-vue"
 import { onMounted, reactive, ref } from "vue"
 import { EditPermissionsRoleRequestData, GetPermissionsRoleRequestData } from "@/api/permissions/types/role"
-import { ElMessage, ElMessageBox, ElTree, FormInstance } from "element-plus"
+import { ElDialog, ElMessage, ElMessageBox, ElTree, FormInstance } from "element-plus"
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
 import {
-    apiDeletePermissionsRoleInfo,
-    apiEditPermissionsRoleInfo,
-    apiGetPermissionsMenuList,
-    apiGetPermissionsRoleList
+  apiDeletePermissionsRoleInfo,
+  apiEditPermissionsRoleInfo,
+  apiGetPermissionsMenuList,
+  apiGetPermissionsRoleList
 } from "@/api/permissions"
 
 const requestForm: GetPermissionsRoleRequestData = reactive({
@@ -16,12 +16,12 @@ const requestForm: GetPermissionsRoleRequestData = reactive({
   identifier: "",
   total: 0,
   page: 1,
-  pageSize: 20,
+  pageSize: 20
 })
 const addForm: EditPermissionsRoleRequestData = reactive({
   id: null,
-  name: '',
-  identifier: '',
+  name: "",
+  identifier: "",
   permissionsApi: []
 })
 const addFormRef = ref<FormInstance | null>(null)
@@ -35,9 +35,7 @@ const addFormRules = reactive({
     { required: true, message: "请输入正确的标识符", trigger: "blur" },
     { min: 2, max: 512, message: "长度在 2 到 512 个字符", trigger: "blur" }
   ],
-  permissionsApi: [
-    { required: true, message: "请选择相关权限", trigger: "blur" }
-  ]
+  permissionsApi: [{ required: true, message: "请选择相关权限", trigger: "blur" }]
 })
 
 const dialogVisible = ref<boolean>(false)
@@ -65,7 +63,7 @@ function newButton() {
 
 // 获取菜单列表
 async function getPermissionsList() {
-  menuList.value = (await apiGetPermissionsMenuList({  name: "", identifier: ""})).data
+  menuList.value = (await apiGetPermissionsMenuList({ name: "", identifier: "" })).data
   checked.value = false
   strictly.value = true
   expand.value = false
@@ -139,73 +137,69 @@ function closeDialog() {
 
 // 重置查询框
 function refreshRequest() {
-  requestForm.name = ''
-  requestForm.identifier = ''
+  requestForm.name = ""
+  requestForm.identifier = ""
   queryRoleList()
 }
 
 // 删除角色信息
 async function deleteRoleInfo(id: number) {
-    const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该角色, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-    }).catch(err => err)
-    if (clickConfirmResult !== "confirm") {
-        return ElMessage.info("取消删除")
-    }
-    await apiDeletePermissionsRoleInfo({ id })
-    await getRoleList()
+  const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该角色, 是否继续?", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning"
+  }).catch((err) => err)
+  if (clickConfirmResult !== "confirm") {
+    return ElMessage.info("取消删除")
+  }
+  await apiDeletePermissionsRoleInfo({ id })
+  await getRoleList()
 }
 
 // 递归获取tree 的所有 identifier
 function getMenuNodeIdentifier(menuList: any) {
-    const identifierList: any = []
-    menuList.forEach((items: any) => {
-        identifierList.push(items["identifier"])
-        if (items["children"].length) {
-            getMenuNodeIdentifier(items["children"]).forEach((item: any) => {
-                identifierList.push(item)
-            })
-        }
-    })
-    return identifierList
+  const identifierList: any = []
+  menuList.forEach((items: any) => {
+    identifierList.push(items["identifier"])
+    if (items["children"].length) {
+      getMenuNodeIdentifier(items["children"]).forEach((item: any) => {
+        identifierList.push(item)
+      })
+    }
+  })
+  return identifierList
 }
 
 // 全选/全不选事件
 function checkedKeys(value: any) {
-    if (value) {
-        treeRef.value!.setCheckedKeys(getMenuNodeIdentifier(menuList.value))
-    } else {
-        treeRef.value!.setCheckedKeys([])
-    }
+  if (value) {
+    treeRef.value!.setCheckedKeys(getMenuNodeIdentifier(menuList.value))
+  } else {
+    treeRef.value!.setCheckedKeys([])
+  }
 }
 </script>
 
 <template>
-  <el-form ref="requestFormRef" :model="requestForm" inline>
-    <el-form-item label="角色名称">
-      <el-input v-model="requestForm.name" placeholder="输入角色名称进行查询" clearable />
-    </el-form-item>
-    <el-form-item label="标识符">
-      <el-input v-model="requestForm.identifier" placeholder="输入标识符进行查询" clearable />
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" :icon="Search" @click="queryRoleList">查询</el-button>
-    </el-form-item>
-    <el-form-item>
-      <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" :icon="Plus" plain @click="newButton">新增</el-button>
-    </el-form-item>
-    <el-dialog
-        :title="title"
-        :model-value="dialogVisible"
-        width="50%"
-        @open="getPermissionsList"
-        @close="closeDialog"
-    >
+  <el-card>
+    <el-form ref="requestFormRef" :model="requestForm" inline>
+      <el-form-item>
+        <el-input v-model="requestForm.name" placeholder="输入角色名称进行查询" clearable />
+      </el-form-item>
+      <el-form-item>
+        <el-input v-model="requestForm.identifier" placeholder="输入标识符进行查询" clearable />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" :icon="Search" @click="queryRoleList">查询</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" :icon="Plus" plain @click="newButton">新增</el-button>
+      </el-form-item>
+    </el-form>
+    <el-dialog :title="title" :model-value="dialogVisible" width="50%" @open="getPermissionsList" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" inline label-width="80px" hide-required-asterisk>
         <el-form-item label="角色名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入角色名称" clearable />
@@ -220,27 +214,27 @@ function checkedKeys(value: any) {
             <el-checkbox v-model="strictly">父子联动</el-checkbox>
 
             <el-tree
-                :key="expand"
-                ref="treeRef"
-                style="border-style: solid; border-color: #DCDFE6; border-width: 1px"
-                :data="menuList"
-                show-checkbox
-                node-key="identifier"
-                :render-after-expand="false"
-                :props="defaultProps"
-                :default-expand-all="expand"
-                :check-strictly="!strictly"
-                :default-checked-keys="addForm.permissionsApi"
-                @check-change="handleCheckChange"
+              :key="expand"
+              ref="treeRef"
+              style="border-style: solid; border-color: #dcdfe6; border-width: 1px"
+              :data="menuList"
+              show-checkbox
+              node-key="identifier"
+              :render-after-expand="false"
+              :props="defaultProps"
+              :default-expand-all="expand"
+              :check-strictly="!strictly"
+              :default-checked-keys="addForm.permissionsApi"
+              @check-change="handleCheckChange"
             />
           </div>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editRoleInfo">确 定</el-button>
-      </span>
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editRoleInfo">确 定</el-button>
+        </span>
       </template>
     </el-dialog>
     <el-table v-loading="roleLoading" :data="roleList" style="width: 100%" header-row-class-name="table-header-style">
@@ -256,20 +250,15 @@ function checkedKeys(value: any) {
       </el-table-column>
     </el-table>
     <el-pagination
-        class="pagination-container"
-        :current-page="requestForm.page"
-        :page-size="requestForm.pageSize"
-        background
-        layout="total, prev, pager, next, jumper"
-        :total="requestForm.total"
-        @current-change="handleCurrentChange"
+      class="pagination-container"
+      :current-page="requestForm.page"
+      :page-size="requestForm.pageSize"
+      background
+      layout="total, prev, pager, next, jumper"
+      :total="requestForm.total"
+      @current-change="handleCurrentChange"
     />
-  </el-form>
+  </el-card>
 </template>
 
-<style scoped lang="scss">
-:deep(.table-header-style th) {
-  background-color: #e4e7ed;
-  color: #303133;
-}
-</style>
+<style scoped lang="scss"></style>

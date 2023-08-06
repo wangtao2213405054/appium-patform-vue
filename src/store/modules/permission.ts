@@ -4,6 +4,7 @@ import { defineStore } from "pinia"
 import { type RouteRecordRaw } from "vue-router"
 import { constantRoutes, asyncRoutes } from "@/router"
 import asyncRouteSettings from "@/config/async-route"
+import { filterRouter } from "@/utils/filter-router"
 
 const hasPermission = (roles: string[], route: RouteRecordRaw) => {
   const routeRoles = route.meta?.roles
@@ -27,14 +28,20 @@ const filterAsyncRoutes = (routes: RouteRecordRaw[], roles: string[]) => {
 export const usePermissionStore = defineStore("permission", () => {
   const routes = ref<RouteRecordRaw[]>([])
   const dynamicRoutes = ref<RouteRecordRaw[]>([])
+  const verifyRoutes = ref<string[]>([])
 
   const setRoutes = (roles: string[]) => {
-    const accessedRoutes = asyncRouteSettings.open ? filterAsyncRoutes(asyncRoutes, roles) : asyncRoutes
+    let accessedRoutes
+    if (roles.includes("admin")) {
+      accessedRoutes = asyncRoutes || []
+    } else {
+      accessedRoutes = asyncRouteSettings.open ? filterAsyncRoutes(asyncRoutes, roles) : asyncRoutes
+    }
     routes.value = constantRoutes.concat(accessedRoutes)
     dynamicRoutes.value = accessedRoutes
+    verifyRoutes.value = filterRouter(routes.value) // 将项目页面的数据过滤出来
   }
-
-  return { routes, dynamicRoutes, setRoutes }
+  return { routes, dynamicRoutes, setRoutes, verifyRoutes }
 })
 
 /** 在 setup 外使用 */

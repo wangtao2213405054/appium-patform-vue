@@ -40,15 +40,11 @@ function createService() {
         return Promise.reject(new Error(msg || "Error"))
       } else if (code === 4001 || code === 4002) {
         // 当 code 为 4001 or 4002 时退出登陆
-        ElMessageBox.confirm(
-          '您已登出，您可以取消停留在此页面，或重新登录',
-          '登陆失效',
-          {
-            confirmButtonText: '重新登陆',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        ).then(() => {
+        ElMessageBox.confirm("您已登出，您可以取消停留在此页面，或重新登录", "登陆失效", {
+          confirmButtonText: "重新登陆",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(() => {
           return logout()
         })
       } else {
@@ -110,8 +106,7 @@ function createRequest(service: AxiosInstance) {
     const defaultConfig = {
       headers: {
         // 携带 Token
-        token: token,
-        "Content-Type": "application/json"
+        token: token
       },
       timeout: 5000,
       baseURL: import.meta.env.VITE_BASE_API,

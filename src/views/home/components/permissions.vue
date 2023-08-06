@@ -6,7 +6,7 @@ import {
   GetPermissionsMenuRequestData,
   PermissionsMenuInfoResponseData
 } from "@/api/permissions/types/menu"
-import { ElButton, ElMessage, ElMessageBox, FormInstance, ElInput } from "element-plus"
+import { ElButton, ElMessage, ElMessageBox, FormInstance, ElInput, ElDialog } from "element-plus"
 import { Search, Refresh, Plus, Sort, Edit, Delete } from "@element-plus/icons-vue"
 
 const menuList = ref<PermissionsMenuInfoResponseData[]>([])
@@ -133,7 +133,7 @@ function hiddenTable() {
 </script>
 
 <template>
-  <div>
+  <el-card>
     <el-dialog :title="title" :model-value="dialogVisible" width="50%" @close="closeDialog">
       <el-form ref="addFormRef" inline :model="addForm" :rules="addFormRules" hide-required-asterisk label-width="86px">
         <el-form-item label="菜单名称" prop="name">
@@ -163,7 +163,7 @@ function hiddenTable() {
       </template>
     </el-dialog>
     <el-form :model="requestForm" inline>
-      <el-form-item label="节点名称">
+      <el-form-item>
         <el-input
           v-model="requestForm.name"
           placeholder="输入节点名称进行过滤"
@@ -171,7 +171,7 @@ function hiddenTable() {
           @keyup.enter="getPermissionsList"
         />
       </el-form-item>
-      <el-form-item label="标识符">
+      <el-form-item>
         <el-input
           v-model="requestForm.identifier"
           placeholder="输入标识符进行过滤"
@@ -219,12 +219,7 @@ function hiddenTable() {
         </template>
       </el-table-column>
     </el-table>
-  </div>
+  </el-card>
 </template>
 
-<style scoped lang="scss">
-:deep(.table-header-style th) {
-  background-color: #e4e7ed;
-  color: #303133;
-}
-</style>
+<style scoped lang="scss"></style>

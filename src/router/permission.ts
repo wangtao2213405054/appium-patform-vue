@@ -21,6 +21,13 @@ router.beforeEach(async (to, _from, next) => {
       next({ path: "/" })
       NProgress.done()
     } else {
+      // 如果当前路由在项目页面中并且本地数据被清空, 则返回到首页
+      if (permissionStore.verifyRoutes.includes(to.path) && !localStorage.getItem("projectId")) {
+        ElMessage.warning("本地存储空间数据不存在, 已返回至首页")
+        next({ path: "/" })
+        NProgress.done()
+        return
+      }
       // 检查用户是否已获得其权限角色
       if (userStore.roles.length === 0) {
         try {

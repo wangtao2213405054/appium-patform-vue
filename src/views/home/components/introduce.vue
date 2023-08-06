@@ -99,7 +99,7 @@
 }
 
 .text-muted {
-  color: #777;
+  color: var(--el-text-color-secondary);
 }
 
 .user-profile {
@@ -132,7 +132,7 @@
 
 .user-bio {
   margin-top: 20px;
-  color: #606266;
+  color: var(--el-text-color-primary);
 
   span {
     padding-left: 4px;
