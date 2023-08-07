@@ -193,14 +193,7 @@ function hiddenTable() {
         <el-button type="info" plain :icon="Sort" @click="hiddenTable">展开/折叠</el-button>
       </el-form-item>
     </el-form>
-    <el-table
-      v-if="refreshTable"
-      :data="menuList"
-      style="width: 100%"
-      row-key="id"
-      :default-expand-all="hiddenArea"
-      header-row-class-name="table-header-style"
-    >
+    <el-table v-if="refreshTable" :data="menuList" style="width: 100%" row-key="id" :default-expand-all="hiddenArea">
       <el-table-column type="index" label="编号" width="80px" align="center" />
       <el-table-column prop="name" label="名称" show-overflow-tooltip />
       <el-table-column prop="identifier" label="标识符" align="center" show-overflow-tooltip />

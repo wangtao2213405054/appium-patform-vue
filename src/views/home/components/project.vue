@@ -120,6 +120,8 @@ function editProjectInfoData() {
 // 重置请求信息
 function refreshRequest() {
   requestForm.name = ""
+  requestForm.page = 1
+  requestForm.pageSize = 20
   getProjectListData()
 }
 

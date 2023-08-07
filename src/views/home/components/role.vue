@@ -139,6 +139,8 @@ function closeDialog() {
 function refreshRequest() {
   requestForm.name = ""
   requestForm.identifier = ""
+  requestForm.page = 1
+  requestForm.pageSize = 20
   queryRoleList()
 }
 

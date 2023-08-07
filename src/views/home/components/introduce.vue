@@ -3,7 +3,7 @@ import svgIcon from "@/components/SvgIcon/index.vue"
 </script>
 
 <template>
-  <el-card>
+  <el-card class="box">
     <template #header>
       <div style="height: 13px">
         <span><b>平台介绍</b></span>
@@ -56,24 +56,20 @@ import svgIcon from "@/components/SvgIcon/index.vue"
         <div class="user-bio-section-header"><svg-icon name="skill" /><span>技能</span></div>
         <div class="user-bio-section-body">
           <div class="progress-item">
+            <span>Python</span>
+            <el-progress :percentage="50" />
+          </div>
+          <div class="progress-item">
             <span>Vue</span>
-            <el-progress :percentage="70" />
+            <el-progress :percentage="30" />
           </div>
           <div class="progress-item">
             <span>TypeScript</span>
-            <el-progress :percentage="18" />
+            <el-progress :percentage="15" />
           </div>
           <div class="progress-item">
             <span>Scss</span>
-            <el-progress :percentage="12" />
-          </div>
-          <div class="progress-item">
-            <span>Flask</span>
-            <el-progress :percentage="70" />
-          </div>
-          <div class="progress-item">
-            <span>Python</span>
-            <el-progress :percentage="100" status="success" />
+            <el-progress :percentage="5" />
           </div>
         </div>
       </div>
@@ -82,6 +78,14 @@ import svgIcon from "@/components/SvgIcon/index.vue"
 </template>
 
 <style scoped lang="scss">
+.box {
+  border: 1px solid var(--el-card-border-color);
+  border-radius: 0;
+  border-top: none;
+  :deep(.el-card__header) {
+    border: 0;
+  }
+}
 .box-center {
   margin: 0 auto;
   display: table;

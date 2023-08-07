@@ -1,11 +1,10 @@
 // socket.ts 全局方法实现
-import { io, Socket } from 'socket.io-client'
+import { io, Socket } from "socket.io-client"
 import { getToken } from "@/utils/cache/cookies"
 import { ElMessage, ElNotification } from "element-plus"
 import { apiGetSocketDomainInfo } from "@/api/conf"
 
 export async function initSocket(app: any) {
-
   const token = getToken()
   if (!token) {
     setTimeout(() => {
@@ -32,24 +31,24 @@ export async function initSocket(app: any) {
   app.provide("socket", socket)
 
   // 普通消息
-  socket.on('message', (data) => {
+  socket.on("message", (data) => {
     const { message, type, duration } = data
     ElMessage({
       message: message,
-      type: type || 'info',
+      type: type || "info",
       duration: duration || 2 * 1000
     })
   })
 
   // 通知框
-  socket.on('notify', (data) => {
+  socket.on("notify", (data) => {
     const { title, message, type, duration, position, dangerouslyUseHTMLString, offset, showClose } = data
     ElNotification({
       message: message,
       title: title,
       type: type || null,
       duration: duration || 2 * 1000,
-      position: position || 'top-right',
+      position: position || "top-right",
       dangerouslyUseHTMLString: dangerouslyUseHTMLString || false,
       offset: offset || 0,
       showClose: showClose || true
@@ -57,12 +56,12 @@ export async function initSocket(app: any) {
   })
 
   // 连接事件
-  socket.on('connect', () => {
-    console.log('socket连接成功')
+  socket.on("connect", () => {
+    console.log("socket连接成功")
   })
   // 断开事件
-  socket.on('disconnect', () => {
-    console.log('socket断开连接')
+  socket.on("disconnect", () => {
+    console.log("socket断开连接")
   })
 }
 

@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { EditMockDomainRequestData, GetMockDomainRequestData, MockDomainInfoResponseData } from "@/api/mock/types/domain"
+import {
+  EditMockDomainRequestData,
+  GetMockDomainRequestData,
+  MockDomainInfoResponseData
+} from "@/api/mock/types/domain"
 import { ref, reactive, onMounted } from "vue"
 import { ElDialog, ElMessage, ElMessageBox, FormInstance, FormRules } from "element-plus"
 import { apiDeleteMockDomainInfo, apiEditMockDomainInfo, apiGetMockDomainList } from "@/api/mock"
@@ -28,15 +32,15 @@ const addForm: EditMockDomainRequestData = reactive({
 })
 const addFormRules: FormRules = {
   name: [
-    { required: true, message: '请输入域名备注', trigger: 'blur' },
-    { min: 2, max: 32, message: '长度在 2 到 32 个字符', trigger: 'blur' }
+    { required: true, message: "请输入域名备注", trigger: "blur" },
+    { min: 2, max: 32, message: "长度在 2 到 32 个字符", trigger: "blur" }
   ],
-  protocol: [{ required: true, message: '请选择通讯协议', trigger: 'blur' }],
+  protocol: [{ required: true, message: "请选择通讯协议", trigger: "blur" }],
   domain: [
-    { required: true, message: '请输入域名信息', trigger: 'blur' },
-    { min: 2, max: 32, message: '长度在 2 到 256 个字符', trigger: 'blur' }
+    { required: true, message: "请输入域名信息", trigger: "blur" },
+    { min: 2, max: 32, message: "长度在 2 到 256 个字符", trigger: "blur" }
   ],
-  port: [{ required: true, message: '请选择协议端口', trigger: 'blur' }]
+  port: [{ required: true, message: "请选择协议端口", trigger: "blur" }]
 }
 const protocolList = ref([
   { label: "HTTPS", key: "https" },
@@ -59,14 +63,16 @@ const queryDomainList = () => {
 // 重置
 const refreshRequest = () => {
   requestForm.name = ""
-  requestForm.protocol = null
-  requestForm.domain = null
+  requestForm.protocol = ""
+  requestForm.domain = ""
+  requestForm.page = 1
+  requestForm.pageSize = 20
   queryDomainList()
 }
 
 // 添加域名
 const openDialog = () => {
-  title.value = '添加域名'
+  title.value = "添加域名"
   dialogVisible.value = true
 }
 
@@ -125,7 +131,7 @@ const deleteDomainInfo = async (id: number) => {
 
 // 编辑域名
 const updateDomain = (value: MockDomainInfoResponseData) => {
-  title.value = '编辑域名'
+  title.value = "编辑域名"
   addForm.name = value.name
   addForm.protocol = value.protocol
   addForm.port = value.port
@@ -166,7 +172,7 @@ const getDomainList = async () => {
         </el-form-item>
       </el-form>
       <template #footer>
-        <span slot="footer" class="dialog-footer">
+        <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="submitForm">确 定</el-button>
         </span>
@@ -194,8 +200,8 @@ const getDomainList = async () => {
         <el-button :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
-    <el-table header-row-class-name="table-header-style" :data="domainList" stripe style="width: 100%">
-      <el-table-column type="index" label="编号" width="60" align="center" />
+    <el-table :data="domainList" stripe style="width: 100%">
+      <el-table-column type="index" label="编号" width="60px" align="center" />
       <el-table-column prop="name" label="域名备注" width="200px" />
       <el-table-column prop="protocol" label="通讯协议" width="120px" align="center">
         <template v-slot="scope">
@@ -215,16 +221,14 @@ const getDomainList = async () => {
       </el-table-column>
     </el-table>
     <el-pagination
-        class="pagination-container"
-        background
-        :page-size="requestForm.pageSize"
-        layout="total, prev, pager, next"
-        :total="requestForm.total"
-        @current-change="handleCurrentChange"
+      class="pagination-container"
+      background
+      :page-size="requestForm.pageSize"
+      layout="total, prev, pager, next"
+      :total="requestForm.total"
+      @current-change="handleCurrentChange"
     />
   </el-card>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

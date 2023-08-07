@@ -55,7 +55,7 @@ onMounted(async () => {
 // 获取项目列表
 const getProjectList = async (value: boolean) => {
   if (value) {
-    const { items } = (await apiGetProjectList({name: "", total: 0, page: 1, pageSize: 99999 })).data
+    const { items } = (await apiGetProjectList({ name: "", total: 0, page: 1, pageSize: 99999 })).data
     projectList.value = items
   }
 }

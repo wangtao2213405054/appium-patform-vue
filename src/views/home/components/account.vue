@@ -56,10 +56,10 @@ const addForm = reactive<EditAccountUserRequestData>({
 })
 
 const requestForm = reactive<GetAccountUserRequestData>({
-  id: null,
-  name: null,
+  id: 0,
+  name: "",
   state: null,
-  mobile: null,
+  mobile: "",
   page: 1,
   pageSize: 10,
   total: 0
@@ -365,7 +365,6 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
       v-loading="tableLoading"
       :data="userList"
       style="width: 100%"
-      header-row-class-name="table-header-style"
       size="small"
       @selection-change="handleSelectionChange"
     >

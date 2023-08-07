@@ -1,21 +1,12 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue"
-import introduce from "./components/introduce.vue"
+import Introduce from "./components/introduce.vue"
 import { AppMain, RightMenu } from "@/layouts/components"
-import { useAppStore } from "@/store/modules/app"
 import SidebarItem from "@/layouts/components/Sidebar/SidebarItem.vue"
 import { useRoute } from "vue-router"
 import { usePermissionStore } from "@/store/modules/permission"
 
 const showSidebar = ref<boolean>(false)
-const appStore = useAppStore()
-
-/** 定义计算属性 layoutClasses，用于控制布局的类名 */
-const layoutClasses = computed(() => {
-  return {
-    hideSidebar: !appStore.sidebar.opened
-  }
-})
 
 const route = useRoute()
 const activeMenu = computed(() => {
@@ -31,36 +22,34 @@ const routesHomeStore = permissionStore.routes.filter((route) => route.meta?.hom
 </script>
 
 <template>
-  <el-container class="home-page">
-    <el-aside style="width: 350px">
-      <introduce />
-    </el-aside>
-    <el-container>
-      <el-header :class="layoutClasses" class="app-wrapper">
-        <div class="navigation-bar">
-          <el-menu
-            class="sidebar layout-header"
-            :default-active="activeMenu"
-            :unique-opened="true"
-            :collapse-transition="false"
-            mode="horizontal"
-          >
-            <SidebarItem
-              v-for="route in routesHomeStore"
-              :key="route.path"
-              :item="route"
-              :base-path="route.path"
-              :home="true"
-            />
-          </el-menu>
-          <RightMenu class="layout-header" v-model:showSidebar="showSidebar" />
-        </div>
-      </el-header>
-      <el-main>
-        <AppMain class="app-main" />
-      </el-main>
-    </el-container>
-  </el-container>
+  <div class="app-wrapper">
+    <!-- 左侧内容描述 -->
+    <Introduce class="sidebar-container" />
+    <!-- 主容器 -->
+    <div class="main-container">
+      <!-- 头部导航栏和标签栏 -->
+      <div class="fixed-header layout-header navigation-bar">
+        <el-menu
+          class="sidebar layout-header"
+          :default-active="activeMenu"
+          :unique-opened="true"
+          :collapse-transition="false"
+          mode="horizontal"
+        >
+          <SidebarItem
+            v-for="route in routesHomeStore"
+            :key="route.path"
+            :item="route"
+            :base-path="route.path"
+            :home="true"
+          />
+        </el-menu>
+        <RightMenu class="layout-header" v-model:showSidebar="showSidebar" />
+      </div>
+      <!-- 页面主体内容 -->
+      <AppMain class="app-main" />
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -69,18 +58,10 @@ $transition-time: 0.35s;
 
 .app-wrapper {
   @include clearfix;
+  position: relative;
   width: 100%;
 }
-.home-page {
-  padding: 0;
-}
-.el-header {
-  --el-header-padding: 0;
-  --el-header-height: 50px;
-}
-.el-main {
-  --el-main-padding: 6px;
-}
+
 .navigation-bar {
   overflow: hidden;
   display: flex;
@@ -88,22 +69,55 @@ $transition-time: 0.35s;
   height: var(--v3-navigationbar-height);
 
   .sidebar {
+    border: none;
     flex: 1;
     // 设置 min-width 是为了让 Sidebar 里的 el-menu 宽度自适应
     min-width: 0;
   }
 }
+
+.sidebar-container {
+  transition: width $transition-time;
+  width: var(--v3-introduce-width) !important;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1001;
+  overflow: hidden;
+}
+
+.main-container {
+  min-height: 100%;
+  transition: margin-left $transition-time;
+  margin-left: var(--v3-introduce-width);
+  position: relative;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9;
+  width: calc(100% - var(--v3-introduce-width));
+  transition: width $transition-time;
+}
+
 .layout-header {
   background-color: var(--v3-header-bg-color);
 }
-.el-menu {
-  border: none;
-  min-height: 100%;
-  width: 100% !important;
-}
+
 .app-main {
-  transition: padding-left $transition-time;
+  min-height: calc(100vh - var(--v3-navigationbar-height));
+  position: relative;
+  overflow: hidden;
   padding: 10px;
+}
+
+.fixed-header + .app-main {
+  padding-top: calc(var(--v3-navigationbar-height) + 10px);
+  padding-bottom: 0;
   height: 100vh;
   overflow: auto;
 }

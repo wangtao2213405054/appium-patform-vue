@@ -21,7 +21,7 @@ const loginFormData: LoginRequestData = reactive({
   password: "123456"
 })
 
-const validateUsername = (rule: any, value: any, callback: any) => {
+const validateUsername = (_: any, value: any, callback: any) => {
   const re = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/
   if (!re.test(value)) {
     callback(new Error("请输入正确的邮箱"))
