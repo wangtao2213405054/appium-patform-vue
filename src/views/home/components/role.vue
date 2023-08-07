@@ -147,7 +147,8 @@ async function deleteRoleInfo(id: number) {
   const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该角色, 是否继续?", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
-    type: "warning"
+    type: "warning",
+    lockScroll: false
   }).catch((err) => err)
   if (clickConfirmResult !== "confirm") {
     return ElMessage.info("取消删除")

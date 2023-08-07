@@ -43,7 +43,8 @@ function createService() {
         ElMessageBox.confirm("您已登出，您可以取消停留在此页面，或重新登录", "登陆失效", {
           confirmButtonText: "重新登陆",
           cancelButtonText: "取消",
-          type: "warning"
+          type: "warning",
+          lockScroll: false
         }).then(() => {
           return logout()
         })

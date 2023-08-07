@@ -75,6 +75,7 @@ const newClassification = (nodeId: number | null) => {
 const closeClassification = () => {
   addForm.nodeId = null
   addForm.name = ""
+  addForm.id = null
   addFormRef.value?.clearValidate()
 }
 

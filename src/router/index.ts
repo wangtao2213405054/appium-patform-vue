@@ -1,7 +1,8 @@
 import { type RouteRecordRaw, createRouter, createWebHashHistory, createWebHistory } from "vue-router"
+import { permission, account, timeline, project } from "./homes"
+import { mock } from "./details"
 
 const Layouts = () => import("@/layouts/index.vue")
-const Homes = () => import("@/views/home/index.vue")
 
 /** 常驻路由 */
 export const constantRoutes: RouteRecordRaw[] = [
@@ -40,51 +41,8 @@ export const constantRoutes: RouteRecordRaw[] = [
       hidden: true
     }
   },
-  {
-    path: "/",
-    component: Homes,
-    name: "Home",
-    redirect: "/project",
-    meta: {
-      title: "项目列表",
-      svgIcon: "project",
-      home: true
-    },
-    children: [
-      {
-        path: "project",
-        component: () => import("@/views/home/components/project.vue"),
-        name: "Project",
-        meta: {
-          title: "项目列表",
-          svgIcon: "project",
-          home: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/timeline",
-    component: Homes,
-    name: "Timeline",
-    meta: {
-      title: "更新日志",
-      svgIcon: "github-fill",
-      home: true
-    },
-    children: [
-      {
-        path: "index",
-        component: () => import("@/views/home/components/timeline.vue"),
-        name: "TimelineLog",
-        meta: {
-          title: "更新日志",
-          svgIcon: "github-fill",
-          home: true
-        }
-      }
-    ]
-  },
+  project,
+  timeline,
   {
     path: "/dashboard",
     component: Layouts,
@@ -101,126 +59,6 @@ export const constantRoutes: RouteRecordRaw[] = [
         }
       }
     ]
-  },
-  {
-    path: "/unocss",
-    component: Layouts,
-    redirect: "/unocss/index",
-    children: [
-      {
-        path: "index",
-        component: () => import("@/views/unocss/index.vue"),
-        name: "UnoCSS",
-        meta: {
-          title: "unocss",
-          svgIcon: "unocss"
-        }
-      }
-    ]
-  },
-  {
-    path: "/table",
-    component: Layouts,
-    redirect: "/table/element-plus",
-    name: "Table",
-    meta: {
-      title: "表格",
-      elIcon: "Grid"
-    },
-    children: [
-      {
-        path: "element-plus",
-        component: () => import("@/views/table/element-plus/index.vue"),
-        name: "ElementPlus",
-        meta: {
-          title: "Element Plus",
-          keepAlive: true
-        }
-      },
-      {
-        path: "vxe-table",
-        component: () => import("@/views/table/vxe-table/index.vue"),
-        name: "VxeTable",
-        meta: {
-          title: "Vxe Table",
-          keepAlive: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/menu",
-    component: Layouts,
-    redirect: "/menu/menu1",
-    name: "Menu",
-    meta: {
-      title: "多级菜单",
-      svgIcon: "menu"
-    },
-    children: [
-      {
-        path: "menu1",
-        component: () => import("@/views/menu/menu1/index.vue"),
-        redirect: "/menu/menu1/menu1-1",
-        name: "Menu1",
-        meta: {
-          title: "menu1"
-        },
-        children: [
-          {
-            path: "menu1-1",
-            component: () => import("@/views/menu/menu1/menu1-1/index.vue"),
-            name: "Menu1-1",
-            meta: {
-              title: "menu1-1"
-            }
-          },
-          {
-            path: "menu1-2",
-            component: () => import("@/views/menu/menu1/menu1-2/index.vue"),
-            redirect: "/menu/menu1/menu1-2/menu1-2-1",
-            name: "Menu1-2",
-            meta: {
-              title: "menu1-2"
-            },
-            children: [
-              {
-                path: "menu1-2-1",
-                component: () => import("@/views/menu/menu1/menu1-2/menu1-2-1/index.vue"),
-                name: "Menu1-2-1",
-                meta: {
-                  title: "menu1-2-1"
-                }
-              },
-              {
-                path: "menu1-2-2",
-                component: () => import("@/views/menu/menu1/menu1-2/menu1-2-2/index.vue"),
-                name: "Menu1-2-2",
-                meta: {
-                  title: "menu1-2-2"
-                }
-              }
-            ]
-          },
-          {
-            path: "menu1-3",
-            component: () => import("@/views/menu/menu1/menu1-3/index.vue"),
-            name: "Menu1-3",
-            meta: {
-              title: "menu1-3"
-            }
-          }
-        ]
-      },
-      {
-        path: "menu2",
-        component: () => import("@/views/menu/menu2/index.vue"),
-        name: "Menu2",
-        meta: {
-          title: "menu2"
-        }
-      }
-    ]
   }
 ]
 
@@ -230,67 +68,9 @@ export const constantRoutes: RouteRecordRaw[] = [
  * 必须带有 Name 属性
  */
 export const asyncRoutes: RouteRecordRaw[] = [
-  {
-    path: "/account",
-    component: Homes,
-    redirect: "/Account/team",
-    name: "Account",
-    meta: {
-      title: "用户管理",
-      svgIcon: "team",
-      roles: ["Account"], // 可以在根路由中设置角色
-      home: true
-    },
-    children: [
-      {
-        path: "team",
-        component: () => import("@/views/home/components/organization.vue"),
-        name: "AccountTeam",
-        meta: {
-          title: "用户管理",
-          roles: ["AccountTeam"],
-          home: true,
-          svgIcon: "team"
-        }
-      }
-    ]
-  },
-  {
-    path: "/permission",
-    component: Homes,
-    redirect: "/permission/role",
-    name: "Permission",
-    meta: {
-      title: "权限管理",
-      svgIcon: "lock",
-      roles: ["Permission"], // 可以在根路由中设置角色
-      home: true
-    },
-    children: [
-      {
-        path: "role",
-        component: () => import("@/views/home/components/role.vue"),
-        name: "PermissionRole",
-        meta: {
-          title: "角色管理",
-          roles: ["PermissionRole"],
-          home: true,
-          svgIcon: "user"
-        }
-      },
-      {
-        path: "menu",
-        component: () => import("@/views/home/components/permissions.vue"),
-        name: "PermissionMenu",
-        meta: {
-          title: "菜单管理",
-          roles: ["PermissionMenu"],
-          home: true,
-          svgIcon: "menu"
-        }
-      }
-    ]
-  },
+  account,
+  permission,
+  mock,
   {
     path: "/:pathMatch(.*)*", // Must put the 'ErrorPage' route at the end, 必须将 'ErrorPage' 路由放在最后
     redirect: "/404",

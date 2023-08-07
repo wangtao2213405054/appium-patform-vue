@@ -11,14 +11,14 @@ export interface GetAccountUserRequestData {
 
 // 编辑用户请求结构体
 export interface EditAccountUserRequestData {
-  avatarUrl: null
+  avatarUrl: string
   department: number[]
   email: string
   id: number | null
   mobile: string
   name: string
   password: string
-  role: number | null
+  role: number
   state: boolean
 }
 

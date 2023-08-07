@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import svgIcon from "@/components/SvgIcon/index.vue"
+</script>
 
 <template>
   <el-card>

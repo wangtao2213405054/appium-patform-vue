@@ -29,6 +29,7 @@ import { apiGetPermissionsRoleList } from "@/api/permissions"
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
 import { AccountClassificationInfoResponseData } from "@/api/account/types/classification"
 import upload from "./upload.vue"
+import { GetPermissionsRoleRequestData } from "@/api/permissions/types/role"
 
 const updateDisabled = ref<boolean>(true)
 const deleteDisabled = ref<boolean>(true)
@@ -44,13 +45,13 @@ const userList = ref<AccountUserInfoResponseData[]>([])
 
 const addForm = reactive<EditAccountUserRequestData>({
   id: null,
-  name: null,
-  email: null,
-  mobile: null,
-  password: null,
+  name: "",
+  email: "",
+  mobile: "",
+  password: "",
   state: true,
   department: [],
-  role: null,
+  role: 0,
   avatarUrl: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
 })
 
@@ -92,7 +93,7 @@ const addFormRules: FormRules = {
 }
 
 interface Props {
-  classificationTree: AccountClassificationInfoResponseData
+  classificationTree: AccountClassificationInfoResponseData[]
   queryId: number
 }
 
@@ -146,7 +147,7 @@ const getRoleList = async () => {
     page: 1,
     pageSize: 9999
   }
-  const { items } = (await apiGetPermissionsRoleList(getRoleRequestForm)).data
+  const { items } = (await apiGetPermissionsRoleList(<GetPermissionsRoleRequestData>getRoleRequestForm)).data
   roleList.value = items
 }
 
@@ -195,7 +196,7 @@ const closeResetFields = () => {
   addForm.password = ""
   addForm.state = true
   addForm.department = []
-  addForm.role = null
+  addForm.role = 0
   addForm.avatarUrl = ""
   addFormRef.value?.clearValidate()
 }
@@ -204,7 +205,8 @@ const deleteManagementInfo = async (userList: number[]) => {
   const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该用户, 是否继续?", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
-    type: "warning"
+    type: "warning",
+    lockScroll: false
   }).catch((err) => err)
 
   if (clickConfirmResult !== "confirm") {

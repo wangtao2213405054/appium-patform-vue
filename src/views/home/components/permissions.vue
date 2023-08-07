@@ -92,7 +92,8 @@ async function deletePermissionsInfo(id: number) {
   const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该数据, 是否继续?", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
-    type: "warning"
+    type: "warning",
+    lockScroll: false
   }).catch((err: any) => err)
 
   if (clickConfirmResult !== "confirm") {

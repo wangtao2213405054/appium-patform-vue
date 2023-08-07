@@ -35,12 +35,12 @@ const props = defineProps({
 })
 
 const projectList = ref<ProjectInfoResponseData[]>([])
-const projectId = ref<number>(JSON.parse(localStorage.getItem("projectId")))
+const projectId = ref<number>(JSON.parse(localStorage.getItem("projectId") || "0"))
 
 // id 变化后刷新页面
 watch(projectId, (newId: number) => {
   if (!newId || !props.showSidebar) return
-  localStorage.setItem("projectId", newId)
+  localStorage.setItem("projectId", String(newId))
   const { mold } = projectList.value.find((item) => {
     return item.id === newId
   })
@@ -55,7 +55,7 @@ onMounted(async () => {
 // 获取项目列表
 const getProjectList = async (value: boolean) => {
   if (value) {
-    const { items } = (await apiGetProjectList({ page: 1, pageSize: 99999 })).data
+    const { items } = (await apiGetProjectList({name: "", total: 0, page: 1, pageSize: 99999 })).data
     projectList.value = items
   }
 }

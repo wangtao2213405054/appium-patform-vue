@@ -67,7 +67,8 @@ const handleDelete = (row: GetTableData) => {
   ElMessageBox.confirm(`正在删除用户：${row.username}，确认删除？`, "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
-    type: "warning"
+    type: "warning",
+    lockScroll: false
   }).then(() => {
     deleteTableDataApi(row.id).then(() => {
       ElMessage.success("删除成功")

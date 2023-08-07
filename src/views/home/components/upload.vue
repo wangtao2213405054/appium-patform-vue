@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { Plus, ZoomIn, Delete } from "@element-plus/icons-vue"
-import { ElDialog } from "element-plus"
+import { ElDialog, UploadProps } from "element-plus"
 import { apiUploadImageFile } from "@/api/upload"
 import { ref, watch, onMounted } from "vue"
 
 interface Props {
   modelValue?: string
+}
+
+interface File {
+  url: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -33,7 +37,7 @@ const avatarUrl = ref<string>("")
 const uploadDisabled = ref(false)
 const dialogVisible = ref(false)
 const dialogImageUrl = ref("")
-const fileList = ref<string[]>([])
+const fileList = ref<File[]>([])
 const avatarPrefix = "?imageView2/1/w/480/h/480"
 
 // 上传图片
@@ -41,8 +45,13 @@ async function uploadAvatarImage(file: any) {
   const files = new FormData()
   files.append("file", file.file)
   uploadDisabled.value = true
-  avatarUrl.value = (await apiUploadImageFile(files)).data.url
-  emit("update:modelValue", avatarUrl.value)
+  try {
+    avatarUrl.value = (await apiUploadImageFile(files)).data.url
+    emit("update:modelValue", avatarUrl.value)
+  } catch (error) {
+    uploadDisabled.value = false
+    fileList.value = []
+  }
 }
 
 // 删除活动展示照片
@@ -78,7 +87,7 @@ const handlePictureCardPreview: UploadProps["onPreview"] = (uploadFile) => {
           <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
             <el-icon><ZoomIn /></el-icon>
           </span>
-          <span class="el-upload-list__item-delete" @click="handleRemove(file)">
+          <span class="el-upload-list__item-delete" @click="handleRemove()">
             <el-icon><Delete /></el-icon>
           </span>
         </span>
