@@ -33,9 +33,6 @@ html.dark-blue {
   --el-bg-color-overlay: #031e47;
   /** mask */
   --el-mask-color: rgba(0, 0, 0, 0.5);
-
-  /** code-color */
-  --code-background-color: #343540;
 }
 
 /** button */

@@ -1,0 +1,5 @@
+html.normal {
+    /** code-color */
+    --codemirror-title-background-color: #f2f2f2;
+    --codemirror-border-color: #dcdfe6;
+}

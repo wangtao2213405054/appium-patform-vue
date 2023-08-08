@@ -30,6 +30,7 @@ import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
 import { AccountClassificationInfoResponseData } from "@/api/account/types/classification"
 import upload from "./upload.vue"
 import { GetPermissionsRoleRequestData } from "@/api/permissions/types/role"
+import {isEmail, isPhoneNumber} from "@/utils/validate"
 
 const updateDisabled = ref<boolean>(true)
 const deleteDisabled = ref<boolean>(true)
@@ -70,6 +71,22 @@ const stateList = ref([
   { key: false, value: "离职" }
 ])
 
+const validateMobile = (_: any, value: any, callback: any) => {
+  if (isPhoneNumber(value)) {
+    callback(new Error("请输入正确的手机号"))
+  } else {
+    callback()
+  }
+}
+
+const validateUsername = (_: any, value: any, callback: any) => {
+  if (isEmail(value)) {
+    callback(new Error("请输入正确的邮箱"))
+  } else {
+    callback()
+  }
+}
+
 const addFormRef = ref<FormInstance | null>(null)
 const addFormRules: FormRules = {
   name: [
@@ -78,11 +95,13 @@ const addFormRules: FormRules = {
   ],
   mobile: [
     { required: true, message: "请输入正确的手机号", trigger: "blur" },
-    { min: 11, max: 11, message: "长度在 11 个字符", trigger: "blur" }
+    { min: 11, max: 11, message: "长度在 11 个字符", trigger: "blur" },
+    { required: true, validator: validateMobile, trigger: "blur" }
   ],
   email: [
     { required: true, message: "请输入正确的邮箱", trigger: "blur" },
-    { min: 5, max: 60, message: "长度在 5 到 60 个字符", trigger: "blur" }
+    { min: 5, max: 60, message: "长度在 5 到 60 个字符", trigger: "blur" },
+    { required: true, validator: validateUsername, trigger: "blur" }
   ],
   password: [
     { required: true, message: "请输入正确的密码", trigger: "blur" },

@@ -81,7 +81,7 @@ export default (configEnv: ConfigEnv): UserConfigExport => {
     ],
     /** Vitest 单元测试配置：https://cn.vitest.dev/config */
     test: {
-      include: ["tests/**/*.test.ts"],
+      include: ["tests/**/*.dark.ts"],
       environment: "jsdom"
     }
   }

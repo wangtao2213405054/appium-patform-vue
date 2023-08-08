@@ -6,6 +6,7 @@ import { type FormInstance, FormRules } from "element-plus"
 import { User, Lock } from "@element-plus/icons-vue"
 import { type LoginRequestData } from "@/api/login/types/login"
 import ThemeSwitch from "@/components/ThemeSwitch/index.vue"
+import { isEmail } from "@/utils/validate"
 
 const router = useRouter()
 
@@ -22,8 +23,7 @@ const loginFormData: LoginRequestData = reactive({
 })
 
 const validateUsername = (_: any, value: any, callback: any) => {
-  const re = /^(\w-*\.*)+@(\w-?)+(\.\w{2,})+$/
-  if (!re.test(value)) {
+  if (isEmail(value)) {
     callback(new Error("请输入正确的邮箱"))
   } else {
     callback()

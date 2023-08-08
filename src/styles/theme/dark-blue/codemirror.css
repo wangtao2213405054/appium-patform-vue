@@ -1,0 +1,5 @@
+html.dark-blue {
+    /** code-color */
+    --codemirror-title-background-color: #21252b;
+    --codemirror-border-color: #4C4D4F;
+}
