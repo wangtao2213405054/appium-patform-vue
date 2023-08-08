@@ -184,7 +184,7 @@ onMounted(() => {
         <el-button :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
-    <el-table header-row-class-name="table-header-style" :data="apiList" stripe style="width: 100%">
+    <el-table header-row-class-name="table-header-style" :data="apiList" style="width: 100%">
       <el-table-column type="index" label="编号" width="60px" align="center" />
       <el-table-column prop="name" label="接口名称" width="200px" />
       <el-table-column prop="path" label="接口路径" />

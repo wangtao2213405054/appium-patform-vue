@@ -200,7 +200,7 @@ const getDomainList = async () => {
         <el-button :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="domainList" stripe style="width: 100%">
+    <el-table :data="domainList" style="width: 100%">
       <el-table-column type="index" label="编号" width="60px" align="center" />
       <el-table-column prop="name" label="域名备注" width="200px" />
       <el-table-column prop="protocol" label="通讯协议" width="120px" align="center">
