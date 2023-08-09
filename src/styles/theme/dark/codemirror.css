@@ -2,4 +2,5 @@ html.dark {
     /** code-color */
     --codemirror-title-background-color: #343540;
     --codemirror-border-color: #4C4D4F;
+    --background-image: url("@/assets/darkBackground.jpg");
 }

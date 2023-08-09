@@ -102,6 +102,10 @@ const handleLogin = () => {
 
 <style lang="scss" scoped>
 .login-container {
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -114,6 +118,7 @@ const handleLogin = () => {
     cursor: pointer;
   }
   .login-card {
+    opacity: 80%;
     width: 480px;
     border-radius: 20px;
     box-shadow: 0 0 10px #dcdfe6;
