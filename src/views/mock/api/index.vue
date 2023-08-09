@@ -158,7 +158,7 @@ onMounted(() => {
         <el-form-item label="返回结构" prop="body">
           <codemirror
             v-model="addForm.body"
-            height="150px"
+            height="30vh"
             language="json"
           />
         </el-form-item>
