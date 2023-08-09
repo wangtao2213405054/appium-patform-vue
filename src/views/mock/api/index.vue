@@ -4,6 +4,8 @@ import { EditMockApiRequestData, GetMockApiRequestData, MockApiInfoResponseData 
 import { ElDialog, ElMessage, ElMessageBox, FormInstance, FormRules } from "element-plus"
 import { apiDeleteMockApiInfo, apiEditMockApiInfo, apiGetMockApiList } from "@/api/mock"
 import { Edit, Delete, Plus, Search, Refresh } from "@element-plus/icons-vue"
+import Codemirror from "@/views/codemirror/index.vue"
+import { isJson } from "@/utils/validate"
 
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
 const title = ref<string>("添加接口")
@@ -14,12 +16,10 @@ const requestFormRef = ref<FormInstance | null>(null)
 
 // 校验 JSON
 const checkJson = (_: any, value: any, callback: any) => {
-  try {
-    if (JSON.parse(value.trim())) {
-      callback()
-    }
-  } catch (error) {
-    callback("请输入正确的JSON结构")
+  if (!isJson(value)) {
+    callback(new Error("请输入正确的Json"))
+  } else {
+    callback()
   }
 }
 
@@ -156,8 +156,11 @@ onMounted(() => {
           <el-input v-model="addForm.path" placeholder="请输入接口路径" clearable />
         </el-form-item>
         <el-form-item label="返回结构" prop="body">
-          <el-input v-model="addForm.body" />
-          <!-- <b-code-editor ref="editor" v-model="addForm.body" />-->
+          <codemirror
+            v-model="addForm.body"
+            height="150px"
+            language="json"
+          />
         </el-form-item>
       </el-form>
       <template #footer>

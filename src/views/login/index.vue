@@ -23,7 +23,7 @@ const loginFormData: LoginRequestData = reactive({
 })
 
 const validateUsername = (_: any, value: any, callback: any) => {
-  if (isEmail(value)) {
+  if (!isEmail(value)) {
     callback(new Error("请输入正确的邮箱"))
   } else {
     callback()

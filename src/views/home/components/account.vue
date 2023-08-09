@@ -30,7 +30,7 @@ import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
 import { AccountClassificationInfoResponseData } from "@/api/account/types/classification"
 import upload from "./upload.vue"
 import { GetPermissionsRoleRequestData } from "@/api/permissions/types/role"
-import {isEmail, isPhoneNumber} from "@/utils/validate"
+import { isEmail, isPhoneNumber } from "@/utils/validate"
 
 const updateDisabled = ref<boolean>(true)
 const deleteDisabled = ref<boolean>(true)
@@ -72,7 +72,7 @@ const stateList = ref([
 ])
 
 const validateMobile = (_: any, value: any, callback: any) => {
-  if (isPhoneNumber(value)) {
+  if (!isPhoneNumber(value)) {
     callback(new Error("请输入正确的手机号"))
   } else {
     callback()
@@ -80,7 +80,7 @@ const validateMobile = (_: any, value: any, callback: any) => {
 }
 
 const validateUsername = (_: any, value: any, callback: any) => {
-  if (isEmail(value)) {
+  if (!isEmail(value)) {
     callback(new Error("请输入正确的邮箱"))
   } else {
     callback()
