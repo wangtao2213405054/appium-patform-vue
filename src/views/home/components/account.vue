@@ -52,7 +52,7 @@ const addForm = reactive<EditAccountUserRequestData>({
   password: "",
   state: true,
   department: [],
-  role: 0,
+  role: null,
   avatarUrl: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
 })
 
@@ -215,7 +215,7 @@ const closeResetFields = () => {
   addForm.password = ""
   addForm.state = true
   addForm.department = []
-  addForm.role = 0
+  addForm.role = null
   addForm.avatarUrl = ""
   addFormRef.value?.clearValidate()
 }

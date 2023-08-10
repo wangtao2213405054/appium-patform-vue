@@ -18,7 +18,7 @@ export interface EditAccountUserRequestData {
   mobile: string
   name: string
   password: string
-  role: number
+  role: number | null
   state: boolean
 }
 

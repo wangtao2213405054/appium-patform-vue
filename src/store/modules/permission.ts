@@ -42,14 +42,12 @@ export const usePermissionStore = defineStore("permission", () => {
     routes.value = constantRoutes.concat(accessedRoutes)
     dynamicRoutes.value = accessedRoutes
     verifyRoutes.value = filterRouter(routes.value) // 将项目页面的数据过滤出来
-
     // 区分路由, 将首页路由和详情页路由区分出来
-    routes.value.forEach((route) => {
-      if (route.meta?.home === true) {
-        homeRoutes.value.push(route)
-      } else {
-        detailRoutes.value.push(route)
-      }
+    homeRoutes.value = routes.value.filter((route) => route.meta?.home === true)
+    detailRoutes.value = routes.value.filter((route) => {
+      const hasHomeField = route.meta && typeof route.meta.home !== "undefined"
+      const isHomeFalse = route.meta?.home === false
+      return !hasHomeField || isHomeFalse
     })
   }
   return { routes, dynamicRoutes, setRoutes, verifyRoutes, homeRoutes, detailRoutes }
