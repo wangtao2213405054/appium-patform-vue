@@ -41,5 +41,6 @@ body.content-large {
   --v3-navigationbar-height: 0px;
   /** Sidebar 组件 */
   --v3-sidebar-width: 0px;
+  --v3-introduce-width: 0px;
   --v3-sidebar-hide-width: 0px;
 }

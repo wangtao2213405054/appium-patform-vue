@@ -17,12 +17,6 @@ const v3SidebarMenuActiveTextColor = getCssVariableValue("--v3-sidebar-menu-acti
 const route = useRoute()
 const appStore = useAppStore()
 const permissionStore = usePermissionStore()
-// 添加了首页路由, 这里的方法会将首页的路由给过滤掉
-const routesStore = permissionStore.routes.filter((route) => {
-  const hasHomeField = route.meta && typeof route.meta.home !== "undefined"
-  const isHomeFalse = route.meta?.home === false
-  return !hasHomeField || isHomeFalse
-})
 const settingsStore = useSettingsStore()
 
 const { sidebar, device } = storeToRefs(appStore)
@@ -72,7 +66,7 @@ const tipLineWidth = computed(() => {
         :mode="isTop && !isMobile ? 'horizontal' : 'vertical'"
       >
         <SidebarItem
-          v-for="route in routesStore"
+          v-for="route in permissionStore.detailRoutes"
           :key="route.path"
           :item="route"
           :base-path="route.path"

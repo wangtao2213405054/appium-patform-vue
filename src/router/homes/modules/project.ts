@@ -20,7 +20,8 @@ const project: RouteRecordRaw = {
       meta: {
         title: "项目列表",
         svgIcon: "project",
-        home: true
+        home: true,
+        affix: true
       }
     }
   ]

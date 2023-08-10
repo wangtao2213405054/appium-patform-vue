@@ -115,14 +115,16 @@ const queryNodeUser = (data: Tree) => {
         </template>
       </el-dialog>
       <el-col :span="7" :xs="24">
-        <el-row :gutter="20" style="margin-bottom: 10px">
-          <el-col :span="16" :xs="24">
-            <el-input v-model="filterText" placeholder="输入关键字进行过滤" clearable />
-          </el-col>
-          <el-col :span="6" :xs="24">
-            <el-button type="success" plain :icon="Plus" @click="newClassification(null)">新增</el-button>
-          </el-col>
-        </el-row>
+        <div class="title">
+          <el-input v-model="filterText" size="small" placeholder="输入关键字进行过滤" clearable />
+          &nbsp;
+          <el-button
+            type="success"
+            plain size="small"
+            :icon="Plus"
+            @click="newClassification(null)"
+          >新增</el-button>
+        </div>
         <el-tree
           ref="treeRef"
           :data="classificationTree"
@@ -155,7 +157,7 @@ const queryNodeUser = (data: Tree) => {
                   @confirm="remove(data.id)"
                 >
                   <template #reference>
-                    <el-button type="danger" size="small" link @click.stop>删除</el-button>
+                    <el-button class="danger-button" type="danger" size="small" link @click.stop>删除</el-button>
                   </template>
                 </el-popconfirm>
               </span>
@@ -178,5 +180,14 @@ const queryNodeUser = (data: Tree) => {
   justify-content: space-between;
   font-size: 14px;
   padding-right: 8px;
+}
+.title {
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.danger-button {
+  margin-left: 0;
 }
 </style>

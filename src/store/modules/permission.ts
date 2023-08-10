@@ -29,6 +29,8 @@ export const usePermissionStore = defineStore("permission", () => {
   const routes = ref<RouteRecordRaw[]>([])
   const dynamicRoutes = ref<RouteRecordRaw[]>([])
   const verifyRoutes = ref<string[]>([])
+  const homeRoutes = ref<RouteRecordRaw[]>([])
+  const detailRoutes = ref<RouteRecordRaw[]>([])
 
   const setRoutes = (roles: string[]) => {
     let accessedRoutes
@@ -40,8 +42,17 @@ export const usePermissionStore = defineStore("permission", () => {
     routes.value = constantRoutes.concat(accessedRoutes)
     dynamicRoutes.value = accessedRoutes
     verifyRoutes.value = filterRouter(routes.value) // 将项目页面的数据过滤出来
+
+    // 区分路由, 将首页路由和详情页路由区分出来
+    routes.value.forEach((route) => {
+      if (route.meta?.home === true) {
+        homeRoutes.value.push(route)
+      } else {
+        detailRoutes.value.push(route)
+      }
+    })
   }
-  return { routes, dynamicRoutes, setRoutes, verifyRoutes }
+  return { routes, dynamicRoutes, setRoutes, verifyRoutes, homeRoutes, detailRoutes }
 })
 
 /** 在 setup 外使用 */

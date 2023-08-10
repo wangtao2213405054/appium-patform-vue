@@ -37,6 +37,14 @@ const isAffix = (tag: TagView) => {
   return tag.meta?.affix
 }
 
+interface Props {
+    isHome?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    isHome: false
+})
+
 /** 筛选出固定标签页 */
 const filterAffixTags = (routes: RouteRecordRaw[], basePath = "/") => {
   const tags: TagView[] = []
@@ -60,7 +68,7 @@ const filterAffixTags = (routes: RouteRecordRaw[], basePath = "/") => {
 
 /** 初始化标签页 */
 const initTags = () => {
-  affixTags = filterAffixTags(permissionStore.routes)
+  affixTags = filterAffixTags(props.isHome ? permissionStore.homeRoutes : permissionStore.detailRoutes)
   for (const tag of affixTags) {
     // 必须含有 name 属性
     tag.name && tagsViewStore.addVisitedView(tag)
@@ -73,6 +81,7 @@ const addTags = () => {
     tagsViewStore.addVisitedView(route)
     tagsViewStore.addCachedView(route)
   }
+  filterTags()
 }
 
 /** 刷新当前正在右键操作的标签页 */
@@ -85,7 +94,8 @@ const refreshSelectedTag = (view: TagView) => {
 const closeSelectedTag = (view: TagView) => {
   tagsViewStore.delVisitedView(view)
   tagsViewStore.delCachedView(view)
-  isActive(view) && toLastView(tagsViewStore.visitedViews, view)
+  filterTags()
+  isActive(view) && toLastView(visitedViews.value, view)
 }
 
 /** 关闭其他标签页 */
@@ -96,6 +106,7 @@ const closeOthersTags = () => {
   }
   tagsViewStore.delOthersVisitedViews(selectedTag.value)
   tagsViewStore.delOthersCachedViews(selectedTag.value)
+  filterTags()
 }
 
 /** 关闭所有标签页 */
@@ -103,7 +114,8 @@ const closeAllTags = (view: TagView) => {
   tagsViewStore.delAllVisitedViews()
   tagsViewStore.delAllCachedViews()
   if (affixTags.some((tag) => tag.path === route.path)) return
-  toLastView(tagsViewStore.visitedViews, view)
+  filterTags()
+  toLastView(visitedViews.value, view)
 }
 
 /** 跳转到最后一个标签页 */
@@ -147,6 +159,18 @@ const closeMenu = () => {
   visible.value = false
 }
 
+const visitedViews = ref<TagView[]>([])
+
+// 区分首页和详情页标签
+const filterTags = () => {
+  const tags = tagsViewStore.visitedViews
+  visitedViews.value = tags.filter(route => {
+    const isHome = route.meta?.home
+    const hasHomeField = typeof isHome !== "undefined"
+    return props.isHome ? isHome : !hasHomeField || isHome === false
+  })
+}
+
 watch(
   route,
   () => {
@@ -162,6 +186,7 @@ watch(visible, (value) => {
 })
 
 onMounted(() => {
+  filterTags()
   initTags()
   addTags()
 })
@@ -169,10 +194,10 @@ onMounted(() => {
 
 <template>
   <div class="tags-view-container">
-    <ScrollPane class="tags-view-wrapper" :tag-refs="tagRefs">
+    <ScrollPane class="tags-view-wrapper" :tag-refs="tagRefs" :is-home="props.isHome">
       <router-link
         ref="tagRefs"
-        v-for="tag in tagsViewStore.visitedViews"
+        v-for="tag in visitedViews"
         :key="tag.path"
         :class="{ active: isActive(tag) }"
         class="tags-view-item"

@@ -8,6 +8,7 @@ import Screenfull from "@/components/Screenfull/index.vue"
 
 interface Props {
   tagRefs: InstanceType<typeof RouterLink>[]
+  isHome: boolean
 }
 
 const props = defineProps<Props>()
@@ -118,7 +119,12 @@ watch(
     <el-icon class="arrow right" @click="scrollTo('right')">
       <ArrowRight />
     </el-icon>
-    <Screenfull v-if="settingsStore.showScreenfull" element=".app-main" :content="true" class="screenfull" />
+    <Screenfull
+      v-if="settingsStore.showScreenfull && !props.isHome"
+      element=".app-main"
+      :content="true"
+      class="screenfull"
+    />
   </div>
 </template>
 

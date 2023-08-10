@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue"
 import Introduce from "./components/introduce.vue"
-import { AppMain, RightMenu } from "@/layouts/components"
+import { AppMain, RightMenu, TagsView } from "@/layouts/components"
 import SidebarItem from "@/layouts/components/Sidebar/SidebarItem.vue"
 import { useRoute } from "vue-router"
 import { usePermissionStore } from "@/store/modules/permission"
@@ -18,7 +18,6 @@ const activeMenu = computed(() => {
 })
 
 const permissionStore = usePermissionStore()
-const routesHomeStore = permissionStore.routes.filter((route) => route.meta?.home === true)
 </script>
 
 <template>
@@ -28,23 +27,25 @@ const routesHomeStore = permissionStore.routes.filter((route) => route.meta?.hom
     <!-- 主容器 -->
     <div class="main-container">
       <!-- 头部导航栏和标签栏 -->
-      <div class="fixed-header layout-header navigation-bar">
-        <el-menu
-          class="sidebar layout-header"
-          :default-active="activeMenu"
-          :unique-opened="true"
-          :collapse-transition="false"
-          mode="horizontal"
-        >
-          <SidebarItem
-            v-for="route in routesHomeStore"
-            :key="route.path"
-            :item="route"
-            :base-path="route.path"
-            :home="true"
-          />
-        </el-menu>
-        <RightMenu class="layout-header" v-model:showSidebar="showSidebar" />
+      <div class="fixed-header layout-header">
+        <div class="navigation-bar">
+          <el-menu
+            class="sidebar layout-header"
+            :default-active="activeMenu"
+            :unique-opened="true"
+            :collapse-transition="false"
+            mode="horizontal"
+          >
+            <SidebarItem
+              v-for="route in permissionStore.homeRoutes"
+              :key="route.path"
+              :item="route"
+              :base-path="route.path"
+            />
+          </el-menu>
+          <RightMenu class="layout-header" v-model:showSidebar="showSidebar" />
+        </div>
+        <TagsView :is-home="true" />
       </div>
       <!-- 页面主体内容 -->
       <AppMain class="app-main" />
@@ -93,6 +94,7 @@ $transition-time: 0.35s;
   transition: margin-left $transition-time;
   margin-left: var(--v3-introduce-width);
   position: relative;
+  padding-top: var(--v3-header-height)
 }
 
 .fixed-header {
@@ -116,7 +118,7 @@ $transition-time: 0.35s;
 }
 
 .fixed-header + .app-main {
-  padding-top: calc(var(--v3-navigationbar-height) + 10px);
+  //padding-top: calc(var(--v3-navigationbar-height) + 10px);
   padding-bottom: 0;
   height: 100vh;
   overflow: auto;
