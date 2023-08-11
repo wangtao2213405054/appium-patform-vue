@@ -124,4 +124,61 @@ $transition-time: 0.35s;
   height: calc(100vh - 10px);
   overflow: auto;
 }
+.el-menu {
+  border: none;
+  min-height: 100%;
+  width: 100% !important;
+}
+
+:deep(.el-menu-item),
+:deep(.el-sub-menu__title),
+:deep(.el-sub-menu .el-menu-item),
+:deep(.el-menu--horizontal .el-menu-item) {
+  height: var(--v3-navigationbar-height);
+  line-height: var(--v3-navigationbar-height);
+  &.is-active,
+  &:hover {
+    background-color: transparent;
+  }
+  display: block;
+  * {
+    vertical-align: middle;
+  }
+}
+
+:deep(.el-sub-menu) {
+  &.is-active {
+    .el-sub-menu__title {
+      color: var(--el-menu-active-color);
+    }
+  }
+}
+
+@mixin tip-line {
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background-color: var(--v3-sidebar-menu-tip-line-bg-color);
+  }
+}
+
+:deep(.el-menu-item) {
+  &.is-active {
+    @include tip-line;
+  }
+}
+
+.el-menu--collapse {
+  :deep(.el-sub-menu) {
+    &.is-active {
+      .el-sub-menu__title {
+        @include tip-line;
+      }
+    }
+  }
+}
 </style>
