@@ -37,8 +37,8 @@ function createService() {
       } else if (code !== 1) {
         // code !== 1 则提示错误
         ElMessage.error(msg || "Error")
-        return Promise.reject(new Error(msg || "Error"))
-      } else if (code === 4001 || code === 4002) {
+      }
+      if (code === 4001 || code === 4002) {
         // 当 code 为 4001 or 4002 时退出登陆
         ElMessageBox.confirm("您已登出，您可以取消停留在此页面，或重新登录", "登陆失效", {
           confirmButtonText: "重新登陆",

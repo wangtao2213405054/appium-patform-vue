@@ -17,9 +17,7 @@ const addForm: EditPermissionsMenuRequestData = reactive({
   id: null,
   name: "",
   identifier: null,
-  nodeId: null,
-  menuType: "menu",
-  belongType: "home"
+  nodeId: null
 })
 const addFormRules = reactive({
   name: [
@@ -74,8 +72,6 @@ function closeDialog() {
   addForm.name = ""
   addForm.identifier = null
   addForm.nodeId = null
-  addForm.menuType = "menu"
-  addForm.belongType = "home"
   addFormRef.value?.clearValidate()
 }
 
@@ -83,7 +79,6 @@ function closeDialog() {
 function newNode(id: number) {
   title.value = "新增菜单"
   addForm.nodeId = id
-  addForm.menuType = "api"
   dialogVisible.value = true
 }
 
@@ -108,9 +103,7 @@ async function deletePermissionsInfo(id: number) {
 function updateButton(value: EditPermissionsMenuRequestData) {
   addForm.id = value.id
   addForm.name = value.name
-  addForm.belongType = value.belongType
   addForm.nodeId = value.nodeId
-  addForm.menuType = value.menuType
   addForm.identifier = value.identifier
   title.value = "修改菜单"
   dialogVisible.value = true
@@ -135,25 +128,13 @@ function hiddenTable() {
 
 <template>
   <el-card>
-    <el-dialog :title="title" :model-value="dialogVisible" width="50%" @close="closeDialog">
-      <el-form ref="addFormRef" inline :model="addForm" :rules="addFormRules" hide-required-asterisk label-width="86px">
+    <el-dialog :title="title" :model-value="dialogVisible" width="30%" @close="closeDialog">
+      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" hide-required-asterisk label-width="86px">
         <el-form-item label="菜单名称" prop="name">
-          <el-input v-model="addForm.name" style="width: 200px" placeholder="请输入菜单名称" clearable />
+          <el-input v-model="addForm.name" placeholder="请输入菜单名称" clearable />
         </el-form-item>
         <el-form-item label="标识符" prop="identifier">
-          <el-input v-model="addForm.identifier" style="width: 200px" placeholder="请输入标识符" clearable />
-        </el-form-item>
-        <el-form-item label="菜单类型">
-          <div style="width: 200px">
-            <el-radio v-model="addForm.menuType" label="menu">菜单</el-radio>
-            <el-radio v-model="addForm.menuType" label="case">接口</el-radio>
-          </div>
-        </el-form-item>
-        <el-form-item label="所属位置">
-          <div style="width: 200px">
-            <el-radio v-model="addForm.belongType" label="home">首页</el-radio>
-            <el-radio v-model="addForm.belongType" label="project">项目</el-radio>
-          </div>
+          <el-input v-model="addForm.identifier" placeholder="请输入标识符" clearable />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -198,18 +179,11 @@ function hiddenTable() {
       <el-table-column prop="name" label="名称" show-overflow-tooltip />
       <el-table-column prop="identifier" label="标识符" align="center" show-overflow-tooltip />
       <el-table-column prop="updateTime" label="修改时间" align="center" width="160px" />
-      <el-table-column label="操作" align="center" width="240px">
+      <el-table-column label="操作" align="center" width="210px">
         <template #default="scope">
           <el-button type="primary" link :icon="Edit" @click="updateButton(scope.row)">修改</el-button>
           <el-button type="success" link :icon="Plus" @click="newNode(scope.row.id)">新增</el-button>
-          <el-button
-            class="delete-button"
-            :icon="Delete"
-            type="danger"
-            link
-            @click="deletePermissionsInfo(scope.row.id)"
-            >删除</el-button
-          >
+          <el-button :icon="Delete" type="danger" link @click="deletePermissionsInfo(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

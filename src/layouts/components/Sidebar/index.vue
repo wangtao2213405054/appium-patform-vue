@@ -60,7 +60,7 @@ const tipLineWidth = computed(() => {
         :collapse="isCollapse && !isTop"
         :background-color="backgroundColor"
         :text-color="textColor"
-        :active-text-color="activeTextColor"
+        :active-color="activeTextColor"
         :unique-opened="true"
         :collapse-transition="false"
         :mode="isTop && !isMobile ? 'horizontal' : 'vertical'"

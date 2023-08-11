@@ -15,7 +15,8 @@ import {
   FormRules,
   ElMessageBox,
   ElMessage,
-  FormInstance
+  FormInstance,
+  ElCollapseTransition
 } from "element-plus"
 import { Delete, Edit, Refresh, Search, Plus, ArrowDown, ArrowUp } from "@element-plus/icons-vue"
 import { sha1 } from "@/utils/sha1"
@@ -253,7 +254,7 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
 
 <template>
   <div>
-    <transition name="pack_up">
+    <el-collapse-transition>
       <el-form v-show="!hiddenArea" :model="requestForm" inline size="small">
         <el-form-item prop="name">
           <el-input v-model="requestForm.name" class="request-form" placeholder="输入用户名称查询" clearable />
@@ -273,7 +274,7 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
           <el-button :icon="Refresh" @click="refreshQuery">重置</el-button>
         </el-form-item>
       </el-form>
-    </transition>
+    </el-collapse-transition>
     <el-dialog :title="title" v-model="dialogVisible" width="700px" @close="closeResetFields" @open="getRoleList">
       <el-form
         ref="addFormRef"
@@ -422,18 +423,5 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
 <style scoped lang="scss">
 .request-form {
   width: 140px;
-}
-.pack_up-leave-active,
-.pack_up-enter-active {
-  transition: all 0.3s;
-}
-.pack_up-enter-from,
-.pack_up-leave-to {
-  transform: translate(120%);
-}
-:deep(.disabled) {
-  .el-upload--picture-card {
-    display: none;
-  }
 }
 </style>

@@ -46,7 +46,7 @@ const defaultProps = reactive({
 })
 const menuList = ref<PermissionsMenuInfoResponseData[]>([])
 const roleList = ref<PermissionsMenuInfoResponseData[]>([])
-const strictly = ref<boolean>(true)
+const strictly = ref<boolean>(false)
 const expand = ref<any>(false)
 const checked = ref<boolean>(false)
 const roleLoading = ref<boolean>(true)
@@ -64,9 +64,6 @@ function newButton() {
 // 获取菜单列表
 async function getPermissionsList() {
   menuList.value = (await apiGetPermissionsMenuList({ name: "", identifier: "" })).data
-  checked.value = false
-  strictly.value = true
-  expand.value = false
 }
 
 // 新增/修改 角色信息
@@ -211,15 +208,14 @@ function checkedKeys(value: any) {
           <el-input v-model="addForm.identifier" placeholder="请输入标识符" clearable />
         </el-form-item>
         <el-form-item label="权限菜单" prop="permissionsApi">
-          <div style="width: 465px">
+          <div>
             <el-checkbox v-model="expand">展开/折叠</el-checkbox>
             <el-checkbox v-model="checked" @change="checkedKeys">全选/全不选</el-checkbox>
             <el-checkbox v-model="strictly">父子联动</el-checkbox>
-
             <el-tree
               :key="expand"
               ref="treeRef"
-              style="border-style: solid; border-color: #dcdfe6; border-width: 1px"
+              class="tree"
               :data="menuList"
               show-checkbox
               node-key="identifier"
@@ -264,4 +260,11 @@ function checkedKeys(value: any) {
   </el-card>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.tree {
+  border-style: solid;
+  border-color: var(--el-border-color);
+  border-width: 1px;
+  border-radius: var(--el-border-radius-base);
+}
+</style>

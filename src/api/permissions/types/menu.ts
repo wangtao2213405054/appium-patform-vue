@@ -6,10 +6,8 @@ export interface GetPermissionsMenuRequestData {
 
 // 编辑权限请求结构体
 export interface EditPermissionsMenuRequestData {
-  belongType: string
   id: number | null
   identifier: string | null
-  menuType: string
   name: string
   nodeId: number | null
 }
@@ -20,11 +18,9 @@ export interface DeletePermissionsMenuRequestData {
 }
 
 export interface PermissionsMenuInfoResponseData {
-  belongType: string
   createTime: string
   id: number | null
   identifier: string | null
-  menuType: string
   name: string
 }
 
