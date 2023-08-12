@@ -5,8 +5,8 @@ export interface GetAccountUserRequestData {
   pageSize: number
   name: string | null
   mobile: string | null
-  id: number | null
-  state: boolean | null
+  id: number | undefined
+  state: boolean | undefined
 }
 
 // 编辑用户请求结构体
@@ -14,11 +14,11 @@ export interface EditAccountUserRequestData {
   avatarUrl: string
   department: number[]
   email: string
-  id: number | null
+  id: number | undefined
   mobile: string
   name: string
   password: string
-  role: number | null
+  role: number | undefined
   state: boolean
 }
 
@@ -34,7 +34,7 @@ export interface DeleteAccountUserRequestData {
 
 // 用户信息结构体
 export interface AccountUserInfoResponseData {
-  avatar: string
+  avatarUrl: string
   createId: number
   createTime: string
   department: number[]

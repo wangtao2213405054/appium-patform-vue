@@ -14,10 +14,10 @@ const dialogVisible = ref<boolean>(false)
 const title = ref<string>("")
 const addFormRef = ref<FormInstance | null>(null)
 const addForm: EditPermissionsMenuRequestData = reactive({
-  id: null,
+  id: undefined,
   name: "",
-  identifier: null,
-  nodeId: null
+  identifier: undefined,
+  nodeId: undefined
 })
 const addFormRules = reactive({
   name: [
@@ -68,10 +68,10 @@ async function getPermissionsList() {
 // 关闭钩子
 function closeDialog() {
   dialogVisible.value = false
-  addForm.id = null
+  addForm.id = undefined
   addForm.name = ""
-  addForm.identifier = null
-  addForm.nodeId = null
+  addForm.identifier = undefined
+  addForm.nodeId = undefined
   addFormRef.value?.clearValidate()
 }
 

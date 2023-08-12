@@ -6,10 +6,10 @@ export interface GetPermissionsMenuRequestData {
 
 // 编辑权限请求结构体
 export interface EditPermissionsMenuRequestData {
-  id: number | null
-  identifier: string | null
+  id: number | undefined
+  identifier: string | undefined
   name: string
-  nodeId: number | null
+  nodeId: number | undefined
 }
 
 // 删除权限菜单请求结构体
@@ -19,8 +19,8 @@ export interface DeletePermissionsMenuRequestData {
 
 export interface PermissionsMenuInfoResponseData {
   createTime: string
-  id: number | null
-  identifier: string | null
+  id: number | undefined
+  identifier: string | undefined
   name: string
 }
 

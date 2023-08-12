@@ -13,8 +13,7 @@ export async function initSocket(app: any) {
     }, 100)
     return
   }
-
-  const { domain } = (await apiGetSocketDomainInfo()).data
+  const { domain } = (await apiGetSocketDomainInfo())!.data
   if (!domain) return
 
   const socket = io(domain, {

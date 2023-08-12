@@ -9,7 +9,7 @@ const mock: RouteRecordRaw = {
   name: "Mock",
   meta: {
     title: "模拟配置",
-    svgIcon: "lock",
+    svgIcon: "calendar-fill",
     roles: ["Mock"] // 可以在根路由中设置角色
   },
   children: [
@@ -20,7 +20,7 @@ const mock: RouteRecordRaw = {
       meta: {
         title: "域名配置",
         roles: ["MockDomain"],
-        svgIcon: "menu"
+        svgIcon: "alert-fill"
       }
     },
     {
@@ -30,7 +30,7 @@ const mock: RouteRecordRaw = {
       meta: {
         title: "接口配置",
         roles: ["MockApi"],
-        svgIcon: "user"
+        svgIcon: "api-fill"
       }
     }
   ]

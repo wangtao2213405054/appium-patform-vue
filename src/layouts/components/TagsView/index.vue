@@ -38,11 +38,11 @@ const isAffix = (tag: TagView) => {
 }
 
 interface Props {
-    isHome?: boolean
+  isHome?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    isHome: false
+  isHome: false
 })
 
 /** 筛选出固定标签页 */

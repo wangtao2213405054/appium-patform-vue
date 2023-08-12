@@ -95,7 +95,6 @@ $transition-time: 0.35s;
   transition: margin-left $transition-time;
   margin-left: var(--v3-introduce-width);
   position: relative;
-  //padding-top: var(--v3-header-height)
 }
 
 .fixed-header {
@@ -120,8 +119,8 @@ $transition-time: 0.35s;
 
 .fixed-header + .app-main {
   padding-top: calc(var(--v3-header-height) + 10px);
-  padding-bottom: 0;
-  height: calc(100vh - 10px);
+  padding-bottom: 10px;
+  height: 100vh;
   overflow: auto;
 }
 .el-menu {

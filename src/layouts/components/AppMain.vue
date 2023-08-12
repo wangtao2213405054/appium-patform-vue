@@ -1,15 +1,28 @@
 <script lang="ts" setup>
-import { computed } from "vue"
 import { useRoute } from "vue-router"
 import { useTagsViewStore } from "@/store/modules/tags-view"
+import { computed } from "vue"
+// import { onMounted, onUnmounted, computed } from "vue"
+// import { mark } from "@/utils/watermark"
+// import { useUserStore } from "@/store/modules/user"
 
 const route = useRoute()
 const tagsViewStore = useTagsViewStore()
+// const userStore = useUserStore()
 
 const key = computed(() => {
   // 返回 route.path 和 route.fullPath 有着不同的效果，大多数时候 path 更通用
   return route.path
 })
+
+// const { watermark } = mark()
+// onMounted(() => {
+//   watermark(userStore.username) //水印名
+// })
+//
+// onUnmounted(() => {
+//   watermark("")
+// })
 </script>
 
 <template>

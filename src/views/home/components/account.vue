@@ -46,21 +46,21 @@ const selectionUserList = ref<AccountUserInfoResponseData[]>([])
 const userList = ref<AccountUserInfoResponseData[]>([])
 
 const addForm = reactive<EditAccountUserRequestData>({
-  id: null,
+  id: undefined,
   name: "",
   email: "",
   mobile: "",
   password: "",
   state: true,
   department: [],
-  role: null,
+  role: undefined,
   avatarUrl: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
 })
 
 const requestForm = reactive<GetAccountUserRequestData>({
   id: 0,
   name: "",
-  state: null,
+  state: undefined,
   mobile: "",
   page: 1,
   pageSize: 10,
@@ -172,12 +172,12 @@ const getRoleList = async () => {
 }
 
 // 修改用户信息
-const updateUserInfo = (value: EditAccountUserRequestData) => {
+const updateUserInfo = (value: AccountUserInfoResponseData) => {
   addForm.id = value.id
   addForm.name = value.name
   addForm.email = value.email
   addForm.mobile = value.mobile
-  addForm.password = value.password
+  addForm.password = ""
   addForm.state = value.state
   addForm.department = value.department
   addForm.role = value.role
@@ -194,9 +194,9 @@ const queryGetList = () => {
 
 // 重置查询表单
 const refreshQuery = () => {
-  requestForm.id = null
+  requestForm.id = undefined
   requestForm.name = ""
-  requestForm.state = null
+  requestForm.state = undefined
   requestForm.mobile = ""
   queryGetList()
 }
@@ -209,14 +209,14 @@ const newUserButton = () => {
 
 // 重置提交表单
 const closeResetFields = () => {
-  addForm.id = null
+  addForm.id = undefined
   addForm.name = ""
   addForm.email = ""
   addForm.mobile = ""
   addForm.password = ""
   addForm.state = true
   addForm.department = []
-  addForm.role = null
+  addForm.role = undefined
   addForm.avatarUrl = ""
   addFormRef.value?.clearValidate()
 }
@@ -238,9 +238,9 @@ const deleteManagementInfo = async (userList: number[]) => {
 }
 // 批量删除
 const batchDelete = () => {
-  const userList = []
+  const userList: number[] = []
   for (let i = 0; i < selectionUserList.value.length; i++) {
-    userList.push(selectionUserList[i].id)
+    userList.push(selectionUserList.value[i].id)
   }
   deleteManagementInfo(userList)
 }
@@ -317,11 +317,11 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
         <el-form-item label="部门" prop="department">
           <el-cascader
             v-model="addForm.department"
+            :props="{ value: 'id', label: 'name' }"
             :options="props.classificationTree"
             placeholder="请选择所属部门"
             style="width: 180px"
             clearable
-            :props="{ value: 'id', label: 'name' }"
           />
         </el-form-item>
         <el-form-item label="角色" prop="role">
@@ -423,5 +423,10 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
 <style scoped lang="scss">
 .request-form {
   width: 140px;
+}
+:deep(.disabled) {
+  .el-upload--picture-card {
+    display: none;
+  }
 }
 </style>
