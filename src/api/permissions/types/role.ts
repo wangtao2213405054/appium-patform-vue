@@ -1,13 +1,12 @@
-
 // 获取权限角色列表
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
 
 export interface GetPermissionsRoleRequestData {
-  identifier: string
-  name: string,
-  page: number,
-  pageSize: number,
-  total: number
+  identifier?: string
+  name?: string
+  page: number
+  pageSize: number
+  total?: number
 }
 
 // 编辑权限请求结构体
@@ -17,7 +16,6 @@ export interface EditPermissionsRoleRequestData {
   name: string
   permissionsApi: any[]
 }
-
 
 // 删除权限请求数据
 export interface DeletePermissionsRoleRequestData {

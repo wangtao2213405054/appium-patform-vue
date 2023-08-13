@@ -62,9 +62,12 @@ const code = shallowRef<string>(props.modelValue)
 const emit = defineEmits(["update:modelValue"])
 
 onMounted(() => {
-  watch(() => props.modelValue, (data) => {
-    code.value = data
-  })
+  watch(
+    () => props.modelValue,
+    (data) => {
+      code.value = data
+    }
+  )
 
   watch(code, (data) => {
     emit("update:modelValue", data)
@@ -85,12 +88,12 @@ const copyCode = (event: any) => {
     <div class="title">
       <span class="text">{{ capitalizeFirstLetter(props.language) }}</span>
       <el-button class="copy" type="info" size="small" link :icon="CopyDocument" @click="copyCode($event)"
-      >复制</el-button
+        >复制</el-button
       >
     </div>
     <codemirror
       v-model="code"
-      :style="{ 'height': props.height }"
+      :style="{ height: props.height }"
       :autofocus="props.autofocus"
       :indent-with-tab="props.indentWithTab"
       :disabled="props.disabled"

@@ -19,7 +19,7 @@ import {
 import { apiDeleteProjectInfo, apiEditProjectInfo, apiGetProjectList } from "@/api/business"
 import { Edit, Delete, Search, Refresh, Plus } from "@element-plus/icons-vue"
 import { EditProjectRequestData, GetProjectRequestData, ProjectInfoResponseData } from "@/api/business/types/project"
-import upload from "./upload.vue"
+import upload from "../components/upload.vue"
 
 const avatarPrefix = "?imageView2/1/w/80/h/80"
 

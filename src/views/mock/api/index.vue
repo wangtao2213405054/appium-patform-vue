@@ -194,7 +194,7 @@ onMounted(() => {
       <el-table-column prop="createTime" label="更新时间" width="160px" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
       <el-table-column label="操作" width="160px" align="center">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-button :icon="Edit" type="primary" link @click.stop="updateApi(scope.row)">编辑</el-button>
           <el-button :icon="Delete" type="danger" link @click.stop="deleteApiInfo(scope.row.id)">删除</el-button>
         </template>

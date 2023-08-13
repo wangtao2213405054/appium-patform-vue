@@ -15,7 +15,7 @@ const project: RouteRecordRaw = {
   children: [
     {
       path: "project",
-      component: () => import("@/views/home/components/project.vue"),
+      component: () => import("@/views/project/index.vue"),
       name: "Project",
       meta: {
         title: "项目列表",

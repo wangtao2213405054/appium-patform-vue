@@ -204,7 +204,7 @@ const getDomainList = async () => {
       <el-table-column type="index" label="编号" width="60px" align="center" />
       <el-table-column prop="name" label="域名备注" width="200px" />
       <el-table-column prop="protocol" label="通讯协议" width="120px" align="center">
-        <template v-slot="scope">
+        <template #default="scope">
           <div v-for="item in protocolList" :key="item.key">
             <span v-if="scope.row.protocol === item.key"> {{ item.label }} </span>
           </div>
@@ -214,7 +214,7 @@ const getDomainList = async () => {
       <el-table-column prop="port" label="协议端口" width="120px" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
       <el-table-column label="操作" width="160px" align="center">
-        <template v-slot="scope">
+        <template #default="scope">
           <el-button :icon="Edit" type="primary" link @click.stop="updateDomain(scope.row)">编辑</el-button>
           <el-button :icon="Delete" type="danger" link @click.stop="deleteDomainInfo(scope.row.id)">删除</el-button>
         </template>

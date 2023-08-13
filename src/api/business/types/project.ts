@@ -1,9 +1,9 @@
 // 获取项目列表的结构体
 export interface GetProjectRequestData {
-  total: number
+  total?: number
   page: number // 页码
   pageSize: number // 每页大小
-  name: string // 项目名称
+  name?: string // 项目名称
 }
 
 // 项目信息结构体

@@ -1,5 +1,5 @@
 import { type RouteRecordRaw, createRouter, createWebHashHistory, createWebHistory } from "vue-router"
-import { permission, account, timeline, project } from "./homes"
+import { permission, account, timeline, project, devices } from "./homes"
 import { mock } from "./details"
 
 const Layouts = () => import("@/layouts/index.vue")
@@ -88,6 +88,7 @@ export const asyncRoutes: RouteRecordRaw[] = [
   account,
   permission,
   mock,
+  devices,
   {
     path: "/:pathMatch(.*)*", // Must put the 'ErrorPage' route at the end, 必须将 'ErrorPage' 路由放在最后
     redirect: "/404",

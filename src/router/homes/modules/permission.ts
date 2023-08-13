@@ -16,7 +16,7 @@ const permission: RouteRecordRaw = {
   children: [
     {
       path: "role",
-      component: () => import("@/views/home/components/role.vue"),
+      component: () => import("@/views/role/index.vue"),
       name: "PermissionRole",
       meta: {
         title: "角色管理",
@@ -27,7 +27,7 @@ const permission: RouteRecordRaw = {
     },
     {
       path: "menu",
-      component: () => import("@/views/home/components/permissions.vue"),
+      component: () => import("@/views/permissions/index.vue"),
       name: "PermissionMenu",
       meta: {
         title: "菜单管理",

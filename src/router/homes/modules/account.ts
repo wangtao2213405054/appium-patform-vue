@@ -16,7 +16,7 @@ const account: RouteRecordRaw = {
   children: [
     {
       path: "team",
-      component: () => import("@/views/home/components/organization.vue"),
+      component: () => import("@/views/account/index.vue"),
       name: "AccountTeam",
       meta: {
         title: "用户管理",
