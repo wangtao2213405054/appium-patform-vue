@@ -186,14 +186,14 @@ onBeforeUnmount(() => {
       <el-col :span="6">
         <div class="el-statistic">
           <div class="el-statistic__head" style="display: inline-flex; align-items: center">
-            网络情况
-            <el-tooltip effect="dark" content="当前控制机网络使用情况 上传/下载 单位 KB" placement="top">
+            网络情况( s )
+            <el-tooltip effect="dark" content="当前控制机每秒网络使用情况 上传/下载" placement="top">
               <el-icon style="margin-left: 4px" :size="12">
                 <Warning />
               </el-icon>
             </el-tooltip>
           </div>
-          <div class="el-statistic__content">{{ send }}KB/s / {{ recv }}KB/s</div>
+          <div class="el-statistic__content">{{ send }}/{{ recv }}</div>
         </div>
         <div class="countdown-footer">
           <span>上传 / 下载</span>

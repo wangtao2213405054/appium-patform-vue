@@ -76,8 +76,8 @@ export interface CpuInfoData {
 }
 
 export interface NetworkData {
-  send: number
-  recv: number
+  send: string
+  recv: string
 }
 
 export interface VirtualData {
