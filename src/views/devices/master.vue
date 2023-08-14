@@ -15,7 +15,7 @@ import {
   apiGetMasterSocketRoomInfo
 } from "@/api/devices"
 import { apiGetProjectList } from "@/api/business"
-import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance } from "element-plus"
+import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance, FormRules } from "element-plus"
 import { apiGetPermissionsRoleList } from "@/api/permissions"
 import clip from "@/utils/clipboard"
 import { useRouter } from "vue-router"
@@ -36,6 +36,15 @@ const addForm: EditMasterRequestData = reactive({
   logging: "INFO",
   id: null
 })
+const addFormRules: FormRules = {
+  name: [
+    { required: true, message: "请输入设备名称", trigger: "blur" },
+    { min: 2, max: 32, message: "长度在 2 到 32 个字符", trigger: "blur" }
+  ],
+  role: [{ required: true, message: "请选择角色信息", trigger: "blur" }],
+  logging: [{ required: true, message: "请选择日志等级", trigger: "blur" }],
+  maxContext: [{ required: true, message: "请输入此设备的最大进程数", trigger: "blur" }]
+}
 const requestForm: GetMasterRequestData = reactive({
   name: "",
   page: 1,
@@ -218,40 +227,21 @@ onBeforeUnmount(() => {
 <template>
   <el-card>
     <el-dialog :title="title" v-model="dialogVisible" width="50%" @close="closeDialog">
-      <el-form ref="addFormRef" :model="addForm" label-width="80px">
-        <el-form-item
-          label="设备名称"
-          prop="name"
-          :rules="[
-            { required: true, message: '请输入设备名称', trigger: 'blur' },
-            { min: 2, max: 32, message: '长度在 2 到 32 个字符', trigger: 'blur' }
-          ]"
-        >
+      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px">
+        <el-form-item label="设备名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入设备名称" clearable />
         </el-form-item>
-        <el-form-item
-          label="所属角色"
-          prop="role"
-          :rules="[{ required: true, message: '请选择角色信息', trigger: 'blur' }]"
-        >
+        <el-form-item label="所属角色" prop="role">
           <el-select v-model="addForm.role" placeholder="请选择设备绑定的角色" clearable @visible-change="getRoleList">
             <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="日志等级"
-          prop="logging"
-          :rules="[{ required: true, message: '请选择日志等级', trigger: 'blur' }]"
-        >
+        <el-form-item label="日志等级" prop="logging">
           <el-select v-model="addForm.logging" placeholder="请选择日志等级" clearable>
             <el-option v-for="item in loggingList" :key="item.key" :label="item.value" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="最大进程"
-          prop="maxContext"
-          :rules="[{ required: true, message: '请输入此设备的最大进程数', trigger: 'blur' }]"
-        >
+        <el-form-item label="最大进程" prop="maxContext">
           <el-input-number v-model="addForm.maxContext" :min="1" :max="6" label="请输入最大进程数" />
         </el-form-item>
         <el-form-item label="所属项目" prop="projectId">
@@ -328,9 +318,9 @@ onBeforeUnmount(() => {
       <el-table-column prop="desc" label="设备描述" show-overflow-tooltip />
       <el-table-column prop="online" label="设备状态" width="80px" align="center">
         <template #default="scope">
-          <el-tag effect="dark" :type="scope.row.online ? 'success' : 'info'">{{
-            scope.row.online ? "在线" : "离线"
-          }}</el-tag>
+          <el-tag effect="dark" :type="scope.row.online ? 'success' : 'info'">
+            {{ scope.row.online ? "在线" : "离线" }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="280px" align="center">
@@ -340,8 +330,9 @@ onBeforeUnmount(() => {
             :type="scope.row.status ? 'warning' : 'success'"
             link
             @click.stop="updateDeviceStatus(scope.row.id, scope.row.status)"
-            >{{ scope.row.status ? "关闭" : "开启" }}</el-button
           >
+            {{ scope.row.status ? "关闭" : "开启" }}
+          </el-button>
           <el-button :icon="DataLine" type="success" link @click.stop="toCharts(scope.row.id)">性能</el-button>
           <el-button :icon="Edit" type="primary" link @click.stop="updateDevice(scope.row)">编辑</el-button>
           <el-button :icon="Delete" type="danger" link @click.stop="deleteDeviceInfo(scope.row.id)">删除</el-button>
