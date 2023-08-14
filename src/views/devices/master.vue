@@ -15,21 +15,22 @@ import {
   apiGetMasterSocketRoomInfo
 } from "@/api/devices"
 import { apiGetProjectList } from "@/api/business"
-import {ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance} from "element-plus"
+import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance } from "element-plus"
 import { apiGetPermissionsRoleList } from "@/api/permissions"
 import clip from "@/utils/clipboard"
 import { useRouter } from "vue-router"
 import { VideoPlay, VideoPause, Edit, Delete, DataLine, Refresh, Search, Plus } from "@element-plus/icons-vue"
 import { Socket } from "socket.io-client"
+import { ProjectInfoResponseData } from "@/api/business/types/project"
 
 const title = ref<string>("新增设备")
 const dialogVisible = ref<boolean>(false)
 const addForm: EditMasterRequestData = reactive({
   name: "",
   desc: "",
-  role: null,
+  role: undefined,
   maxContext: 4,
-  projectId: null,
+  projectId: undefined,
   status: true,
   token: "",
   logging: "INFO",
@@ -44,7 +45,7 @@ const requestForm: GetMasterRequestData = reactive({
   status: undefined
 })
 const roleList = ref<PermissionsMenuInfoResponseData[]>([])
-const projectList = ref([])
+const projectList = ref<ProjectInfoResponseData[]>([])
 const masterList = ref<MasterInfoResponseData[]>([])
 const statusList = [
   { key: true, label: "启用" },
@@ -117,9 +118,9 @@ const getMasterList = async () => {
 const closeDialog = () => {
   addForm.name = ""
   addForm.desc = ""
-  addForm.role = null
+  addForm.role = undefined
   addForm.maxContext = 4
-  addForm.projectId = null
+  addForm.projectId = undefined
   addForm.status = true
   addForm.token = ""
   addForm.logging = "INFO"
@@ -179,7 +180,7 @@ const updateDeviceStatus = async (id: number, status: boolean) => {
 }
 
 // 页码改变
-const handleCurrentChange = (newPage) => {
+const handleCurrentChange = (newPage: number) => {
   requestForm.page = newPage
   getMasterList()
   // 返回顶部
@@ -193,11 +194,11 @@ const handleCurrentChange = (newPage) => {
 const router = useRouter()
 // 进入性能监控页面
 const toCharts = async (id: number) => {
-  const roomId = (await apiGetMasterSocketRoomInfo({ id: id })).data
+  const roomId = (await apiGetMasterSocketRoomInfo({ id })).data
   await router.push({ name: "DevicesProperty", params: { masterId: id, id: roomId.toString() } })
 }
 
-const socket: Socket = inject("socket")
+const socket: Socket = inject("socket") as Socket
 
 onMounted(() => {
   getMasterList()

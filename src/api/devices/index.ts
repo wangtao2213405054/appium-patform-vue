@@ -33,7 +33,7 @@ export function apiEditMasterStatusInfo(data: Master.StatusMasterRequestData) {
   })
 }
 
-export function apiGetMasterSocketRoomInfo(data: Master.StatusMasterRequestData) {
+export function apiGetMasterSocketRoomInfo(data: Master.DeleteMasterRequestData) {
   return request<Master.MasterSocketResponseData>({
     url: "/devices/master/socket",
     method: "POST",

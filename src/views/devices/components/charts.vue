@@ -1,19 +1,8 @@
 <script setup lang="ts">
 import * as echarts from "echarts/core"
-import {onMounted, inject, onBeforeUnmount, ref} from "vue"
-import {
-  TitleComponent,
-  TitleComponentOption,
-  ToolboxComponent,
-  ToolboxComponentOption,
-  TooltipComponent,
-  TooltipComponentOption,
-  GridComponent,
-  GridComponentOption,
-  LegendComponent,
-  LegendComponentOption
-} from "echarts/components"
-import { LineChart, LineSeriesOption } from "echarts/charts"
+import { onMounted, inject, onBeforeUnmount, ref } from "vue"
+import { TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, LegendComponent } from "echarts/components"
+import { LineChart } from "echarts/charts"
 import { UniversalTransition } from "echarts/features"
 import { CanvasRenderer } from "echarts/renderers"
 import { Socket } from "socket.io-client"
@@ -32,16 +21,7 @@ echarts.use([
   UniversalTransition
 ])
 
-type EChartsOption = echarts.ComposeOption<
-  | TitleComponentOption
-  | ToolboxComponentOption
-  | TooltipComponentOption
-  | GridComponentOption
-  | LegendComponentOption
-  | LineSeriesOption
->
-
-const option: EChartsOption = {
+const option = {
   title: {
     text: "性能表"
   },
@@ -108,26 +88,26 @@ const option: EChartsOption = {
     }
   ]
 }
-const socket: Socket = inject("socket")
+const socket: Socket = inject("socket") as Socket
 const route = useRoute()
 const roomId = route.params.id
 const masterId = route.params.masterId
-let performanceChart: echarts.EChartsType = null
+let performanceChart: any = null
 const free = ref<string>("")
 const used = ref<string>("")
 const total = ref<string>("")
-const usedPercent = ref<number>(null)
-const freePercent = ref<number>(null)
-const send = ref<number>(null)
-const recv = ref<number>(null)
+const usedPercent = ref<number>(0)
+const freePercent = ref<number>(0)
+const send = ref<string>("")
+const recv = ref<string>("")
 const virtualTotal = ref<string>("")
 const available = ref<string>("")
-const availablePercent = ref<number>(null)
-const cpuCount = ref<number>(null)
-const cpuPercent = ref<number>(null)
+const availablePercent = ref<number>(0)
+const cpuCount = ref<number>(0)
+const cpuPercent = ref<number>(0)
 const datePart = ref<string>("")
 const timePart = ref<string>("")
-const virtualUsed = ref<number>(null)
+const virtualUsed = ref<number>(0)
 const loading = ref<boolean>(true)
 
 onMounted(() => {

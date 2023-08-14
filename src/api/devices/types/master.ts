@@ -5,7 +5,7 @@ export interface GetMasterRequestData {
   pageSize: number
   name?: string
   projectId?: number | null
-  status?: boolean | undefined
+  status?: boolean | null
 }
 
 // 控制机信息结构体
@@ -19,7 +19,7 @@ export interface MasterInfoResponseData {
   maxContext: number
   name: string
   online: boolean
-  projectId: number | null
+  projectId: number
   role: number
   status: boolean
   token: string
@@ -29,12 +29,12 @@ export interface MasterInfoResponseData {
 // 编辑控制机的结构体
 export interface EditMasterRequestData {
   name: string
-  id: number
+  id: number | null
   desc: string
   logging: string
   maxContext: number
-  projectId: number | null
-  role: number | null
+  projectId: number | undefined
+  role: number | undefined
   status: boolean
   token?: string
 }
@@ -83,7 +83,7 @@ export interface NetworkData {
 export interface VirtualData {
   available: string
   total: string
-  percent: string
+  percent: number
 }
 
 export interface DiskData {
