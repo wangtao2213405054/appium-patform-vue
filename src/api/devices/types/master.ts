@@ -4,8 +4,8 @@ export interface GetMasterRequestData {
   page: number
   pageSize: number
   name?: string
-  projectId?: number | null
-  status?: boolean | null
+  projectId?: number | undefined
+  status?: boolean | undefined
 }
 
 // 控制机信息结构体

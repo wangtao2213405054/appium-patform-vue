@@ -85,7 +85,7 @@ export const isLicensePlate = (str: string) => {
 
 export const isJson = (str: string) => {
   try {
-    if (JSON.parse(str) && !(/^\d+$/.test(str))) {
+    if (JSON.parse(str) && !/^\d+$/.test(str)) {
       return true
     }
   } catch (error) {

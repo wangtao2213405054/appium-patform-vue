@@ -28,9 +28,7 @@ import {
 } from "@/api/account/types/user"
 import { apiGetPermissionsRoleList } from "@/api/permissions"
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
-import { AccountClassificationInfoResponseData } from "@/api/account/types/classification"
 import upload from "../components/upload.vue"
-import { GetPermissionsRoleRequestData } from "@/api/permissions/types/role"
 import { isEmail, isPhoneNumber } from "@/utils/validate"
 
 const updateDisabled = ref<boolean>(true)
@@ -113,7 +111,7 @@ const addFormRules: FormRules = {
 }
 
 interface Props {
-  classificationTree: AccountClassificationInfoResponseData[]
+  classificationTree: any
   queryId: number
 }
 
@@ -141,9 +139,10 @@ const getManagementList = async () => {
     const { items, total } = (await apiGetAccountUserList(requestForm)).data
     userList.value = items
     requestForm.total = total
-  } finally {
-    tableLoading.value = false
+  } catch (e) {
+    console.log(e)
   }
+  tableLoading.value = false
 }
 
 const editManagementInfo = () => {
@@ -157,7 +156,7 @@ const editManagementInfo = () => {
       dialogVisible.value = false
       await getManagementList()
     } else {
-      console.error("表单校验不通过", fields)
+      console.log("表单校验不通过", fields)
     }
   })
 }
@@ -167,7 +166,7 @@ const getRoleList = async () => {
     page: 1,
     pageSize: 9999
   }
-  const { items } = (await apiGetPermissionsRoleList(<GetPermissionsRoleRequestData>getRoleRequestForm)).data
+  const { items } = (await apiGetPermissionsRoleList(getRoleRequestForm)).data
   roleList.value = items
 }
 

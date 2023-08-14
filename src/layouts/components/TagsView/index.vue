@@ -164,7 +164,7 @@ const visitedViews = ref<TagView[]>([])
 // 区分首页和详情页标签
 const filterTags = () => {
   const tags = tagsViewStore.visitedViews
-  visitedViews.value = tags.filter(route => {
+  visitedViews.value = tags.filter((route) => {
     const isHome = route.meta?.home
     const hasHomeField = typeof isHome !== "undefined"
     return props.isHome ? isHome : !hasHomeField || isHome === false

@@ -50,13 +50,13 @@ const themeContent = {
   "dark-blue": BlueDark
 }
 
-const language = {
+const languages: any = {
   python: python(),
   json: json()
 }
 
 const extensions = computed(() => {
-  return [language[props.language] || python(), themeContent[activeThemeName.value] || oneDark]
+  return [languages[props.language] || python(), themeContent[activeThemeName.value] || oneDark]
 })
 const code = shallowRef<string>(props.modelValue)
 const emit = defineEmits(["update:modelValue"])

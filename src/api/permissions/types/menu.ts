@@ -1,7 +1,7 @@
 // 获取权限菜单请求
 export interface GetPermissionsMenuRequestData {
-  identifier: string
-  name: string
+  identifier?: string
+  name?: string
 }
 
 // 编辑权限请求结构体
@@ -19,8 +19,8 @@ export interface DeletePermissionsMenuRequestData {
 
 export interface PermissionsMenuInfoResponseData {
   createTime: string
-  id: number | undefined
-  identifier: string | undefined
+  id: number
+  identifier: string
   name: string
 }
 

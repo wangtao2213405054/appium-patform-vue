@@ -41,15 +41,15 @@ const requestForm: GetMasterRequestData = reactive({
   page: 1,
   pageSize: 20,
   total: 0,
-  projectId: null,
+  projectId: undefined,
   status: undefined
 })
 const roleList = ref<PermissionsMenuInfoResponseData[]>([])
 const projectList = ref<ProjectInfoResponseData[]>([])
 const masterList = ref<MasterInfoResponseData[]>([])
 const statusList = [
-  { key: true, label: "启用" },
-  { key: false, label: "禁用" }
+  { key: 1, label: "启用" },
+  { key: 0, label: "禁用" }
 ]
 const loggingList = [
   { key: "DEBUG", value: "DEBUG" },
@@ -151,8 +151,8 @@ const deleteDeviceInfo = async (id: number) => {
 // 重置查询框
 const refreshRequest = () => {
   requestForm.name = ""
-  requestForm.projectId = null
-  requestForm.status = null
+  requestForm.projectId = undefined
+  requestForm.status = undefined
   queryDeviceList()
 }
 

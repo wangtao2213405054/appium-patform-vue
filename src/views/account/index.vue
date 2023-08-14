@@ -118,12 +118,7 @@ const queryNodeUser = (data: Tree) => {
         <div class="title">
           <el-input v-model="filterText" size="small" placeholder="输入关键字进行过滤" clearable />
           &nbsp;
-          <el-button
-            type="success"
-            plain size="small"
-            :icon="Plus"
-            @click="newClassification(null)"
-          >新增</el-button>
+          <el-button type="success" plain size="small" :icon="Plus" @click="newClassification(null)">新增</el-button>
         </div>
         <el-tree
           ref="treeRef"

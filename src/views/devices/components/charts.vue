@@ -21,7 +21,7 @@ echarts.use([
   UniversalTransition
 ])
 
-const option = {
+const option: any = {
   title: {
     text: "性能表"
   },

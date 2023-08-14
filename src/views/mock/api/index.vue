@@ -156,11 +156,7 @@ onMounted(() => {
           <el-input v-model="addForm.path" placeholder="请输入接口路径" clearable />
         </el-form-item>
         <el-form-item label="返回结构" prop="body">
-          <codemirror
-            v-model="addForm.body"
-            height="30vh"
-            language="json"
-          />
+          <codemirror v-model="addForm.body" height="30vh" language="json" />
         </el-form-item>
       </el-form>
       <template #footer>

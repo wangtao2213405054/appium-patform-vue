@@ -5,7 +5,7 @@ import { ElDialog } from "element-plus"
 import zhCn from "element-plus/es/locale/lang/zh-cn"
 
 const { initTheme } = useTheme()
-ElDialog.props.lockScroll.default = false  // 修复 dialog 打开时右侧出现抖动的问题
+ElDialog.props.lockScroll.default = false // 修复 dialog 打开时右侧出现抖动的问题
 /** 初始化主题 */
 initTheme()
 </script>
