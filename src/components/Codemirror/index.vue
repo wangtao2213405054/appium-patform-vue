@@ -7,9 +7,9 @@ import { useTheme } from "@/hooks/useTheme"
 import { ElMessage } from "element-plus"
 import { CopyDocument } from "@element-plus/icons-vue"
 import clip from "@/utils/clipboard"
-import { BlueDark } from "@/views/codemirror/theme/dark-blue"
-import { oneDark } from "@/views/codemirror/theme/dark"
-import { Normal } from "@/views/codemirror/theme/normal"
+import { BlueDark } from "@/components/Codemirror/theme/dark-blue"
+import { oneDark } from "@/components/Codemirror/theme/dark"
+import { Normal } from "@/components/Codemirror/theme/normal"
 
 interface Props {
   modelValue?: string

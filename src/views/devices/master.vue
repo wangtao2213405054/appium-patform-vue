@@ -20,7 +20,8 @@ import clip from "@/utils/clipboard"
 import { useRouter } from "vue-router"
 import { VideoPlay, VideoPause, Edit, Delete, DataLine, Refresh, Search, Plus } from "@element-plus/icons-vue"
 import { Socket } from "socket.io-client"
-import projectSelect from "@/views/components/select/project-select.vue"
+import projectSelect from "@/components/Select/project-select.vue"
+import Dictionary from "@/components/Select/dictionary.vue"
 
 const title = ref<string>("新增设备")
 const dialogVisible = ref<boolean>(false)
@@ -45,17 +46,6 @@ const requestForm: GetMasterRequestData = reactive({
 })
 const roleList = ref<PermissionsMenuInfoResponseData[]>([])
 const masterList = ref<MasterInfoResponseData[]>([])
-const statusList = [
-  { key: 1, label: "启用" },
-  { key: 0, label: "禁用" }
-]
-const loggingList = [
-  { key: "DEBUG", value: "DEBUG" },
-  { key: "INFO", value: "INFO" },
-  { key: "ERROR", value: "ERROR" },
-  { key: "WARNING", value: "WARNING" },
-  { key: "CRITICAL", value: "CRITICAL" }
-]
 
 // 获取角色列表
 const getRoleList = async (value: boolean) => {
@@ -236,9 +226,7 @@ onBeforeUnmount(() => {
           prop="logging"
           :rules="[{ required: true, message: '请选择日志等级', trigger: 'blur' }]"
         >
-          <el-select v-model="addForm.logging" placeholder="请选择日志等级" clearable>
-            <el-option v-for="item in loggingList" :key="item.key" :label="item.value" :value="item.key" />
-          </el-select>
+          <dictionary v-model="addForm.logging" placeholder="请选择日志等级" name="logging" />
         </el-form-item>
         <el-form-item
           label="最大进程"
@@ -278,9 +266,7 @@ onBeforeUnmount(() => {
         <project-select v-model="requestForm.projectId" placeholder="选择项目进行查询" clearable />
       </el-form-item>
       <el-form-item>
-        <el-select v-model="requestForm.status" placeholder="选择状态进行查询" clearable>
-          <el-option v-for="item in statusList" :key="item.key" :label="item.label" :value="item.key" />
-        </el-select>
+        <dictionary v-model="requestForm.status" name="masterStatus" placeholder="选择状态进行查询" clearable />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="queryDeviceList">查询</el-button>

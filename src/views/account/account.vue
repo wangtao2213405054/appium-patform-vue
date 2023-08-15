@@ -28,7 +28,7 @@ import {
 } from "@/api/account/types/user"
 import { apiGetPermissionsRoleList } from "@/api/permissions"
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
-import upload from "../components/upload.vue"
+import upload from "../../components/Upload/index.vue"
 import { isEmail, isPhoneNumber } from "@/utils/validate"
 
 const updateDisabled = ref<boolean>(true)

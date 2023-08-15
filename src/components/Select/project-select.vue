@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {onMounted, ref} from "vue"
+import { onMounted, ref } from "vue"
 import { ProjectInfoResponseData } from "@/api/business/types/project"
 import { apiGetProjectList } from "@/api/business"
 
@@ -7,7 +7,7 @@ interface Props {
   modelValue: number | undefined
   placeholder?: string
   clearable?: boolean
-  size?: string
+  size?: ""
   filterable?: boolean
   load?: boolean
 }
@@ -52,6 +52,4 @@ onMounted(() => {
   </el-select>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

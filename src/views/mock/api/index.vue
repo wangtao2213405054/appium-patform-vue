@@ -4,7 +4,7 @@ import { EditMockApiRequestData, GetMockApiRequestData, MockApiInfoResponseData 
 import { ElDialog, ElMessage, ElMessageBox, FormInstance, FormRules } from "element-plus"
 import { apiDeleteMockApiInfo, apiEditMockApiInfo, apiGetMockApiList } from "@/api/mock"
 import { Edit, Delete, Plus, Search, Refresh } from "@element-plus/icons-vue"
-import Codemirror from "@/views/codemirror/index.vue"
+import Codemirror from "@/components/Codemirror/index.vue"
 import { isJson } from "@/utils/validate"
 
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
