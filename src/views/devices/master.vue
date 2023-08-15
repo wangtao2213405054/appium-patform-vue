@@ -14,14 +14,13 @@ import {
   apiGetMasterList,
   apiGetMasterSocketRoomInfo
 } from "@/api/devices"
-import { apiGetProjectList } from "@/api/business"
 import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance } from "element-plus"
 import { apiGetPermissionsRoleList } from "@/api/permissions"
 import clip from "@/utils/clipboard"
 import { useRouter } from "vue-router"
 import { VideoPlay, VideoPause, Edit, Delete, DataLine, Refresh, Search, Plus } from "@element-plus/icons-vue"
 import { Socket } from "socket.io-client"
-import { ProjectInfoResponseData } from "@/api/business/types/project"
+import projectSelect from "@/views/components/select/project-select.vue"
 
 const title = ref<string>("新增设备")
 const dialogVisible = ref<boolean>(false)
@@ -45,7 +44,6 @@ const requestForm: GetMasterRequestData = reactive({
   status: undefined
 })
 const roleList = ref<PermissionsMenuInfoResponseData[]>([])
-const projectList = ref<ProjectInfoResponseData[]>([])
 const masterList = ref<MasterInfoResponseData[]>([])
 const statusList = [
   { key: 1, label: "启用" },
@@ -66,13 +64,7 @@ const getRoleList = async (value: boolean) => {
     roleList.value = items
   }
 }
-// 获取项目列表
-const getProjectList = async (value: boolean) => {
-  if (value) {
-    const { items } = (await apiGetProjectList({ page: 1, pageSize: 9999 })).data
-    projectList.value = items
-  }
-}
+
 // 添加设备时的钩子
 const addDevice = () => {
   title.value = "添加设备"
@@ -202,6 +194,7 @@ const socket: Socket = inject("socket") as Socket
 
 onMounted(() => {
   getMasterList()
+  getRoleList(true)
   socket.on("masterOnline", (data: MasterOnlineStatusSocketData) => {
     masterList.value.forEach((item) => {
       if (item.id === data.id) {
@@ -255,14 +248,7 @@ onBeforeUnmount(() => {
           <el-input-number v-model="addForm.maxContext" :min="1" :max="6" label="请输入最大进程数" />
         </el-form-item>
         <el-form-item label="所属项目" prop="projectId">
-          <el-select
-            v-model="addForm.projectId"
-            placeholder="请选择设备所属项目"
-            clearable
-            @visible-change="getProjectList"
-          >
-            <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
+          <project-select v-model="addForm.projectId" placeholder="请选择设备所属项目" clearable />
         </el-form-item>
         <el-form-item v-if="addForm.token" label="设备令牌" prop="token">
           <el-input v-model="addForm.token" readonly disabled style="width: 80%" />
@@ -289,14 +275,7 @@ onBeforeUnmount(() => {
         <el-input v-model="requestForm.name" placeholder="输入设备名称查询" clearable />
       </el-form-item>
       <el-form-item>
-        <el-select
-          v-model="requestForm.projectId"
-          placeholder="选择项目进行查询"
-          clearable
-          @visible-change="getProjectList"
-        >
-          <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
+        <project-select v-model="requestForm.projectId" placeholder="选择项目进行查询" clearable />
       </el-form-item>
       <el-form-item>
         <el-select v-model="requestForm.status" placeholder="选择状态进行查询" clearable>

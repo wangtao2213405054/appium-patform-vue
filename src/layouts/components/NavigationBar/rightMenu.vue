@@ -7,9 +7,6 @@ import { UserFilled } from "@element-plus/icons-vue"
 import ThemeSwitch from "@/components/ThemeSwitch/index.vue"
 import Screenfull from "@/components/Screenfull/index.vue"
 import Notify from "@/components/Notify/index.vue"
-import { ref, watch, onMounted } from "vue"
-import { ProjectInfoResponseData } from "@/api/business/types/project"
-import { apiGetProjectList } from "@/api/business"
 
 const router = useRouter()
 const settingsStore = useSettingsStore()
@@ -33,32 +30,6 @@ const props = defineProps({
     default: true
   }
 })
-
-const projectList = ref<ProjectInfoResponseData[]>([])
-const projectId = ref<number>(JSON.parse(localStorage.getItem("projectId") || "0"))
-
-// id 变化后刷新页面
-watch(projectId, (newId: number) => {
-  if (!newId || !props.showSidebar) return
-  localStorage.setItem("projectId", String(newId))
-  const { mold } = projectList.value.find((item) => {
-    return item.id === newId
-  })
-  localStorage.setItem("mold", mold)
-  window.location.reload()
-})
-
-onMounted(async () => {
-  await getProjectList(props.showSidebar)
-})
-
-// 获取项目列表
-const getProjectList = async (value: boolean) => {
-  if (value) {
-    const { items } = (await apiGetProjectList({ name: "", total: 0, page: 1, pageSize: 99999 })).data
-    projectList.value = items
-  }
-}
 </script>
 
 <template>
@@ -66,18 +37,6 @@ const getProjectList = async (value: boolean) => {
     <Screenfull v-if="showScreenfull" class="right-menu-item" />
     <ThemeSwitch v-if="showThemeSwitch" class="right-menu-item" />
     <Notify v-if="showNotify" class="right-menu-item" />
-    <el-select
-      v-if="props.showSidebar"
-      v-model="projectId"
-      placeholder="切换项目"
-      size="small"
-      class="right-menu-item"
-      style="width: 100px"
-      filterable
-      @visible-change="getProjectList"
-    >
-      <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id" />
-    </el-select>
     <el-dropdown class="right-menu-item">
       <div class="right-menu-avatar">
         <el-avatar :icon="UserFilled" :src="userStore.avatar ? userStore.avatar : ''" :size="36" />

@@ -1,25 +1,21 @@
 <script lang="ts" setup>
-import { ref, watch } from "vue"
+import {onMounted, ref} from "vue"
 import { ProjectInfoResponseData } from "@/api/business/types/project"
 import { apiGetProjectList } from "@/api/business"
 
 interface Props {
-  modelValue: number
+  modelValue: number | undefined
   placeholder?: string
   clearable?: boolean
+  size?: string
+  filterable?: boolean
+  load?: boolean
 }
 
 const props = defineProps<Props>()
 const projectList = ref<ProjectInfoResponseData[]>([])
 const bound = ref<number | undefined>(undefined)
 const emit = defineEmits(["update:modelValue"])
-
-// watch(
-//   () => props.modelValue,
-//   (model) => {
-//   bound.value = model
-//   }
-// )
 
 // 获取项目列表
 const getProjectList = async (value: boolean) => {
@@ -33,6 +29,13 @@ const getProjectList = async (value: boolean) => {
 const changeValue = (value: number) => {
   emit("update:modelValue", value)
 }
+
+onMounted(() => {
+  bound.value = props.modelValue
+  if (props.load) {
+    getProjectList(true)
+  }
+})
 </script>
 
 <template>
@@ -40,6 +43,8 @@ const changeValue = (value: number) => {
     v-model="bound"
     :placeholder="props.placeholder"
     :clearable="clearable"
+    :size="props.size"
+    :filterable="props.filterable"
     @visible-change="getProjectList"
     @change="changeValue"
   >

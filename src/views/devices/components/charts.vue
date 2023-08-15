@@ -130,7 +130,7 @@ onMounted(() => {
     free.value = data.disk.free
     used.value = data.disk.used
     total.value = data.disk.total
-    usedPercent.value = data.disk.percent * 100
+    usedPercent.value = parseFloat((data.disk.percent * 100).toFixed(2))
     freePercent.value = parseFloat((100 - data.disk.percent * 100).toFixed(2))
     // 网络
     send.value = data.network.send
@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
               </el-icon>
             </el-tooltip>
           </div>
-          <div class="el-statistic__content">{{ send }}/{{ recv }}</div>
+          <div class="el-statistic__content text-container">{{ send }}/{{ recv }}</div>
         </div>
         <div class="countdown-footer">
           <span>上传 / 下载</span>
@@ -332,5 +332,10 @@ onBeforeUnmount(() => {
   margin-top: 12px;
   font-size: 12px;
   color: var(--el-text-color-regular);
+}
+.text-container {
+  white-space: nowrap; /* 防止换行 */
+  font-size: 28px; /* 初始字体大小 */
+  transition: font-size 0.2s; /* 添加过渡效果 */
 }
 </style>

@@ -29,7 +29,7 @@ const addForm: EditAccountClassificationRequestData = reactive({
 })
 const addFormRules: FormRules = {
   name: [
-    { required: true, message: "请输入正确的节点信息", trigger: "blur" },
+    { required: true, message: "请输入正确的组织信息", trigger: "blur" },
     { min: 2, max: 7, message: "长度在 2 到 7 个字符", trigger: "blur" }
   ]
 }
@@ -65,8 +65,8 @@ const getClassificationList = async () => {
 
 // 新增子节点
 const newClassification = (nodeId: number | null) => {
-  title.value = nodeId ? "新增部门" : "新增公司"
-  labelName.value = nodeId ? "部门名称" : "公司名称"
+  title.value = "新增组织"
+  labelName.value = "组织名称"
   dialogVisible.value = true
   addForm.nodeId = nodeId
 }
@@ -148,7 +148,7 @@ const queryNodeUser = (data: Tree) => {
                   cancel-button-text="不用了"
                   :icon="WarningFilled"
                   icon-color="#f56c6c"
-                  :title="node.level === 2 ? '确定要删除这个部门吗？' : '确认要删除这个公司吗？'"
+                  title="确定要删除这个组织吗？"
                   @confirm="remove(data.id)"
                 >
                   <template #reference>
