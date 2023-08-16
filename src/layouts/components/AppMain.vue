@@ -2,27 +2,24 @@
 import { useRoute } from "vue-router"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 import { computed } from "vue"
-// import { onMounted, onUnmounted, computed } from "vue"
-// import { mark } from "@/utils/watermark"
-// import { useUserStore } from "@/store/modules/user"
+import { NWatermark } from 'naive-ui'
+import { useUserStore } from "@/store/modules/user"
+import { useSettingsStore } from "@/store/modules/settings"
+import { storeToRefs } from "pinia"
 
 const route = useRoute()
 const tagsViewStore = useTagsViewStore()
-// const userStore = useUserStore()
+const userStore = useUserStore()
+const settingsStore = useSettingsStore()
+
+const { watermark } = storeToRefs(settingsStore)
+
 
 const key = computed(() => {
   // 返回 route.path 和 route.fullPath 有着不同的效果，大多数时候 path 更通用
   return route.path
 })
 
-// const { watermark } = mark()
-// onMounted(() => {
-//   watermark(userStore.username) //水印名
-// })
-//
-// onUnmounted(() => {
-//   watermark("")
-// })
 </script>
 
 <template>
@@ -34,6 +31,20 @@ const key = computed(() => {
             <component :is="Component" :key="key" />
           </keep-alive>
         </transition>
+        <!-- 水印 -->
+        <n-watermark
+          v-if="watermark"
+          :content="userStore.email"
+          cross
+          fullscreen
+          :font-size="16"
+          :line-height="16"
+          :width="384"
+          :height="384"
+          :x-offset="12"
+          :y-offset="60"
+          :rotate="-15"
+        />
       </router-view>
     </div>
   </section>

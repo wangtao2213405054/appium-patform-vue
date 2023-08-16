@@ -18,6 +18,7 @@ export const useSettingsStore = defineStore("settings", () => {
     // 使用类型断言来指定 key 的类型，将 value 包装在 ref 函数中，创建一个响应式变量
     const refValue = ref(value)
     state[key as SettingsStoreKey] = refValue
+    console.log(key, value)
     // 监听每个响应式变量
     watch(refValue, () => {
       // 缓存

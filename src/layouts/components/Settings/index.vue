@@ -19,20 +19,22 @@ const {
   showScreenfull,
   cacheTagsView,
   showGreyMode,
-  showColorWeakness
+  showColorWeakness,
+  watermark
 } = storeToRefs(settingsStore)
 
 /** 定义 switch 设置项 */
 const switchSettings = {
-  显示标签栏: showTagsView,
+  "显示标签栏": showTagsView,
   "显示 Logo": showLogo,
   "固定 Header": fixedHeader,
-  显示消息通知: showNotify,
-  显示切换主题按钮: showThemeSwitch,
-  显示全屏按钮: showScreenfull,
-  是否缓存标签栏: cacheTagsView,
-  显示灰色模式: showGreyMode,
-  显示色弱模式: showColorWeakness
+  "显示消息通知": showNotify,
+  "显示切换主题按钮": showThemeSwitch,
+  "显示全屏按钮": showScreenfull,
+  "是否缓存标签栏": cacheTagsView,
+  "显示灰色模式": showGreyMode,
+  "显示色弱模式": showColorWeakness,
+  "显示水印": watermark
 }
 
 /** 非左侧模式时，Header 都是 fixed 布局 */
