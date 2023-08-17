@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue"
+import { ref, onMounted, reactive, computed } from "vue"
 import { useRouter } from "vue-router"
 import {
   ElForm,
@@ -20,6 +20,7 @@ import { apiDeleteProjectInfo, apiEditProjectInfo, apiGetProjectList } from "@/a
 import { Edit, Delete, Search, Refresh, Plus } from "@element-plus/icons-vue"
 import { EditProjectRequestData, GetProjectRequestData, ProjectInfoResponseData } from "@/api/business/types/project"
 import upload from "../../components/Upload/index.vue"
+import { checkPermission } from "@/utils/permission"
 
 const avatarPrefix = "?imageView2/1/w/80/h/80"
 
@@ -152,6 +153,16 @@ async function deleteProjectData(id: number) {
   await apiDeleteProjectInfo({ id })
   await getProjectListData()
 }
+
+const deletePermission = computed(() => {
+  return checkPermission(["/business/project/delete"])
+})
+const editPermission = computed(() => {
+  return checkPermission(["/business/project/edit"])
+})
+const action = computed(() => {
+  return !(!editPermission.value && !deletePermission.value)
+})
 </script>
 
 <template>
@@ -202,7 +213,7 @@ async function deleteProjectData(id: number) {
       <el-form-item>
         <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="editPermission">
         <el-button type="primary" :icon="Plus" plain @click="visibleBool = true">新建项目</el-button>
       </el-form-item>
     </el-form>
@@ -216,12 +227,21 @@ async function deleteProjectData(id: number) {
           <span class="description">{{ item.label }}</span>
         </div>
         <p>{{ item.describe }}</p>
-        <ul class="list-inline">
+        <ul v-if="action" class="list-inline">
           <li>
-            <el-button :icon="Edit" type="primary" link @click.stop="updateButton(item)">编辑</el-button>
+            <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateButton(item)"
+              >编辑</el-button
+            >
           </li>
           <li>
-            <el-button type="danger" :icon="Delete" link @click.stop="deleteProjectData(item.id)">删除</el-button>
+            <el-button
+              v-if="deletePermission"
+              type="danger"
+              :icon="Delete"
+              link
+              @click.stop="deleteProjectData(item.id)"
+              >删除</el-button
+            >
           </li>
         </ul>
       </div>

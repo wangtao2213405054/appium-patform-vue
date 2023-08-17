@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Edit, Delete, Plus, Refresh, Search } from "@element-plus/icons-vue"
-import { onMounted, reactive, ref } from "vue"
+import { onMounted, reactive, ref, computed } from "vue"
 import { EditPermissionsRoleRequestData, GetPermissionsRoleRequestData } from "@/api/permissions/types/role"
 import { ElDialog, ElMessage, ElMessageBox, ElTree, FormInstance } from "element-plus"
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
@@ -10,6 +10,7 @@ import {
   apiGetPermissionsMenuList,
   apiGetPermissionsRoleList
 } from "@/api/permissions"
+import { checkPermission } from "@/utils/permission"
 
 const requestForm: GetPermissionsRoleRequestData = reactive({
   keyword: "",
@@ -176,6 +177,23 @@ function checkedKeys(value: any) {
     treeRef.value!.setCheckedKeys([])
   }
 }
+
+const deletePermission = computed(() => {
+  return checkPermission(["/permissions/role/delete"])
+})
+const editPermission = computed(() => {
+  return checkPermission(["/permissions/role/edit"])
+})
+const actionWidth = computed(() => {
+  let width = 160
+  if (!editPermission.value) {
+    width -= 80
+  }
+  if (!deletePermission.value) {
+    width -= 80
+  }
+  return width.toString()
+})
 </script>
 
 <template>
@@ -190,7 +208,7 @@ function checkedKeys(value: any) {
       <el-form-item>
         <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="editPermission">
         <el-button type="primary" :icon="Plus" plain @click="newButton">新增</el-button>
       </el-form-item>
     </el-form>
@@ -236,10 +254,14 @@ function checkedKeys(value: any) {
       <el-table-column prop="name" label="角色名称" align="center" />
       <el-table-column prop="identifier" label="标识符" align="center" />
       <el-table-column prop="updateTime" label="修改时间" align="center" width="160px" />
-      <el-table-column label="操作" align="center" width="160px">
+      <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
-          <el-button type="primary" link :icon="Edit" @click="updateButton(scope.row)">编辑</el-button>
-          <el-button type="danger" link :icon="Delete" @click="deleteRoleInfo(scope.row.id)">删除</el-button>
+          <el-button v-if="editPermission" type="primary" link :icon="Edit" @click="updateButton(scope.row)"
+            >编辑</el-button
+          >
+          <el-button v-if="deletePermission" type="danger" link :icon="Delete" @click="deleteRoleInfo(scope.row.id)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>

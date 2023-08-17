@@ -4,11 +4,12 @@ import {
   GetMockDomainRequestData,
   MockDomainInfoResponseData
 } from "@/api/mock/types/domain"
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive, onMounted, computed } from "vue"
 import { ElDialog, ElMessage, ElMessageBox, FormInstance, FormRules } from "element-plus"
 import { apiDeleteMockDomainInfo, apiEditMockDomainInfo, apiGetMockDomainList } from "@/api/mock"
 import { Refresh, Edit, Plus, Delete, Search } from "@element-plus/icons-vue"
 import { isDomain, isIpPort } from "@/utils/validate"
+import { checkPermission } from "@/utils/permission"
 
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
 const title = ref<string>("添加域名")
@@ -58,6 +59,22 @@ const protocolList = ref([
 const portList = ref(["443", "80"])
 const domainList = ref<MockDomainInfoResponseData[]>([])
 const domainLoading = ref<boolean>(false)
+const deletePermission = computed(() => {
+  return checkPermission(["/mock/domain/delete"])
+})
+const editPermission = computed(() => {
+  return checkPermission(["/mock/domain/edit"])
+})
+const actionWidth = computed(() => {
+  let width = 160
+  if (!editPermission.value) {
+    width -= 80
+  }
+  if (!deletePermission.value) {
+    width -= 80
+  }
+  return width.toString()
+})
 
 onMounted(() => {
   getDomainList()
@@ -201,7 +218,7 @@ const getDomainList = async () => {
       <el-form-item>
         <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="editPermission">
         <el-button :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
@@ -218,10 +235,19 @@ const getDomainList = async () => {
       <el-table-column prop="domain" label="域名信息" align="center" />
       <el-table-column prop="port" label="协议端口" width="120px" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
-      <el-table-column label="操作" width="160px" align="center">
+      <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
-          <el-button :icon="Edit" type="primary" link @click.stop="updateDomain(scope.row)">编辑</el-button>
-          <el-button :icon="Delete" type="danger" link @click.stop="deleteDomainInfo(scope.row.id)">删除</el-button>
+          <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateDomain(scope.row)"
+            >编辑</el-button
+          >
+          <el-button
+            v-if="deletePermission"
+            :icon="Delete"
+            type="danger"
+            link
+            @click.stop="deleteDomainInfo(scope.row.id)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>

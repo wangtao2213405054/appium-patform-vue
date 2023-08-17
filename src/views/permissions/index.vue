@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, nextTick } from "vue"
+import { onMounted, reactive, ref, nextTick, computed } from "vue"
 import { apiDeletePermissionsMenuInfo, apiEditPermissionsMenuInfo, apiGetPermissionsMenuList } from "@/api/permissions"
 import {
   EditPermissionsMenuRequestData,
@@ -8,6 +8,7 @@ import {
 } from "@/api/permissions/types/menu"
 import { ElButton, ElMessage, ElMessageBox, FormInstance, ElInput, ElDialog } from "element-plus"
 import { Search, Refresh, Plus, Sort, Edit, Delete } from "@element-plus/icons-vue"
+import { checkPermission } from "@/utils/permission"
 
 const menuList = ref<PermissionsMenuInfoResponseData[]>([])
 const dialogVisible = ref<boolean>(false)
@@ -122,6 +123,23 @@ function hiddenTable() {
     refreshTable.value = true
   })
 }
+
+const deletePermission = computed(() => {
+  return checkPermission(["/permissions/menu/delete"])
+})
+const editPermission = computed(() => {
+  return checkPermission(["/permissions/menu/edit"])
+})
+const actionWidth = computed(() => {
+  let width = 210
+  if (!editPermission.value) {
+    width -= 140
+  }
+  if (!deletePermission.value) {
+    width -= 70
+  }
+  return width.toString()
+})
 </script>
 
 <template>
@@ -157,7 +175,7 @@ function hiddenTable() {
       <el-form-item>
         <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="editPermission">
         <el-button type="primary" plain :icon="Plus" @click="newButton">新增</el-button>
       </el-form-item>
       <el-form-item>
@@ -169,11 +187,22 @@ function hiddenTable() {
       <el-table-column prop="name" label="名称" show-overflow-tooltip />
       <el-table-column prop="identifier" label="标识符" align="center" show-overflow-tooltip />
       <el-table-column prop="updateTime" label="修改时间" align="center" width="160px" />
-      <el-table-column label="操作" align="center" width="210px">
+      <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
-          <el-button type="primary" link :icon="Edit" @click="updateButton(scope.row)">修改</el-button>
-          <el-button type="success" link :icon="Plus" @click="newNode(scope.row.id)">新增</el-button>
-          <el-button :icon="Delete" type="danger" link @click="deletePermissionsInfo(scope.row.id)">删除</el-button>
+          <el-button v-if="editPermission" type="primary" link :icon="Edit" @click="updateButton(scope.row)"
+            >修改</el-button
+          >
+          <el-button v-if="editPermission" type="success" link :icon="Plus" @click="newNode(scope.row.id)"
+            >新增</el-button
+          >
+          <el-button
+            v-if="deletePermission"
+            :icon="Delete"
+            type="danger"
+            link
+            @click="deletePermissionsInfo(scope.row.id)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>

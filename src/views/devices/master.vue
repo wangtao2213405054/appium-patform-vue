@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted, inject, onBeforeUnmount } from "vue"
+import { reactive, ref, onMounted, inject, onBeforeUnmount, computed } from "vue"
 import {
   EditMasterRequestData,
   GetMasterRequestData,
@@ -22,6 +22,7 @@ import { VideoPlay, VideoPause, Edit, Delete, DataLine, Refresh, Search, Plus } 
 import { Socket } from "socket.io-client"
 import projectSelect from "@/components/Select/project-select.vue"
 import Dictionary from "@/components/Select/dictionary.vue"
+import { checkPermission } from "@/utils/permission"
 
 const title = ref<string>("新增设备")
 const dialogVisible = ref<boolean>(false)
@@ -196,6 +197,35 @@ onMounted(() => {
 onBeforeUnmount(() => {
   socket.off("masterOnline")
 })
+
+const deletePermission = computed(() => {
+  return checkPermission(["/devices/master/delete"])
+})
+const editPermission = computed(() => {
+  return checkPermission(["/devices/master/edit"])
+})
+const statusPermission = computed(() => {
+  return checkPermission(["/devices/master/status"])
+})
+const socketPermission = computed(() => {
+  return checkPermission(["/devices/master/socket"])
+})
+const actionWidth = computed(() => {
+  let width = 280
+  if (!editPermission.value) {
+    width -= 70
+  }
+  if (!deletePermission.value) {
+    width -= 70
+  }
+  if (!statusPermission.value) {
+    width -= 70
+  }
+  if (!socketPermission.value) {
+    width -= 70
+  }
+  return width.toString()
+})
 </script>
 
 <template>
@@ -274,7 +304,7 @@ onBeforeUnmount(() => {
       <el-form-item>
         <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="editPermission">
         <el-button :icon="Plus" type="success" @click="addDevice">添 加</el-button>
       </el-form-item>
     </el-form>
@@ -298,18 +328,30 @@ onBeforeUnmount(() => {
           }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="280px" align="center">
+      <el-table-column v-if="actionWidth" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
           <el-button
+            v-if="statusPermission"
             :icon="scope.row.status ? VideoPause : VideoPlay"
             :type="scope.row.status ? 'warning' : 'success'"
             link
             @click.stop="updateDeviceStatus(scope.row.id, scope.row.status)"
             >{{ scope.row.status ? "关闭" : "开启" }}</el-button
           >
-          <el-button :icon="DataLine" type="success" link @click.stop="toCharts(scope.row.id)">性能</el-button>
-          <el-button :icon="Edit" type="primary" link @click.stop="updateDevice(scope.row)">编辑</el-button>
-          <el-button :icon="Delete" type="danger" link @click.stop="deleteDeviceInfo(scope.row.id)">删除</el-button>
+          <el-button v-if="socketPermission" :icon="DataLine" type="success" link @click.stop="toCharts(scope.row.id)"
+            >性能</el-button
+          >
+          <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateDevice(scope.row)"
+            >编辑</el-button
+          >
+          <el-button
+            v-if="deletePermission"
+            :icon="Delete"
+            type="danger"
+            link
+            @click.stop="deleteDeviceInfo(scope.row.id)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>

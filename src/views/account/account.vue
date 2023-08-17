@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue"
+import { onMounted, reactive, ref, computed } from "vue"
 import {
   ElButton,
   ElTable,
@@ -30,6 +30,7 @@ import { apiGetPermissionsRoleList } from "@/api/permissions"
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
 import upload from "../../components/Upload/index.vue"
 import { isEmail, isPhoneNumber } from "@/utils/validate"
+import { checkPermission } from "@/utils/permission"
 
 const updateDisabled = ref<boolean>(true)
 const deleteDisabled = ref<boolean>(true)
@@ -247,6 +248,23 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
   updateDisabled.value = value.length !== 1 // 选中列表不为1时禁用此功能
   deleteDisabled.value = !value.length // 选中列表为空时禁用此功能
 }
+
+const deletePermission = computed(() => {
+  return checkPermission(["/account/user/delete"])
+})
+const editPermission = computed(() => {
+  return checkPermission(["/account/user/edit"])
+})
+const actionWidth = computed(() => {
+  let width = 120
+  if (!editPermission.value) {
+    width -= 60
+  }
+  if (!deletePermission.value) {
+    width -= 60
+  }
+  return width.toString()
+})
 </script>
 
 <template>
@@ -335,11 +353,11 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
         </span>
       </template>
     </el-dialog>
-    <el-form inline size="small">
-      <el-form-item>
+    <el-form v-if="actionWidth !== '0'" inline size="small">
+      <el-form-item v-if="editPermission">
         <el-button :icon="Plus" plain type="primary" :disabled="newDisabled" @click="newUserButton">新增</el-button>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="editPermission">
         <el-button
           :icon="Edit"
           plain
@@ -349,7 +367,7 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
           >修改</el-button
         >
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="deletePermission">
         <el-button :icon="Delete" plain type="danger" :disabled="deleteDisabled" @click="batchDelete">删除</el-button>
       </el-form-item>
       <el-form-item style="float: right">
@@ -393,10 +411,25 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="140px" align="center" />
-      <el-table-column label="操作" width="120px" align="center">
+      <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
-          <el-button :icon="Edit" size="small" type="primary" link @click="updateUserInfo(scope.row)">修改</el-button>
-          <el-button :icon="Delete" size="small" type="danger" link @click="deleteManagementInfo([scope.row['id']])">
+          <el-button
+            v-if="editPermission"
+            :icon="Edit"
+            size="small"
+            type="primary"
+            link
+            @click="updateUserInfo(scope.row)"
+            >修改</el-button
+          >
+          <el-button
+            v-if="deletePermission"
+            :icon="Delete"
+            size="small"
+            type="danger"
+            link
+            @click="deleteManagementInfo([scope.row['id']])"
+          >
             删除
           </el-button>
         </template>

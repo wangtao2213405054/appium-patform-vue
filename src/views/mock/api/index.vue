@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue"
+import { onMounted, reactive, ref, computed } from "vue"
 import { EditMockApiRequestData, GetMockApiRequestData, MockApiInfoResponseData } from "@/api/mock/types/api"
 import { ElDialog, ElMessage, ElMessageBox, FormInstance, FormRules } from "element-plus"
 import { apiDeleteMockApiInfo, apiEditMockApiInfo, apiGetMockApiList } from "@/api/mock"
@@ -7,6 +7,7 @@ import { Edit, Delete, Plus, Search, Refresh } from "@element-plus/icons-vue"
 import Codemirror from "@/components/Codemirror/index.vue"
 import { isJson, isApiPath } from "@/utils/validate"
 import { Warning } from "@element-plus/icons-vue"
+import { checkPermission } from "@/utils/permission"
 
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
 const title = ref<string>("添加接口")
@@ -171,6 +172,23 @@ const getApiList = async () => {
 onMounted(() => {
   getApiList()
 })
+
+const deletePermission = computed(() => {
+  return checkPermission(["/mock/api/delete"])
+})
+const editPermission = computed(() => {
+  return checkPermission(["/mock/api/edit"])
+})
+const actionWidth = computed(() => {
+  let width = 160
+  if (!editPermission.value) {
+    width -= 80
+  }
+  if (!deletePermission.value) {
+    width -= 80
+  }
+  return width.toString()
+})
 </script>
 
 <template>
@@ -279,7 +297,7 @@ onMounted(() => {
       <el-form-item>
         <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="editPermission">
         <el-button :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
@@ -289,10 +307,14 @@ onMounted(() => {
       <el-table-column prop="path" label="接口路径" />
       <el-table-column prop="createTime" label="创建时间" width="160px" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
-      <el-table-column label="操作" width="160px" align="center">
+      <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
-          <el-button :icon="Edit" type="primary" link @click.stop="updateApi(scope.row)">编辑</el-button>
-          <el-button :icon="Delete" type="danger" link @click.stop="deleteApiInfo(scope.row.id)">删除</el-button>
+          <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateApi(scope.row)"
+            >编辑</el-button
+          >
+          <el-button v-if="deletePermission" :icon="Delete" type="danger" link @click.stop="deleteApiInfo(scope.row.id)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>

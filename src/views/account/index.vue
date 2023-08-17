@@ -118,7 +118,15 @@ const queryNodeUser = (data: Tree) => {
         <div class="title">
           <el-input v-model="filterText" size="small" placeholder="输入关键字进行过滤" clearable />
           &nbsp;
-          <el-button type="success" plain size="small" :icon="Plus" @click="newClassification(null)">新增</el-button>
+          <el-button
+            v-permission="['/account/classification/edit']"
+            type="success"
+            plain
+            size="small"
+            :icon="Plus"
+            @click="newClassification(null)"
+            >新增</el-button
+          >
         </div>
         <el-tree
           ref="treeRef"
@@ -134,6 +142,7 @@ const queryNodeUser = (data: Tree) => {
               <span style="font-size: 10px">{{ data.name }}</span>
               <span>
                 <el-button
+                  v-permission="['/account/classification/edit']"
                   v-if="node.level < 2"
                   size="small"
                   type="primary"
@@ -152,7 +161,15 @@ const queryNodeUser = (data: Tree) => {
                   @confirm="remove(data.id)"
                 >
                   <template #reference>
-                    <el-button class="danger-button" type="danger" size="small" link @click.stop>删除</el-button>
+                    <el-button
+                      v-permission="['/account/classification/delete']"
+                      class="danger-button"
+                      type="danger"
+                      size="small"
+                      link
+                      @click.stop
+                      >删除</el-button
+                    >
                   </template>
                 </el-popconfirm>
               </span>
