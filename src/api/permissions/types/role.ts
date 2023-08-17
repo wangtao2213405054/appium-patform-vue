@@ -2,8 +2,7 @@
 import { PermissionsMenuInfoResponseData } from "@/api/permissions/types/menu"
 
 export interface GetPermissionsRoleRequestData {
-  identifier?: string
-  name?: string
+  keyword?: string
   page: number
   pageSize: number
   total?: number

@@ -1,7 +1,6 @@
 // 获取权限菜单请求
 export interface GetPermissionsMenuRequestData {
-  identifier?: string
-  name?: string
+  keyword?: string
 }
 
 // 编辑权限请求结构体

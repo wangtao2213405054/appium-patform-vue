@@ -3,8 +3,7 @@ export interface GetAccountUserRequestData {
   total: number
   page: number
   pageSize: number
-  name: string | null
-  mobile: string | null
+  keyword?: string
   id: number | undefined
   state: boolean | undefined
 }

@@ -14,7 +14,7 @@ const chalky = "#2c30a6", // 数字
   whiskey = "#2c30a6", // 布尔值
   violet = "#2c30a6", // 关键字
   darkBackground = "#5da3f4",
-  highlightBackground = "#bed9f2", // 光标行的高亮显示
+  highlightBackground = "#e4f1fd", // 光标行的高亮显示
   background = "#FFFFFF", // 背景色
   tooltipBackground = "#f7f8fa", // 代码提示背景色
   selection = "#bed9f2", // 选中代码后的颜色
@@ -64,7 +64,7 @@ export const oneDarkTheme = EditorView.theme({
     backgroundColor: "#6199ff2f"
   },
 
-  ".cm-activeLine": { backgroundColor: "#6699ff0b" },
+  ".cm-activeLine": { backgroundColor: highlightBackground },
   ".cm-selectionMatch": { backgroundColor: "#aafe661a" },
 
   "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {

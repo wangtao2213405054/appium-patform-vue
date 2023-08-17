@@ -57,9 +57,8 @@ const addForm = reactive<EditAccountUserRequestData>({
 
 const requestForm = reactive<GetAccountUserRequestData>({
   id: 0,
-  name: "",
+  keyword: "",
   state: undefined,
-  mobile: "",
   page: 1,
   pageSize: 10,
   total: 0
@@ -194,9 +193,8 @@ const queryGetList = () => {
 // 重置查询表单
 const refreshQuery = () => {
   requestForm.id = undefined
-  requestForm.name = ""
+  requestForm.keyword = ""
   requestForm.state = undefined
-  requestForm.mobile = ""
   queryGetList()
 }
 
@@ -256,10 +254,7 @@ const handleSelectionChange = (value: AccountUserInfoResponseData[]) => {
     <el-collapse-transition>
       <el-form v-show="!hiddenArea" :model="requestForm" inline size="small">
         <el-form-item prop="name">
-          <el-input v-model="requestForm.name" class="request-form" placeholder="输入用户名称查询" clearable />
-        </el-form-item>
-        <el-form-item prop="mobile">
-          <el-input v-model="requestForm.mobile" class="request-form" placeholder="输入手机号查询" clearable />
+          <el-input v-model="requestForm.keyword" class="request-form" placeholder="名称/手机号查询" clearable />
         </el-form-item>
         <el-form-item prop="state">
           <el-select v-model="requestForm.state" class="request-form" placeholder="选择用户状态查询" clearable>

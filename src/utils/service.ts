@@ -37,6 +37,7 @@ function createService() {
       } else if (code !== 1) {
         // code !== 1 则提示错误
         ElMessage.error(msg || "Error")
+        return Promise.reject(new Error(msg || "Error"))
       }
       if (code === 4001 || code === 4002) {
         // 当 code 为 4001 or 4002 时退出登陆

@@ -12,8 +12,7 @@ import {
 } from "@/api/permissions"
 
 const requestForm: GetPermissionsRoleRequestData = reactive({
-  name: "",
-  identifier: "",
+  keyword: "",
   total: 0,
   page: 1,
   pageSize: 20
@@ -63,7 +62,7 @@ function newButton() {
 
 // 获取菜单列表
 async function getPermissionsList() {
-  menuList.value = (await apiGetPermissionsMenuList({ name: "", identifier: "" })).data
+  menuList.value = (await apiGetPermissionsMenuList({ keyword: "" })).data
 }
 
 // 新增/修改 角色信息
@@ -134,8 +133,7 @@ function closeDialog() {
 
 // 重置查询框
 function refreshRequest() {
-  requestForm.name = ""
-  requestForm.identifier = ""
+  requestForm.keyword = ""
   requestForm.page = 1
   requestForm.pageSize = 20
   queryRoleList()
@@ -184,10 +182,7 @@ function checkedKeys(value: any) {
   <el-card>
     <el-form ref="requestFormRef" :model="requestForm" inline>
       <el-form-item>
-        <el-input v-model="requestForm.name" placeholder="输入角色名称进行查询" clearable />
-      </el-form-item>
-      <el-form-item>
-        <el-input v-model="requestForm.identifier" placeholder="输入标识符进行查询" clearable />
+        <el-input v-model="requestForm.keyword" placeholder="名称/标识符进行查询" clearable />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="queryRoleList">查询</el-button>

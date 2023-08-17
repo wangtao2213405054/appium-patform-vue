@@ -5,7 +5,8 @@ import { ElDialog, ElMessage, ElMessageBox, FormInstance, FormRules } from "elem
 import { apiDeleteMockApiInfo, apiEditMockApiInfo, apiGetMockApiList } from "@/api/mock"
 import { Edit, Delete, Plus, Search, Refresh } from "@element-plus/icons-vue"
 import Codemirror from "@/components/Codemirror/index.vue"
-import { isJson } from "@/utils/validate"
+import { isJson, isApiPath } from "@/utils/validate"
+import { Warning } from "@element-plus/icons-vue"
 
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
 const title = ref<string>("添加接口")
@@ -23,31 +24,52 @@ const checkJson = (_: any, value: any, callback: any) => {
   }
 }
 
+// 校验接口 Path
+const checkPath = (_: any, value: any, callback: any) => {
+  if (!isApiPath(value)) {
+    callback(new Error("请输入正确的接口路径"))
+  } else {
+    callback()
+  }
+}
+
 const addFormRules: FormRules = {
   name: [
     { required: true, message: "请输入接口名称", trigger: "blur" },
     { min: 2, max: 32, message: "长度在 2 到 32 个字符", trigger: "blur" }
   ],
-  body: [
-    { required: true, message: "请输入返回结构", trigger: "blur" },
+  request: [
+    { required: true, message: "请输入请求结构体", trigger: "blur" },
     { validator: checkJson, trigger: "blur" }
   ],
-  path: [{ required: true, message: "请输入接口路径", trigger: "blur" }]
+  response: [
+    { required: true, message: "请输入返回结构体", trigger: "blur" },
+    { validator: checkJson, trigger: "blur" }
+  ],
+  path: [
+    { required: true, message: "请输入接口路径", trigger: "blur" },
+    { validator: checkPath, trigger: "blur" }
+  ]
 }
 
 const addForm: EditMockApiRequestData = reactive({
   name: "",
   path: "",
-  body: "",
   projectId: projectId,
-  id: 0
+  id: null,
+  overall: false,
+  recordRequest: false,
+  recordResponse: false,
+  breakpointRequest: false,
+  breakpointResponse: true,
+  request: "",
+  response: ""
 })
 const requestForm: GetMockApiRequestData = reactive({
   page: 1,
   pageSize: 20,
   total: 0,
-  name: "",
-  path: "",
+  keyword: "",
   projectId: projectId
 })
 
@@ -59,8 +81,7 @@ const queryApiList = () => {
 
 // 重置
 const refreshRequest = () => {
-  requestForm.name = ""
-  requestForm.path = ""
+  requestForm.keyword = ""
   requestForm.page = 1
   requestForm.pageSize = 20
   queryApiList()
@@ -76,8 +97,14 @@ const openDialog = () => {
 const closeDialog = () => {
   addForm.name = ""
   addForm.path = ""
-  addForm.body = ""
-  addForm.id = 0
+  addForm.overall = false
+  addForm.recordRequest = false
+  addForm.recordResponse = false
+  addForm.breakpointRequest = false
+  addForm.breakpointResponse = true
+  addForm.request = ""
+  addForm.response = ""
+  addForm.id = null
   addFormRef.value?.clearValidate()
 }
 
@@ -129,7 +156,8 @@ const updateApi = (value: MockApiInfoResponseData) => {
   addForm.id = value.id
   addForm.path = value.path
   addForm.name = value.name
-  addForm.body = JSON.stringify(JSON.parse(value.body), null, 2)
+  addForm.request = value.request !== "" ? JSON.stringify(JSON.parse(value.request), null, 2) : ""
+  addForm.response = value.response !== "" ? JSON.stringify(JSON.parse(value.response), null, 2) : ""
   dialogVisible.value = true
 }
 
@@ -148,15 +176,90 @@ onMounted(() => {
 <template>
   <el-card>
     <el-dialog v-model="dialogVisible" :title="title" width="50%" @close="closeDialog">
-      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px">
+      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="90px">
         <el-form-item label="接口名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入接口名称" clearable />
         </el-form-item>
         <el-form-item label="接口路径" prop="path">
           <el-input v-model="addForm.path" placeholder="请输入接口路径" clearable />
         </el-form-item>
-        <el-form-item label="返回结构" prop="body">
-          <codemirror v-model="addForm.body" height="30vh" language="json" />
+        <el-row>
+          <el-col :span="8">
+            <el-form-item>
+              <template #label>
+                <span class="form-label">
+                  <span>全局配置</span>
+                  <el-tooltip
+                    content="当打开此项后, 此接口将会在 测试开始~测试结束 一直处于Mock状态, 关闭时只有在对应调用用例中进行Mock"
+                    placement="top"
+                  >
+                    <el-icon><Warning /></el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-switch v-model="addForm.overall" class="switch" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item>
+              <template #label>
+                <span class="form-label">
+                  <span>记录请求</span>
+                  <el-tooltip
+                    content="当打开此项后会记录当前接口的请求信息, 注意只会记录最新一次的请求"
+                    placement="top"
+                  >
+                    <el-icon><Warning /></el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-switch v-model="addForm.recordRequest" class="switch" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item>
+              <template #label>
+                <span class="form-label">
+                  <span>记录响应</span>
+                  <el-tooltip
+                    content="当打开此项后会记录当前接口的响应信息, 注意只会记录最新一次的响应"
+                    placement="top"
+                  >
+                    <el-icon><Warning /></el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-switch v-model="addForm.recordResponse" class="switch" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item>
+          <template #label>
+            <span class="form-label">
+              <span>修改请求</span>
+              <el-tooltip content="打开此项后将会覆盖客户端的请求信息, 由用户提供请求JSON" placement="top">
+                <el-icon><Warning /></el-icon>
+              </el-tooltip>
+            </span>
+          </template>
+          <el-switch v-model="addForm.breakpointRequest" class="switch" />
+        </el-form-item>
+        <el-form-item v-if="addForm.breakpointRequest" label="请求结构" prop="request">
+          <codemirror v-model="addForm.request" height="30vh" language="json" />
+        </el-form-item>
+        <el-form-item>
+          <template #label>
+            <span class="form-label">
+              <span>修改响应</span>
+              <el-tooltip content="打开此项后将会覆盖服务器的响应信息, 由用户提供响应JSON" placement="top">
+                <el-icon><Warning /></el-icon>
+              </el-tooltip>
+            </span>
+          </template>
+          <el-switch v-model="addForm.breakpointResponse" class="switch" />
+        </el-form-item>
+        <el-form-item v-if="addForm.breakpointResponse" label="返回结构" prop="response">
+          <codemirror v-model="addForm.response" height="30vh" language="json" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -168,10 +271,7 @@ onMounted(() => {
     </el-dialog>
     <el-form ref="requestFormRef" :model="requestForm" inline>
       <el-form-item>
-        <el-input v-model="requestForm.name" placeholder="输入接口名称查询" clearable />
-      </el-form-item>
-      <el-form-item>
-        <el-input v-model="requestForm.path" placeholder="输入接口路径查询" clearable />
+        <el-input v-model="requestForm.keyword" placeholder="输入名称/路径查询" clearable />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="queryApiList">查询</el-button>
@@ -187,7 +287,7 @@ onMounted(() => {
       <el-table-column type="index" label="编号" width="60px" align="center" />
       <el-table-column prop="name" label="接口名称" width="200px" />
       <el-table-column prop="path" label="接口路径" />
-      <el-table-column prop="createTime" label="更新时间" width="160px" align="center" />
+      <el-table-column prop="createTime" label="创建时间" width="160px" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
       <el-table-column label="操作" width="160px" align="center">
         <template #default="scope">
@@ -207,4 +307,16 @@ onMounted(() => {
   </el-card>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.switch {
+  --el-switch-on-color: #13ce66;
+  --el-switch-off-color: #ff4949;
+}
+.form-label {
+  display: flex;
+  place-items: center;
+  .el-icon {
+    margin-left: 3px;
+  }
+}
+</style>

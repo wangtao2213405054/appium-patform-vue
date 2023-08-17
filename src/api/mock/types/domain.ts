@@ -1,10 +1,9 @@
 // 获取模拟域名列表请求结构体
 export interface GetMockDomainRequestData {
-  total: number
+  total?: number
   page: number
   pageSize: number
-  name: string | null
-  domain: string
+  keyword?: string
   projectId: number
   protocol: string
 }

@@ -26,6 +26,18 @@ export const isUrlPort = (url: string) => {
   return reg.test(url)
 }
 
+/** 判断是否为 接口 Path */
+export const isApiPath = (url: string) => {
+  const reg = /^\/[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/
+  return reg.test(url)
+}
+
+/** 判断是否为 IP（带端口） */
+export const isIpPort = (url: string) => {
+  const reg = /^[\w-]+(\.[\w-]+)+:\d{1,5}\/?$/
+  return reg.test(url)
+}
+
 /** 判断是否为域名（不带协议） */
 export const isDomain = (domain: string) => {
   const reg = /^([0-9a-zA-Z-]{1,}\.)+([a-zA-Z]{2,})$/

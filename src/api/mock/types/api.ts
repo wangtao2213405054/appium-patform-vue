@@ -3,18 +3,23 @@ export interface GetMockApiRequestData {
   total: number
   page: number
   pageSize: number
-  name: string | null
-  path: string
+  keyword?: string
   projectId: number
 }
 
 // 编辑模拟接口请求结构体
 export interface EditMockApiRequestData {
-  body: string
   projectId: number
   path: string
-  id: number
+  id: number | null
   name: string
+  overall: boolean
+  recordRequest: boolean
+  recordResponse: boolean
+  breakpointRequest: boolean
+  breakpointResponse: boolean
+  request: string
+  response: string
 }
 
 // 删除模拟接口请求结构体
@@ -24,11 +29,17 @@ export interface DeleteMockApiRequestData {
 
 // 模拟接口信息结构体
 export interface MockApiInfoResponseData {
-  body: string
   projectId: number
   path: string
   id: number
   name: string
+  overall: boolean
+  recordRequest: boolean
+  recordResponse: boolean
+  breakpointRequest: boolean
+  breakpointResponse: boolean
+  request: string
+  response: string
   updateTime: string
   createTime: string
 }

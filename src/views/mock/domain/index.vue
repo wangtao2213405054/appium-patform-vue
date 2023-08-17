@@ -8,6 +8,7 @@ import { ref, reactive, onMounted } from "vue"
 import { ElDialog, ElMessage, ElMessageBox, FormInstance, FormRules } from "element-plus"
 import { apiDeleteMockDomainInfo, apiEditMockDomainInfo, apiGetMockDomainList } from "@/api/mock"
 import { Refresh, Edit, Plus, Delete, Search } from "@element-plus/icons-vue"
+import { isDomain, isIpPort } from "@/utils/validate"
 
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
 const title = ref<string>("添加域名")
@@ -17,9 +18,8 @@ const requestForm: GetMockDomainRequestData = reactive({
   page: 1,
   pageSize: 20,
   total: 0,
-  name: "",
+  keyword: "",
   protocol: "",
-  domain: "",
   projectId: projectId
 })
 const addForm: EditMockDomainRequestData = reactive({
@@ -30,15 +30,24 @@ const addForm: EditMockDomainRequestData = reactive({
   projectId: projectId,
   id: 0
 })
+// 校验 JSON
+const checkDomain = (_: any, value: any, callback: any) => {
+  if (isIpPort(value) || isDomain(value)) {
+    callback()
+  } else {
+    callback(new Error("请输入正确的域名"))
+  }
+}
 const addFormRules: FormRules = {
   name: [
-    { required: true, message: "请输入域名备注", trigger: "blur" },
+    { required: true, message: "请输入域名名称", trigger: "blur" },
     { min: 2, max: 32, message: "长度在 2 到 32 个字符", trigger: "blur" }
   ],
   protocol: [{ required: true, message: "请选择通讯协议", trigger: "blur" }],
   domain: [
     { required: true, message: "请输入域名信息", trigger: "blur" },
-    { min: 2, max: 32, message: "长度在 2 到 256 个字符", trigger: "blur" }
+    { min: 2, max: 32, message: "长度在 2 到 256 个字符", trigger: "blur" },
+    { validator: checkDomain, trigger: "blur" }
   ],
   port: [{ required: true, message: "请选择协议端口", trigger: "blur" }]
 }
@@ -62,9 +71,8 @@ const queryDomainList = () => {
 
 // 重置
 const refreshRequest = () => {
-  requestForm.name = ""
+  requestForm.keyword = ""
   requestForm.protocol = ""
-  requestForm.domain = ""
   requestForm.page = 1
   requestForm.pageSize = 20
   queryDomainList()
@@ -159,8 +167,8 @@ const getDomainList = async () => {
             <el-option v-for="item in protocolList" :key="item.key" :label="item.label" :value="item.key" />
           </el-select>
         </el-form-item>
-        <el-form-item label="域名备注" prop="name">
-          <el-input v-model="addForm.name" placeholder="请输入域名备注" clearable />
+        <el-form-item label="域名名称" prop="name">
+          <el-input v-model="addForm.name" placeholder="请输入域名名称" clearable />
         </el-form-item>
         <el-form-item label="域名信息" prop="domain">
           <el-input v-model="addForm.domain" placeholder="请输入域名信息" clearable />
@@ -180,10 +188,7 @@ const getDomainList = async () => {
     </el-dialog>
     <el-form :model="requestForm" inline>
       <el-form-item>
-        <el-input v-model="requestForm.name" placeholder="输入域名备注查询" clearable />
-      </el-form-item>
-      <el-form-item>
-        <el-input v-model="requestForm.domain" placeholder="输入域名信息查询" clearable />
+        <el-input v-model="requestForm.keyword" placeholder="输入名称/域名查询" clearable />
       </el-form-item>
       <el-form-item>
         <el-select v-model="requestForm.protocol" placeholder="选择通讯协议查询" clearable>
@@ -202,7 +207,7 @@ const getDomainList = async () => {
     </el-form>
     <el-table :data="domainList" style="width: 100%">
       <el-table-column type="index" label="编号" width="60px" align="center" />
-      <el-table-column prop="name" label="域名备注" width="200px" />
+      <el-table-column prop="name" label="域名名称" width="200px" />
       <el-table-column prop="protocol" label="通讯协议" width="120px" align="center">
         <template #default="scope">
           <div v-for="item in protocolList" :key="item.key">

@@ -32,8 +32,7 @@ const addFormRules = reactive({
 const hiddenArea = ref(false)
 const refreshTable = ref(true)
 const requestForm: GetPermissionsMenuRequestData = reactive({
-  name: "",
-  identifier: ""
+  keyword: ""
 })
 
 onMounted(() => {
@@ -111,8 +110,7 @@ function updateButton(value: EditPermissionsMenuRequestData) {
 
 // 重置请求信息
 function refreshRequest() {
-  requestForm.name = ""
-  requestForm.identifier = ""
+  requestForm.keyword = ""
   getPermissionsList()
 }
 
@@ -147,16 +145,8 @@ function hiddenTable() {
     <el-form :model="requestForm" inline>
       <el-form-item>
         <el-input
-          v-model="requestForm.name"
-          placeholder="输入节点名称进行过滤"
-          clearable
-          @keyup.enter="getPermissionsList"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-input
-          v-model="requestForm.identifier"
-          placeholder="输入标识符进行过滤"
+          v-model="requestForm.keyword"
+          placeholder="节点/标识符进行过滤"
           clearable
           @keyup.enter="getPermissionsList"
         />
