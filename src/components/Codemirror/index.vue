@@ -3,6 +3,7 @@ import { onMounted, shallowRef, watch, computed } from "vue"
 import { Codemirror } from "vue-codemirror"
 import { json } from "@codemirror/lang-json"
 import { python } from "@codemirror/lang-python"
+import { javascript } from "@codemirror/lang-javascript"
 import { useTheme } from "@/hooks/useTheme"
 import { ElMessage } from "element-plus"
 import { CopyDocument } from "@element-plus/icons-vue"
@@ -52,11 +53,11 @@ const themeContent = {
 
 const languages: any = {
   python: python(),
-  json: json()
+  json: json(),
+  javascript: javascript()
 }
-
 const extensions = computed(() => {
-  return [languages[props.language] || python(), themeContent[activeThemeName.value] || oneDark]
+  return [languages[props.language] || javascript(), themeContent[activeThemeName.value] || oneDark]
 })
 const code = shallowRef<string>(props.modelValue)
 const emit = defineEmits(["update:modelValue"])

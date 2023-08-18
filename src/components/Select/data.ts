@@ -1,5 +1,5 @@
 export interface DictItem {
-  type?: string
+  type?: "" | "danger" | "warning" | "success" | "info" | undefined
   id: string | number | boolean
   name: string
   mold?: string
@@ -77,5 +77,12 @@ export const dict: Dict = {
   masterStatus: [
     { id: true, name: "启用" },
     { id: false, name: "禁用" }
+  ],
+  workerStatus: [
+    { id: 0, name: "空闲", type: "success" },
+    { id: 1, name: "任务中", type: "" },
+    { id: 2, name: "异常", type: "danger" },
+    { id: 3, name: "停止", type: "info" },
+    { id: 4, name: "离线", type: "info" }
   ]
 }

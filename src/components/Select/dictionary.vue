@@ -29,17 +29,19 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <el-select
-    v-model="bound"
-    :placeholder="props.placeholder"
-    :clearable="clearable"
-    :size="props.size"
-    :filterable="props.filterable"
-    :disabled="props.disabled"
-    @change="changeValue"
-  >
-    <el-option v-for="item in source" :key="item.name" :label="item.name" :value="item.id" />
-  </el-select>
+  <div>
+    <el-select
+      v-model="bound"
+      :placeholder="props.placeholder"
+      :clearable="clearable"
+      :size="props.size"
+      :filterable="props.filterable"
+      :disabled="props.disabled"
+      @change="changeValue"
+    >
+      <el-option v-for="item in source" :key="item.name" :label="item.name" :value="item.id" />
+    </el-select>
+  </div>
 </template>
 
 <style scoped lang="scss"></style>

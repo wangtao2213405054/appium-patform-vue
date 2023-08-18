@@ -14,10 +14,10 @@ const chalky = "#ff79c6",
   whiskey = "#ff5554", // 布尔值
   violet = "#ff79c6", // 关键字
   darkBackground = "#5da3f4",
-  highlightBackground = "#44475b", // 光标行的高亮显示
+  highlightBackground = "#9DA7BB0B", // 光标行的高亮显示
   background = "#282a35", // 背景色
   tooltipBackground = "#414450", // 代码提示背景色
-  selection = "#a2a8d7", // 选中代码后的颜色
+  selection = "#44475b", // 选中代码后的颜色
   cursor = "#a2a8d7" // 光标颜色
 
 export const color = {

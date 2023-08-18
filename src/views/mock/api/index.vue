@@ -157,6 +157,11 @@ const updateApi = (value: MockApiInfoResponseData) => {
   addForm.id = value.id
   addForm.path = value.path
   addForm.name = value.name
+  addForm.overall = value.overall
+  addForm.breakpointRequest = value.breakpointRequest
+  addForm.breakpointResponse = value.breakpointResponse
+  addForm.recordRequest = value.recordRequest
+  addForm.recordResponse = value.recordResponse
   addForm.request = value.request !== "" ? JSON.stringify(JSON.parse(value.request), null, 2) : ""
   addForm.response = value.response !== "" ? JSON.stringify(JSON.parse(value.response), null, 2) : ""
   dialogVisible.value = true
@@ -304,7 +309,14 @@ const actionWidth = computed(() => {
     <el-table header-row-class-name="table-header-style" :data="apiList" style="width: 100%">
       <el-table-column type="index" label="编号" width="60px" align="center" />
       <el-table-column prop="name" label="接口名称" width="200px" />
-      <el-table-column prop="path" label="接口路径" />
+      <el-table-column prop="path" label="接口路径" show-overflow-tooltip />
+      <el-table-column prop="online" label="全局配置" width="80px" align="center">
+        <template #default="scope">
+          <el-tag effect="dark" :type="scope.row.overall ? 'success' : 'info'">{{
+              scope.row.overall ? "全局" : "局部"
+            }}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="160px" align="center" />
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
       <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
@@ -340,5 +352,8 @@ const actionWidth = computed(() => {
   .el-icon {
     margin-left: 3px;
   }
+}
+.el-scrollbar__wrap {
+  overflow-x: hidden!important;
 }
 </style>

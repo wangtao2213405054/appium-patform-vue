@@ -1,5 +1,5 @@
 import { type RouteRecordRaw, createRouter, createWebHashHistory, createWebHistory } from "vue-router"
-import { permission, account, timeline, project, devices } from "./homes"
+import { permission, account, project, devices } from "./homes"
 import { mock } from "./details"
 
 const Layouts = () => import("@/layouts/index.vue")
@@ -42,7 +42,6 @@ export const constantRoutes: RouteRecordRaw[] = [
     }
   },
   project,
-  timeline,
   {
     path: "/dashboard",
     component: Layouts,

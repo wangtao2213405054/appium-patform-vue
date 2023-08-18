@@ -14,7 +14,7 @@ import {
   apiGetMasterList,
   apiGetMasterSocketRoomInfo
 } from "@/api/devices"
-import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance } from "element-plus"
+import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance, FormRules } from "element-plus"
 import { apiGetPermissionsRoleList } from "@/api/permissions"
 import clip from "@/utils/clipboard"
 import { useRouter } from "vue-router"
@@ -78,6 +78,13 @@ const updateDevice = (info: MasterInfoResponseData) => {
 }
 
 const addFormRef = ref<FormInstance | null>(null)
+const addFormRules: FormRules = {
+  name: [
+    { required: true, message: '请输入设备名称', trigger: 'blur' },
+    { min: 2, max: 32, message: '长度在 2 到 32 个字符', trigger: 'blur' }
+  ],
+  role: [{ required: true, message: '请选择角色信息', trigger: 'blur' }]
+}
 // 提交表单
 const submitForm = () => {
   addFormRef.value?.validate(async (valid: boolean, fields) => {
@@ -231,38 +238,19 @@ const actionWidth = computed(() => {
 <template>
   <el-card>
     <el-dialog :title="title" v-model="dialogVisible" width="50%" @close="closeDialog">
-      <el-form ref="addFormRef" :model="addForm" label-width="80px">
-        <el-form-item
-          label="设备名称"
-          prop="name"
-          :rules="[
-            { required: true, message: '请输入设备名称', trigger: 'blur' },
-            { min: 2, max: 32, message: '长度在 2 到 32 个字符', trigger: 'blur' }
-          ]"
-        >
+      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px">
+        <el-form-item label="设备名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入设备名称" clearable />
         </el-form-item>
-        <el-form-item
-          label="所属角色"
-          prop="role"
-          :rules="[{ required: true, message: '请选择角色信息', trigger: 'blur' }]"
-        >
+        <el-form-item label="所属角色" prop="role">
           <el-select v-model="addForm.role" placeholder="请选择设备绑定的角色" clearable @visible-change="getRoleList">
             <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="日志等级"
-          prop="logging"
-          :rules="[{ required: true, message: '请选择日志等级', trigger: 'blur' }]"
-        >
+        <el-form-item label="日志等级">
           <dictionary v-model="addForm.logging" placeholder="请选择日志等级" name="logging" />
         </el-form-item>
-        <el-form-item
-          label="最大进程"
-          prop="maxContext"
-          :rules="[{ required: true, message: '请输入此设备的最大进程数', trigger: 'blur' }]"
-        >
+        <el-form-item label="最大进程">
           <el-input-number v-model="addForm.maxContext" :min="1" :max="6" label="请输入最大进程数" />
         </el-form-item>
         <el-form-item label="所属项目" prop="projectId">
@@ -318,17 +306,17 @@ const actionWidth = computed(() => {
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="maxContext" label="最大进程" width="80px" align="center" />
-      <el-table-column prop="context" label="已绑设备" width="80px" align="center" />
-      <el-table-column prop="desc" label="设备描述" show-overflow-tooltip />
       <el-table-column prop="online" label="设备状态" width="80px" align="center">
         <template #default="scope">
           <el-tag effect="dark" :type="scope.row.online ? 'success' : 'info'">{{
-            scope.row.online ? "在线" : "离线"
-          }}</el-tag>
+              scope.row.online ? "在线" : "离线"
+            }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="actionWidth" label="操作" :width="actionWidth" align="center">
+      <el-table-column prop="maxContext" label="最大进程" width="80px" align="center" />
+      <el-table-column prop="context" label="已绑设备" width="80px" align="center" />
+      <el-table-column prop="desc" label="设备描述" show-overflow-tooltip />
+      <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
           <el-button
             v-if="statusPermission"
