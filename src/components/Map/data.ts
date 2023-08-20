@@ -1,12 +1,3 @@
-<script lang="ts" setup>
-import { ref, onBeforeMount } from "vue"
-import Codemirror from "@/components/Codemirror/index.vue"
-
-interface Props {
-  modelValue: string
-  default: string
-}
-
 interface DictItem {
   hint: string
   default: string
@@ -16,8 +7,7 @@ type Mapping = {
   [Key: string]: DictItem
 }
 
-const props = defineProps<Props>()
-const mapping: Mapping = {
+export const mapping: Mapping = {
   Android: {
     hint: `/** 这是 Android 的映射配置, 如需更多配置请参考 Appium 官方文档 */
 /** 必填项 关键字<数据类型>  关键字描述 */
@@ -38,15 +28,15 @@ newCommandTimeout<number>      等待新命令的最长时间，超时后退出�
 autoGrantPermissions<boolean>  启动应用时自动授权 App 所需要的权限
 settings[waitForIdleTimeout]<number>  在部分APP中, 获取页面数据特别慢, 添加此参数可缓解这个问题`,
     default: `{
-      "platformName": "android",
-      "deviceName": null,
-      "appPackage": null,
-      "appActivity": null,
-      "automationName": "uiautomator2",
-      "platformVersion": null,
-      "appiumServerPort": 4723,
-      "mockProxy": true,
-    }`
+  "platformName": "android",
+  "deviceName": null,
+  "appPackage": null,
+  "appActivity": null,
+  "automationName": "uiautomator2",
+  "platformVersion": null,
+  "appiumServerPort": 4723,
+  "mockProxy": false
+}`
   },
   iOS: {
     hint: `/** 这是 iOS 的映射配置, 如需更多配置请参考 Appium 官方文档 */
@@ -63,14 +53,14 @@ httpProxyPort<number>          Mock 服务器的代理端口号, 当 mockProxy �
 autoAcceptAlerts<boolean>      运行脚本时如果碰到授权那么就会自动允许  注意： ios 14.0 以上版本会无法对地理位置进行授权
 autoDismissAlerts<boolean>     运行脚本时如果碰到授权那么就会自动取消`,
     default: `{
-      "platformName": "ios",
-      "udid": null,
-      "bundleId": null,
-      "platformVersion": null,
-      "appiumServerPort": null,
-      "mockProxy": true,
-      "webDriverAgentPort": 8100
-    }`
+  "platformName": "ios",
+  "udid": null,
+  "bundleId": null,
+  "platformVersion": null,
+  "mockProxy": false,
+  "appiumServerPort": 4723,
+  "webDriverAgentPort": 8100
+}`
   },
   Web: {
     hint: `/** 这是 Web 的映射配置, 为了统一管理配置映射, Selenium 也参考了 Appium 的配置, 当然这些参数非常简单 */
@@ -78,51 +68,14 @@ autoDismissAlerts<boolean>     运行脚本时如果碰到授权那么就会自�
 * url<string>                  要启动的 Web 页面链接
 * browser<string>              启动的浏览器 Chrome or Firefox
 * mockProxy<boolean>           此设备是否进行Mock
+* platformName<string>         平台信息
 headless<string>               是否启用无头模式 参数为: --headless
 httpProxyPort<number>          Mock 服务器的代理端口号, 当 mockProxy 为 true 时填写`,
     default: `{
-      "url": "",
-      "browser": "Chrome",
-      "mockProxy": true
-    }`
+  "platformName": "web",
+  "url": "",
+  "browser": "Chrome",
+  "mockProxy": false
+}`
   }
 }
-const mappingKey = ref("")
-
-const emit = defineEmits(["update:modelValue"])
-
-// 选项发生变化
-const changeMapping = (value: any) => {
-  emit("update:modelValue", mapping[value].default)
-}
-onBeforeMount(() => {
-  mappingKey.value = props.default
-})
-</script>
-
-<template>
-  <div>
-    <el-radio-group v-model="mappingKey" @change="changeMapping">
-      <el-popover placement="top" :width="600">
-        <template #reference>
-          <el-radio-button label="Web" />
-        </template>
-        <codemirror v-model="mapping.Web.hint" language="Web" height="225px" disabled />
-      </el-popover>
-      <el-popover placement="top" :width="600">
-        <template #reference>
-          <el-radio-button label="Android" />
-        </template>
-        <codemirror v-model="mapping.Android.hint" language="Android" height="225px" disabled />
-      </el-popover>
-      <el-popover placement="top" :width="600">
-        <template #reference>
-          <el-radio-button label="iOS" />
-        </template>
-        <codemirror v-model="mapping.iOS.hint" language="iOS" height="225px" disabled />
-      </el-popover>
-    </el-radio-group>
-  </div>
-</template>
-
-<style scoped lang="scss"></style>

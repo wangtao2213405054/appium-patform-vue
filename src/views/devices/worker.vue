@@ -22,6 +22,7 @@ import { VideoPause, VideoPlay, Plus, Delete, Search, Refresh, Edit } from "@ele
 import { isJson } from "@/utils/validate"
 import { Socket } from "socket.io-client"
 import { checkPermission } from "@/utils/permission"
+import Mapping from "@/components/Map/index.vue"
 
 const workerLoading = ref<boolean>(false)
 const dialogVisible = ref<boolean>(false)
@@ -39,12 +40,12 @@ const checkJson = (_: any, value: any, callback: any) => {
 
 const addFormRules: FormRules = {
   name: [
-    { required: true, message: '请输入设备名称', trigger: 'blur' },
-    { min: 2, max: 32, message: '长度在 2 到 32 个字符', trigger: 'blur' }
+    { required: true, message: "请输入设备名称", trigger: "blur" },
+    { min: 2, max: 32, message: "长度在 2 到 32 个字符", trigger: "blur" }
   ],
-  master: [{ required: true, message: '请选择归属设备', trigger: 'blur' }],
+  master: [{ required: true, message: "请选择归属设备", trigger: "blur" }],
   mapping: [
-    { required: true, message: '请输入能力映射', trigger: 'blur' },
+    { required: true, message: "请输入能力映射", trigger: "blur" },
     { validator: checkJson, trigger: "blur" }
   ]
 }
@@ -118,7 +119,7 @@ const getWorkerList = async () => {
 
 // 编辑设备
 const updateDevice = (value: WorkerInfoResponseData) => {
-  title.value = '编辑设备'
+  title.value = "编辑设备"
   addForm.name = value.name
   addForm.master = value.master
   addForm.desc = value.desc
@@ -133,12 +134,12 @@ const updateDevice = (value: WorkerInfoResponseData) => {
 // 删除设备
 const deleteDeviceInfo = async (id: number, master: number) => {
   const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该设备, 是否继续?", "提示", {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).catch(err => err)
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning"
+  }).catch((err) => err)
 
-  if (clickConfirmResult !== 'confirm') {
+  if (clickConfirmResult !== "confirm") {
     return ElMessage.info("取消删除")
   }
   await apiDeleteWorkerInfo({ id, master })
@@ -173,16 +174,16 @@ const queryDeviceList = () => {
 
 // 修改设备状态
 const updateDeviceStatus = async (id: number, status: boolean, online: number) => {
-  const message = status ? '此操作将停止此设备, 此设备将不会再执行任务' : '此操作将开启此设备的任务进程'
+  const message = status ? "此操作将停止此设备, 此设备将不会再执行任务" : "此操作将开启此设备的任务进程"
   const clickConfirmResult = await ElMessageBox.confirm(message, "提示", {
-    confirmButtonText: '确定',
-    cancelButtonText: status && (online !== 4 && online === 1) ? '关闭进程' : '取消',
-    type: 'warning',
+    confirmButtonText: "确定",
+    cancelButtonText: status && online !== 4 && online === 1 ? "关闭进程" : "取消",
+    type: "warning",
     distinguishCancelAndClose: true
-  }).catch(err => err)
-  if (status && clickConfirmResult === 'close') return
-  if (clickConfirmResult !== 'confirm' && !status) return
-  if ((online !== 4 && online !== 1) && clickConfirmResult !== 'confirm') return
+  }).catch((err) => err)
+  if (status && clickConfirmResult === "close") return
+  if (clickConfirmResult !== "confirm" && !status) return
+  if (online !== 4 && online !== 1 && clickConfirmResult !== "confirm") return
   await apiEditWorkerStatusInfo({ id, switch: !status, kill: clickConfirmResult === "cancel" })
   await getWorkerList()
 }
@@ -238,23 +239,13 @@ const actionWidth = computed(() => {
 
 <template>
   <el-card v-loading="workerLoading">
-    <el-dialog
-      v-model="dialogVisible"
-      :title="title"
-      width="50%"
-      @close="closeDialog"
-    >
+    <el-dialog v-model="dialogVisible" :title="title" width="50%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="100px">
         <el-form-item label="设备名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入设备名称" clearable />
         </el-form-item>
         <el-form-item label="归属设备" prop="master">
-          <el-select
-            v-model="addForm.master"
-            placeholder="请选择归属设备"
-            clearable
-            @visible-change="getMasterList"
-          >
+          <el-select v-model="addForm.master" placeholder="请选择归属设备" clearable @visible-change="getMasterList">
             <el-option
               v-for="item in masterList"
               :key="item.id"
@@ -277,6 +268,7 @@ const actionWidth = computed(() => {
           <el-switch v-model="addForm.switch" active-color="#13ce66" inactive-color="#ff4949" />
         </el-form-item>
         <el-form-item label="能力映射" prop="mapping">
+          <mapping v-model="addForm.mapping" style="margin-bottom: 10px" />
           <codemirror v-model="addForm.mapping" height="30vh" language="json" />
         </el-form-item>
       </el-form>
@@ -292,8 +284,13 @@ const actionWidth = computed(() => {
         <el-input v-model="requestForm.name" placeholder="输入设备名称查询" clearable />
       </el-form-item>
       <el-form-item>
-        <el-select v-model="requestForm.master" placeholder="选择归属设备查询" clearable @visible-change="getMasterList">
-          <el-option v-for="item in masterList" :key="item.id" :label="item.name" :value="item.id"/>
+        <el-select
+          v-model="requestForm.master"
+          placeholder="选择归属设备查询"
+          clearable
+          @visible-change="getMasterList"
+        >
+          <el-option v-for="item in masterList" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -324,11 +321,7 @@ const actionWidth = computed(() => {
       <el-table-column label="设备状态" width="120px" align="center">
         <template #default="scope">
           <div v-for="item in dict['workerStatus']" :key="item.name">
-            <el-tag
-              v-if="scope.row.status === item.id"
-              :type="item.type"
-              disable-transitions
-            >
+            <el-tag v-if="scope.row.status === item.id" :type="item.type" disable-transitions>
               {{ item.name }}
             </el-tag>
           </div>
@@ -343,21 +336,19 @@ const actionWidth = computed(() => {
             :type="scope.row.switch ? 'warning' : 'success'"
             link
             @click.stop="updateDeviceStatus(scope.row.id, scope.row.switch, scope.row.status)"
-          >{{ scope.row.switch ? '关闭' : '开启' }}</el-button>
-          <el-button
-            v-if="editPermission"
-            :icon="Edit"
-            type="primary"
-            link
-            @click.stop="updateDevice(scope.row)"
-          >编辑</el-button>
+            >{{ scope.row.switch ? "关闭" : "开启" }}</el-button
+          >
+          <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateDevice(scope.row)"
+            >编辑</el-button
+          >
           <el-button
             v-if="deletePermission"
             :icon="Delete"
             type="danger"
             link
             @click.stop="deleteDeviceInfo(scope.row.id, scope.row.master)"
-          >删除</el-button>
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
