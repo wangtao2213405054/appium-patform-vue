@@ -8,6 +8,7 @@ import { checkPermission } from "@/utils/permission"
 
 const title = ref<string>("添加元素")
 const dialogVisible = ref<boolean>(false)
+const loading = ref<boolean>(false)
 const elementList = ref<ElementInfoResponseData[]>([])
 const addForm: EditElementRequestData = reactive({
   id: null,
@@ -62,14 +63,16 @@ const editElementInfo = () => {
 }
 // 获取元素列表
 const getElementList = async () => {
+  loading.value = true
   const { items, total } = (await apiGetElementList(requestForm)).data
   elementList.value = items
   requestForm.total = total
+  loading.value = false
 }
 
 // 删除元素
 const deleteElementInfo = async (id: number) => {
-  const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该项目, 是否继续?", "提示", {
+  const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该元素, 是否继续?", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
@@ -143,7 +146,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card>
+  <el-card v-loading="loading">
     <el-dialog :title="title" v-model="dialogVisible" width="50%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px" hide-required-asterisk>
         <el-form-item label="元素名称" prop="name">
@@ -180,7 +183,7 @@ const actionWidth = computed(() => {
         <el-button :icon="Refresh" @click="refreshRequest">重置</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button :icon="Plus" type="success" @click="openDialog">添 加</el-button>
+        <el-button v-if="editPermission" :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="elementList" stripe style="width: 100%">
@@ -191,8 +194,17 @@ const actionWidth = computed(() => {
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
       <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center">
         <template #default="scope">
-          <el-button :icon="Edit" type="primary" link @click.stop="updateButton(scope.row)">编辑</el-button>
-          <el-button :icon="Delete" type="danger" link @click.stop="deleteElementInfo(scope.row.id)">删除</el-button>
+          <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateButton(scope.row)"
+            >编辑</el-button
+          >
+          <el-button
+            v-if="deletePermission"
+            :icon="Delete"
+            type="danger"
+            link
+            @click.stop="deleteElementInfo(scope.row.id)"
+            >删除</el-button
+          >
         </template>
       </el-table-column>
     </el-table>

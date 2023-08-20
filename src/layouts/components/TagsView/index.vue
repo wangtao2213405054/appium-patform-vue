@@ -263,9 +263,9 @@ onMounted(() => {
         }
       }
       .el-icon {
-        margin: 0 2px;
         vertical-align: middle;
         border-radius: 50%;
+        margin: 0 2px 2px;
         &:hover {
           background-color: var(--v3-tagsview-tag-icon-hover-bg-color);
           color: var(--v3-tagsview-tag-icon-hover-color);

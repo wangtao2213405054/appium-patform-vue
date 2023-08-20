@@ -12,6 +12,7 @@ import { checkPermission } from "@/utils/permission"
 
 const menuList = ref<PermissionsMenuInfoResponseData[]>([])
 const dialogVisible = ref<boolean>(false)
+const loading = ref<boolean>(false)
 const title = ref<string>("")
 const addFormRef = ref<FormInstance | null>(null)
 const addForm: EditPermissionsMenuRequestData = reactive({
@@ -61,8 +62,10 @@ async function editPermissionsInfo() {
 
 // 获取权限菜单
 async function getPermissionsList() {
+  loading.value = true
   const { data } = await apiGetPermissionsMenuList(requestForm)
   menuList.value = data
+  loading.value = false
 }
 
 // 关闭钩子
@@ -143,7 +146,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card>
+  <el-card v-loading="loading">
     <el-dialog :title="title" :model-value="dialogVisible" width="30%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" hide-required-asterisk label-width="86px">
         <el-form-item label="菜单名称" prop="name">

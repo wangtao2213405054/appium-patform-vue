@@ -8,5 +8,5 @@ router.replace({ path: "/" + route.params.path, query: route.query })
 </script>
 
 <template>
-  <div />
+  <div><div /></div>
 </template>

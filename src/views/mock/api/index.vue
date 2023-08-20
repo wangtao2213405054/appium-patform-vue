@@ -12,6 +12,7 @@ import { checkPermission } from "@/utils/permission"
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
 const title = ref<string>("添加接口")
 const dialogVisible = ref<boolean>(false)
+const loading = ref<boolean>(false)
 const apiList = ref<MockApiInfoResponseData[]>([])
 const addFormRef = ref<FormInstance | null>(null)
 const requestFormRef = ref<FormInstance | null>(null)
@@ -169,9 +170,11 @@ const updateApi = (value: MockApiInfoResponseData) => {
 
 // 获取接口列表
 const getApiList = async () => {
+  loading.value = true
   const { items, total } = (await apiGetMockApiList(requestForm)).data
   apiList.value = items
   requestForm.total = total
+  loading.value = false
 }
 
 onMounted(() => {
@@ -197,7 +200,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card>
+  <el-card v-loading="loading">
     <el-dialog v-model="dialogVisible" :title="title" width="50%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="90px">
         <el-form-item label="接口名称" prop="name">

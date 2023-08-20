@@ -13,7 +13,7 @@ export interface EditPermissionsRoleRequestData {
   id: number | null
   identifier: string | null
   name: string
-  permissionsApi: any[]
+  permissionsApi: string[]
 }
 
 // 删除权限请求数据

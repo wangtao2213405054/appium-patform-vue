@@ -26,6 +26,7 @@ import { checkPermission } from "@/utils/permission"
 
 const title = ref<string>("新增设备")
 const dialogVisible = ref<boolean>(false)
+const loading = ref<boolean>(false)
 const addForm: EditMasterRequestData = reactive({
   name: "",
   desc: "",
@@ -99,9 +100,11 @@ const submitForm = () => {
 }
 // 获取设备列表
 const getMasterList = async () => {
+  loading.value = true
   const { items, total } = (await apiGetMasterList(requestForm)).data
   masterList.value = items
   requestForm.total = total
+  loading.value = false
 }
 
 // 关闭弹窗时的钩子
@@ -236,7 +239,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card>
+  <el-card v-loading="loading">
     <el-dialog :title="title" v-model="dialogVisible" width="50%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px">
         <el-form-item label="设备名称" prop="name">
