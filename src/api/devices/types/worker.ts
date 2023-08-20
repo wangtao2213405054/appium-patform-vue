@@ -44,7 +44,6 @@ export interface DeleteWorkerRequestData {
   master: number
 }
 
-
 // 修改工作机任务轮训的结构体
 export interface SwitchWorkerRequestData {
   id: number // 工作机id

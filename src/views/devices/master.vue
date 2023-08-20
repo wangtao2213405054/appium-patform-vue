@@ -80,10 +80,10 @@ const updateDevice = (info: MasterInfoResponseData) => {
 const addFormRef = ref<FormInstance | null>(null)
 const addFormRules: FormRules = {
   name: [
-    { required: true, message: '请输入设备名称', trigger: 'blur' },
-    { min: 2, max: 32, message: '长度在 2 到 32 个字符', trigger: 'blur' }
+    { required: true, message: "请输入设备名称", trigger: "blur" },
+    { min: 2, max: 32, message: "长度在 2 到 32 个字符", trigger: "blur" }
   ],
-  role: [{ required: true, message: '请选择角色信息', trigger: 'blur' }]
+  role: [{ required: true, message: "请选择角色信息", trigger: "blur" }]
 }
 // 提交表单
 const submitForm = () => {
@@ -309,8 +309,8 @@ const actionWidth = computed(() => {
       <el-table-column prop="online" label="设备状态" width="80px" align="center">
         <template #default="scope">
           <el-tag effect="dark" :type="scope.row.online ? 'success' : 'info'">{{
-              scope.row.online ? "在线" : "离线"
-            }}</el-tag>
+            scope.row.online ? "在线" : "离线"
+          }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="maxContext" label="最大进程" width="80px" align="center" />

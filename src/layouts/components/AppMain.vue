@@ -2,7 +2,7 @@
 import { useRoute } from "vue-router"
 import { useTagsViewStore } from "@/store/modules/tags-view"
 import { computed } from "vue"
-import { NWatermark } from 'naive-ui'
+import { NWatermark } from "naive-ui"
 import { useUserStore } from "@/store/modules/user"
 import { useSettingsStore } from "@/store/modules/settings"
 import { storeToRefs } from "pinia"
@@ -14,12 +14,10 @@ const settingsStore = useSettingsStore()
 
 const { watermark } = storeToRefs(settingsStore)
 
-
 const key = computed(() => {
   // 返回 route.path 和 route.fullPath 有着不同的效果，大多数时候 path 更通用
   return route.path
 })
-
 </script>
 
 <template>

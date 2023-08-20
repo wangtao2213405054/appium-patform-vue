@@ -313,8 +313,8 @@ const actionWidth = computed(() => {
       <el-table-column prop="online" label="全局配置" width="80px" align="center">
         <template #default="scope">
           <el-tag effect="dark" :type="scope.row.overall ? 'success' : 'info'">{{
-              scope.row.overall ? "全局" : "局部"
-            }}</el-tag>
+            scope.row.overall ? "全局" : "局部"
+          }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="160px" align="center" />
@@ -354,6 +354,6 @@ const actionWidth = computed(() => {
   }
 }
 .el-scrollbar__wrap {
-  overflow-x: hidden!important;
+  overflow-x: hidden !important;
 }
 </style>

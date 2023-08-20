@@ -3,5 +3,6 @@ import account from "./modules/account"
 import timeline from "./modules/timeline"
 import project from "./modules/project"
 import devices from "./modules/devices"
+import element from "./modules/element"
 
-export { permission, account, timeline, project, devices }
+export { permission, account, timeline, project, devices, element }
