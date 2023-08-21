@@ -1,5 +1,7 @@
 import { request } from "@/utils/service"
 import type * as Element from "./types/element"
+import type * as Dictionary from "./types/dictionary"
+import type * as Library from "./types/library"
 
 export function apiGetElementList(data: Element.GetElementRequestData) {
   return request<Element.ElementListResponseData>({
@@ -20,6 +22,54 @@ export function apiEditElementInfo(data: Element.EditElementRequestData) {
 export function apiDeleteElementInfo(data: Element.DeleteElementRequestData) {
   return request<Element.ElementEditResponseData>({
     url: "/conf/element/delete",
+    method: "POST",
+    data
+  })
+}
+
+export function apiGetDictionaryList(data: Dictionary.GetDictionaryRequestData) {
+  return request<Dictionary.DictionaryListResponseData>({
+    url: "/conf/dictionary/list",
+    method: "POST",
+    data
+  })
+}
+
+export function apiEditDictionaryInfo(data: Dictionary.EditDictionaryRequestData) {
+  return request<Dictionary.DictionaryEditResponseData>({
+    url: "/conf/dictionary/edit",
+    method: "POST",
+    data
+  })
+}
+
+export function apiDeleteDictionaryInfo(data: Dictionary.DeleteDictionaryRequestData) {
+  return request<Dictionary.DictionaryEditResponseData>({
+    url: "/conf/dictionary/delete",
+    method: "POST",
+    data
+  })
+}
+
+export function apiGetLibraryList(data: Library.GetLibraryRequestData) {
+  return request<Library.LibraryListResponseData>({
+    url: "/conf/library/list",
+    method: "POST",
+    data
+  })
+}
+
+export function apiEditLibraryInfo(data: Library.EditLibraryRequestData) {
+  return request<Library.LibraryEditResponseData>({
+    url: "/conf/library/edit",
+    method: "POST",
+    data
+  })
+}
+
+export function apiDeleteLibraryInfo(data: Library.DeleteLibraryRequestData) {
+  return request<Library.LibraryEditResponseData>({
+    url: "/conf/library/delete",
     method: "POST",
     data
   })

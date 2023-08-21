@@ -23,6 +23,16 @@ const base: RouteRecordRaw = {
         svgIcon: "element",
         roles: ["BaseElement"]
       }
+    },
+    {
+      path: "dict",
+      component: () => import("@/views/base/dictionary/index.vue"),
+      name: "BaseDict",
+      meta: {
+        title: "字典管理",
+        svgIcon: "dictionary",
+        roles: ["BaseDict"]
+      }
     }
   ]
 }

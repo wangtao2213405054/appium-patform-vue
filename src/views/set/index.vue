@@ -29,7 +29,7 @@ const requestForm: GetSetRequestData = reactive({
   total: 0,
   projectId: projectId,
   name: "",
-  special: false
+  special: undefined
 })
 const title = ref<string>("")
 const dialogVisible = ref<boolean>(false)

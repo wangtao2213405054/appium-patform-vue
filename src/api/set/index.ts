@@ -1,5 +1,5 @@
 import { request } from "@/utils/service"
-import type * as Set from "./types/version"
+import type * as Set from "./types/set"
 
 export function apiGetSetList(data: Set.GetSetRequestData) {
   return request<Set.SetListResponseData>({

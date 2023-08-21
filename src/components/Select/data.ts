@@ -48,6 +48,12 @@ export const dict: Dict = {
     { id: "Object", name: "对象/字典" },
     { id: "Float", name: "浮点数/小数" }
   ],
+  dataType: [
+    { id: "Integer", name: "整数" },
+    { id: "String", name: "字符串" },
+    { id: "Boolean", name: "布尔值" },
+    { id: "Float", name: "浮点数/小数" }
+  ],
   boolean: [
     { id: true, name: "True" },
     { id: false, name: "False" }
