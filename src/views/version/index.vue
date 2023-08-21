@@ -7,7 +7,7 @@ import { Search, Refresh, Plus, Edit, Delete, Warning } from "@element-plus/icon
 import { isVersion } from "@/utils/validate"
 import { checkPermission } from "@/utils/permission"
 
-const projectId: number = JSON.parse(localStorage.getItem("projectId"))
+const projectId: number = JSON.parse(localStorage.getItem("projectId") as string)
 const title = ref<string>("添加版本")
 const dialogVisible = ref<boolean>(false)
 const loading = ref<boolean>(false)

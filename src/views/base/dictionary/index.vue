@@ -225,9 +225,10 @@ const actionWidth = computed(() => {
       <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center" fixed="right">
         <template #default="scope">
           <el-button v-if="dictPermission" :icon="Collection" type="primary" link @click.stop="openLibrary(scope.row)"
-          >字典数据</el-button>
+            >字典数据</el-button
+          >
           <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateButton(scope.row)"
-          >编辑</el-button
+            >编辑</el-button
           >
           <el-button
             v-if="deletePermission"
@@ -235,7 +236,7 @@ const actionWidth = computed(() => {
             type="danger"
             link
             @click.stop="deleteDictionaryInfo(scope.row.id)"
-          >删除</el-button
+            >删除</el-button
           >
         </template>
       </el-table-column>

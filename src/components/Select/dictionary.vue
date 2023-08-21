@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue"
 import { dict, DictItem } from "@/components/Select/data"
+import { apiGetLibraryList } from "@/api/base"
 
 interface Props {
   modelValue: number | string | boolean | undefined
@@ -22,9 +23,14 @@ const changeValue = (value: number) => {
   emit("update:modelValue", value)
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
+  if (props.name in dict) {
+    source.value = dict[props.name]
+  } else {
+    const { items } = (await apiGetLibraryList({ code: props.name })).data
+    source.value = items
+  }
   bound.value = props.modelValue
-  source.value = dict[props.name]
 })
 </script>
 
@@ -39,7 +45,7 @@ onBeforeMount(() => {
       :disabled="props.disabled"
       @change="changeValue"
     >
-      <el-option v-for="item in source" :key="item.name" :label="item.name" :value="item.id" />
+      <el-option v-for="item in source" :key="item.name" :label="item.name" :value="item.value" />
     </el-select>
   </div>
 </template>

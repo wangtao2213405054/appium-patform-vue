@@ -16,6 +16,7 @@ export interface VersionInfoResponseData {
   identify: string
   name: string
   projectId: number
+  effect?: string | null
 }
 
 // 编辑版本的结构体

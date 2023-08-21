@@ -172,12 +172,7 @@ const actionWidth = computed(() => {
           <el-input v-model="addForm.value" placeholder="请输入字典值" clearable />
         </el-form-item>
         <el-form-item label="排序">
-          <el-input-number
-            v-model="addForm.sort"
-            :min="1"
-            :max="9999"
-            controls-position="right"
-          />
+          <el-input-number v-model="addForm.sort" :min="1" :max="9999" controls-position="right" />
         </el-form-item>
         <el-form-item label="字典状态">
           <el-radio-group v-model="addForm.status">
@@ -198,7 +193,7 @@ const actionWidth = computed(() => {
     </el-dialog>
     <el-form :model="requestForm" inline>
       <el-form-item>
-        <el-input v-model="requestForm.keyword" placeholder="名称/内容查询" clearable />
+        <el-input v-model="requestForm.name" placeholder="字典名称查询" clearable />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="queryLibraryList">查询</el-button>
@@ -223,7 +218,7 @@ const actionWidth = computed(() => {
       <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center" fixed="right">
         <template #default="scope">
           <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateButton(scope.row)"
-          >编辑</el-button
+            >编辑</el-button
           >
           <el-button
             v-if="deletePermission"
@@ -231,7 +226,7 @@ const actionWidth = computed(() => {
             type="danger"
             link
             @click.stop="deleteLibraryInfo(scope.row.id)"
-          >删除</el-button
+            >删除</el-button
           >
         </template>
       </el-table-column>
