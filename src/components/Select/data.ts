@@ -34,7 +34,6 @@ export const dict: Dict = {
   dataType: [
     { value: "Integer", name: "整数" },
     { value: "String", name: "字符串" },
-    { value: "Boolean", name: "布尔值" },
     { value: "Float", name: "浮点数/小数" }
   ],
   caseStatus: [
