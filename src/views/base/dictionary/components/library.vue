@@ -32,7 +32,7 @@ const checkLength = (_: any, value: any, callback: any) => {
   if (!isString(value)) {
     value = value.toString()
   }
-  if ( value.length < 1 || value.length > 32) {
+  if (value.length < 1 || value.length > 32) {
     callback(new Error("长度在 1 到 32 个字符"))
   } else {
     callback()
