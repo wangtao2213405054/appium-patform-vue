@@ -167,7 +167,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card v-loading="loading">
+  <el-card>
     <el-dialog :title="title" v-model="dialogVisible" width="40%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px" hide-required-asterisk>
         <el-form-item label="字典名称" prop="name">
@@ -210,7 +210,7 @@ const actionWidth = computed(() => {
         <el-button v-if="editPermission" :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dictionaryList" border stripe style="width: 100%">
+    <el-table v-loading="loading" :data="dictionaryList" border stripe style="width: 100%">
       <el-table-column type="index" label="编号" width="60" align="center" />
       <el-table-column prop="name" label="字典名称" width="200px" show-overflow-tooltip />
       <el-table-column prop="code" label="字典编码" width="200px" show-overflow-tooltip />

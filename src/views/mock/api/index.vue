@@ -200,7 +200,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card v-loading="loading">
+  <el-card>
     <el-dialog v-model="dialogVisible" :title="title" width="50%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="90px">
         <el-form-item label="接口名称" prop="name">
@@ -309,7 +309,7 @@ const actionWidth = computed(() => {
         <el-button :icon="Plus" type="success" @click="openDialog">添 加</el-button>
       </el-form-item>
     </el-form>
-    <el-table header-row-class-name="table-header-style" :data="apiList" style="width: 100%">
+    <el-table v-loading="loading" :data="apiList" style="width: 100%">
       <el-table-column type="index" label="编号" width="60px" align="center" />
       <el-table-column prop="name" label="接口名称" width="200px" />
       <el-table-column prop="path" label="接口路径" show-overflow-tooltip />

@@ -160,7 +160,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card v-loading="loading">
+  <el-card>
     <el-dialog :title="title" v-model="dialogVisible" width="50%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="100px">
         <el-form-item label="版本名称" prop="name">
@@ -206,7 +206,7 @@ const actionWidth = computed(() => {
         <el-button v-if="editPermission" :icon="Plus" type="success" @click="addVersion">添 加</el-button>
       </el-form-item>
     </el-form>
-    <el-table header-row-class-name="table-header-style" :data="versionList" stripe style="width: 100%">
+    <el-table v-loading="loading" :data="versionList" stripe style="width: 100%">
       <el-table-column type="index" label="编号" width="60" align="center" />
       <el-table-column prop="name" label="版本名称" width="150px" />
       <el-table-column prop="name" label="版本标识" width="150px">

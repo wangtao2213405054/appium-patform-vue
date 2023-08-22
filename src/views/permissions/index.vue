@@ -146,7 +146,7 @@ const actionWidth = computed(() => {
 </script>
 
 <template>
-  <el-card v-loading="loading">
+  <el-card>
     <el-dialog :title="title" :model-value="dialogVisible" width="30%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" hide-required-asterisk label-width="86px">
         <el-form-item label="菜单名称" prop="name">
@@ -185,7 +185,14 @@ const actionWidth = computed(() => {
         <el-button type="info" plain :icon="Sort" @click="hiddenTable">展开/折叠</el-button>
       </el-form-item>
     </el-form>
-    <el-table v-if="refreshTable" :data="menuList" style="width: 100%" row-key="id" :default-expand-all="hiddenArea">
+    <el-table
+      v-loading="loading"
+      v-if="refreshTable"
+      :data="menuList"
+      style="width: 100%"
+      row-key="id"
+      :default-expand-all="hiddenArea"
+    >
       <el-table-column type="index" label="编号" width="80px" align="center" />
       <el-table-column prop="name" label="名称" show-overflow-tooltip />
       <el-table-column prop="identifier" label="标识符" align="center" show-overflow-tooltip />
