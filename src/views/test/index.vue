@@ -14,7 +14,7 @@ const currentExpression = computed(() => {
   return `
   ${startExpression.value}
   ${expression.value}
-  ${currentParameter.value && currentParameter.value.map(field => field.value && `,${field.value}`).join("")}
+  ${currentParameter.value ? currentParameter.value.map(field => field.value && `,${field.value}`).join(""): ""}
   ${endExpression.value}`
 })
 const root = ref([
