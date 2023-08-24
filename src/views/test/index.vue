@@ -1,20 +1,25 @@
 <script lang="ts" setup>
-import { ref, computed } from "vue"
+import { ref, computed, onMounted, nextTick } from "vue"
 import { MagicStick, FullScreen, Search } from "@element-plus/icons-vue"
 import SvgIcon from "@/components/SvgIcon/index.vue" // Svg Component
 import { ElDialog } from "element-plus"
 
 const input = ref("")
 const dialogVisible = ref(false)
-const expression = ref("")
-const startExpression = ref("")
-const endExpression = ref("")
+const expression = ref("") // 当前绑定的表达式
+const startExpression = ref("") // 表达式开始段
+const endExpression = ref("") // 表达式结束段
 const currentParameter = ref([]) // 当前入参
+const currentMenu = ref("") // 当前所选函数菜单
+const showfunctionNumber = ref(1) // 要展示的函数列表
+const functionList = ref([]) // 当前选中的函数列表
+const functionSelectList = ref([]) // 当前已选函数
 const currentExpression = computed(() => {
   return `
   ${startExpression.value}
   ${expression.value}
-  ${currentParameter.value ? currentParameter.value.map(field => field.value && `,${field.value}`).join(""): ""}
+  ${currentParameter.value ? currentParameter.value.map((field) => field.value && `,${field.value}`).join("") : ""}
+  ${functionSelectList.value ? functionSelectList.value.map((field) => field && `|${field}`).join("") : ""}
   ${endExpression.value}`
 })
 const root = ref([
@@ -24,10 +29,28 @@ const root = ref([
     startExpression: "{{",
     endExpression: "}}",
     keyword: "global",
-    children: [{ id: 3, keyword: "name", name: "姓名", children: [
-      { id: 1, placeholder: "测试一下", value: null, type: "number", label: "最小长度" },
-      { id: 2, placeholder: "测试一下", value: null, type: "number", label: "最大长度" }
-      ] }, { id: 4, keyword: "date", name: "日期" }]
+    children: [
+      {
+        id: 3,
+        keyword: "name",
+        name: "姓名",
+        children: [
+          { id: 1, placeholder: "测试一下", value: null, type: "number", label: "最小长度" },
+          { id: 2, placeholder: "测试一下", value: null, type: "number", label: "最大长度" }
+        ]
+      },
+      { id: 4, keyword: "date", name: "日期" }
+    ],
+    functionList: [
+      {
+        keyword: "length",
+        name: "数据长度"
+      },
+      {
+        keyword: "lower",
+        name: "将所有字母变为小写"
+      }
+    ]
   },
   {
     id: 2,
@@ -35,25 +58,51 @@ const root = ref([
     startExpression: "{%",
     endExpression: "%}",
     keyword: "mock",
-    children: [{ id: 5, keyword: "name", name: "姓名" }, { id: 6, keyword: "date", name: "日期" }]
+    children: [
+      { id: 5, keyword: "name", name: "姓名" },
+      { id: 6, keyword: "date", name: "日期" }
+    ]
   }
 ])
 const clickButton = () => {
   dialogVisible.value = true
 }
-const clickReturn = (start: string, end: string, keyword: string, childrenKeyword: string, id: number, childrenId: number) => {
+const clickReturn = (
+  start: string,
+  end: string,
+  keyword: string,
+  childrenKeyword: string,
+  id: number,
+  childrenId: number
+) => {
   startExpression.value = start
   endExpression.value = end
   expression.value = `${keyword} '${childrenKeyword}'`
-  for (const index in root.value) {
-    if (root.value[index].id == id) {
-      for (const child in root.value[index].children) {
-        if (root.value[index].children[child].id === childrenId) {
-          currentParameter.value = root.value[index].children[child].children
-        }
-      }
+  const foundRoot = root.value.find((item) => item.id === id)
+  functionSelectList.value = []
+  if (foundRoot) {
+    const foundChild = foundRoot.children.find((child) => child.id === childrenId)
+    functionList.value = foundRoot.functionList || []
+    if (foundChild) {
+      currentParameter.value = foundChild.children
     }
   }
+}
+
+const functionClick = (keyword) => {
+  currentMenu.value = keyword
+  functionSelectList.value.push(keyword)
+  showfunctionNumber.value += 1
+  nextTick(() => {
+    const container = document.getElementById("testTow") as HTMLElement // 替换为你的容器的 ID
+    const containerWidth = container.scrollWidth
+    console.log(containerWidth, "2222")
+    container.scrollTo({
+      left: containerWidth,
+      top: 0,
+      behavior: "smooth"
+    })
+  })
 }
 </script>
 
@@ -67,15 +116,11 @@ const clickReturn = (start: string, end: string, keyword: string, childrenKeywor
         </div>
       </template>
       <el-scrollbar>
-        <div class="content">
+        <div class="content" id="testTow">
           <div class="element-menu">
             <el-scrollbar wrap-class="scrollbar-wrapper">
               <el-menu style="height: 400px" unique-opened>
-                <el-sub-menu
-                  v-for="item in root"
-                  :key="item.id"
-                  :index="item.id.toString()"
-                >
+                <el-sub-menu v-for="item in root" :key="item.id" :index="item.id.toString()">
                   <template #title>
                     <span class="code">{{ item.name }}</span>
                     <!--  <div class="container">-->
@@ -91,7 +136,16 @@ const clickReturn = (start: string, end: string, keyword: string, childrenKeywor
                     v-for="child in item.children"
                     :key="child.id"
                     :index="child.id.toString()"
-                    @click="clickReturn(item.startExpression, item.endExpression, item.keyword, child.keyword, item.id, child.id)"
+                    @click="
+                      clickReturn(
+                        item.startExpression,
+                        item.endExpression,
+                        item.keyword,
+                        child.keyword,
+                        item.id,
+                        child.id
+                      )
+                    "
                   >
                     <template #title>
                       <div class="container">
@@ -108,30 +162,40 @@ const clickReturn = (start: string, end: string, keyword: string, childrenKeywor
             <el-scrollbar>
               <div class="section">
                 <div class="dialog-header">
-                  <svg-icon name="params"></svg-icon>
+                  <svg-icon name="params" />
                   <span class="text">入参</span>
                 </div>
                 <el-form class="content-area">
                   <el-form-item v-for="item in currentParameter" :key="item.id" :label="item.label">
-                    <el-input v-if="item.type === 'number'" v-model.number="item.value" :placeholder="item.placeholder" />
+                    <el-input
+                      v-if="item.type === 'number'"
+                      v-model.number="item.value"
+                      :placeholder="item.placeholder"
+                    />
                     <el-input v-else v-model="item.value" :placeholder="item.placeholder" />
                   </el-form-item>
                 </el-form>
               </div>
             </el-scrollbar>
           </div>
-          <div class="element">
+          <div v-for="func in showfunctionNumber" :key="func" class="element">
             <el-scrollbar>
               <div class="section">
                 <div class="dialog-header">
-                  <svg-icon name="function"></svg-icon>
+                  <svg-icon name="function" />
                   <span class="text">函数</span>
                 </div>
                 <div class="content-area">
-                  <div v-for="item in 10" :key="item" class="el-menu-item">
+                  <div
+                    v-for="item in functionList"
+                    :key="item.keyword"
+                    class="el-menu-item"
+                    :class="{ 'is-active': item.keyword === currentMenu }"
+                    @click="functionClick(item.keyword)"
+                  >
                     <div class="container">
-                      <div class="code">SHA1</div>
-                      <div>SHA1加密</div>
+                      <div class="code">{{ item.keyword }}</div>
+                      <div>{{ item.name }}</div>
                     </div>
                   </div>
                 </div>
@@ -181,6 +245,8 @@ const clickReturn = (start: string, end: string, keyword: string, childrenKeywor
 }
 .content {
   display: flex;
+  overflow: auto;
+  white-space: nowrap;
   .element-menu {
     min-width: 24%;
   }
@@ -245,7 +311,7 @@ const clickReturn = (start: string, end: string, keyword: string, childrenKeywor
   }
 }
 .content-area {
-  margin-top: 20px;
+  margin-top: 10px;
   padding: 5px;
 }
 </style>
