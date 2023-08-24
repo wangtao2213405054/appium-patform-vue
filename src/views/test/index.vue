@@ -1,80 +1,148 @@
 <script lang="ts" setup>
-import { ref } from "vue"
-import { MagicStick, FullScreen } from "@element-plus/icons-vue"
+import { ref, computed } from "vue"
+import { MagicStick, FullScreen, Search } from "@element-plus/icons-vue"
+import SvgIcon from "@/components/SvgIcon/index.vue" // Svg Component
 import { ElDialog } from "element-plus"
 
 const input = ref("")
-const dialogTableVisible = ref(false)
-const root = ref([])
+const dialogVisible = ref(false)
+const expression = ref("")
+const startExpression = ref("")
+const endExpression = ref("")
+const currentParameter = ref([]) // 当前入参
+const currentExpression = computed(() => {
+  return `
+  ${startExpression.value}
+  ${expression.value}
+  ${currentParameter.value && currentParameter.value.map(field => field.value && `,${field.value}`).join("")}
+  ${endExpression.value}`
+})
+const root = ref([
+  {
+    id: 1,
+    name: "全局变量",
+    startExpression: "{{",
+    endExpression: "}}",
+    keyword: "global",
+    children: [{ id: 3, keyword: "name", name: "姓名", children: [
+      { id: 1, placeholder: "测试一下", value: null, type: "number", label: "最小长度" },
+      { id: 2, placeholder: "测试一下", value: null, type: "number", label: "最大长度" }
+      ] }, { id: 4, keyword: "date", name: "日期" }]
+  },
+  {
+    id: 2,
+    name: "动态变量",
+    startExpression: "{%",
+    endExpression: "%}",
+    keyword: "mock",
+    children: [{ id: 5, keyword: "name", name: "姓名" }, { id: 6, keyword: "date", name: "日期" }]
+  }
+])
 const clickButton = () => {
-  dialogTableVisible.value = true
+  dialogVisible.value = true
 }
-const clickReturn = (value) => {
-  console.log(value)
+const clickReturn = (start: string, end: string, keyword: string, childrenKeyword: string, id: number, childrenId: number) => {
+  startExpression.value = start
+  endExpression.value = end
+  expression.value = `${keyword} '${childrenKeyword}'`
+  for (const index in root.value) {
+    if (root.value[index].id == id) {
+      for (const child in root.value[index].children) {
+        if (root.value[index].children[child].id === childrenId) {
+          currentParameter.value = root.value[index].children[child].children
+        }
+      }
+    }
+  }
 }
 </script>
 
 <template>
   <div style="margin: 10px">
-    <el-dialog v-model="dialogTableVisible" title="魔法变量" width="70%">
+    <el-dialog v-model="dialogVisible" width="70%">
       <template #header>
         <div class="dialog-header">
           <el-icon><MagicStick /></el-icon>
           <span class="text">动态变量</span>
         </div>
       </template>
-      <el-row>
-        <el-col :span="6">
-          <el-scrollbar wrap-class="scrollbar-wrapper">
-            <el-menu style="height: 400px" default-active="2" unique-opened>
-              <el-sub-menu index="1">
-                <template #title>
-                  <span>内置变量</span>
-                </template>
-                <el-menu-item index="1-1" @click="clickReturn">
+      <el-scrollbar>
+        <div class="content">
+          <div class="element-menu">
+            <el-scrollbar wrap-class="scrollbar-wrapper">
+              <el-menu style="height: 400px" unique-opened>
+                <el-sub-menu
+                  v-for="item in root"
+                  :key="item.id"
+                  :index="item.id.toString()"
+                >
                   <template #title>
-                    <div class="container">
-                      <div class="code">name</div>
-                      <div>姓名</div>
-                    </div>
+                    <span class="code">{{ item.name }}</span>
+                    <!--  <div class="container">-->
+                    <!--   <span class="code">{{ item.name }}</span>-->
+                    <!--   <el-input class="input" v-model="input3" size="small" @click.stop>-->
+                    <!--    <template #suffix>-->
+                    <!--     <el-icon :size="14"><Search /></el-icon>-->
+                    <!--    </template>-->
+                    <!--   </el-input>-->
+                    <!--  </div>-->
                   </template>
-                </el-menu-item>
-                <el-menu-item index="1-2">item two</el-menu-item>
-                <el-menu-item index="1-3">item three</el-menu-item>
-              </el-sub-menu>
-              <el-sub-menu index="2">
-                <template #title>
-                  <span>动态变量</span>
-                </template>
-                <el-menu-item index="2-1">item one</el-menu-item>
-                <el-menu-item index="2-2">item two</el-menu-item>
-                <el-menu-item index="2-3">item three</el-menu-item>
-              </el-sub-menu>
-              <el-sub-menu index="3">
-                <template #title>
-                  <span>映射变量</span>
-                </template>
-                <el-menu-item index="3-1">item one</el-menu-item>
-                <el-menu-item index="3-2">item two</el-menu-item>
-                <el-menu-item index="3-3">item three</el-menu-item>
-              </el-sub-menu>
-              <el-sub-menu index="4">
-                <template #title>
-                  <span>Navigator One</span>
-                </template>
-                <el-menu-item index="4-1">item one</el-menu-item>
-                <el-menu-item index="4-2">item two</el-menu-item>
-                <el-menu-item index="4-3">item three</el-menu-item>
-              </el-sub-menu>
-            </el-menu>
-          </el-scrollbar>
-        </el-col>
-        <el-col :span="9"><div class="section">Test</div></el-col>
-        <el-col :span="9"><div class="section">Test</div></el-col>
-      </el-row>
+                  <el-menu-item
+                    v-for="child in item.children"
+                    :key="child.id"
+                    :index="child.id.toString()"
+                    @click="clickReturn(item.startExpression, item.endExpression, item.keyword, child.keyword, item.id, child.id)"
+                  >
+                    <template #title>
+                      <div class="container">
+                        <div class="code">{{ child.keyword }}</div>
+                        <div>{{ child.name }}</div>
+                      </div>
+                    </template>
+                  </el-menu-item>
+                </el-sub-menu>
+              </el-menu>
+            </el-scrollbar>
+          </div>
+          <div v-if="currentParameter && currentParameter.length" class="element">
+            <el-scrollbar>
+              <div class="section">
+                <div class="dialog-header">
+                  <svg-icon name="params"></svg-icon>
+                  <span class="text">入参</span>
+                </div>
+                <el-form class="content-area">
+                  <el-form-item v-for="item in currentParameter" :key="item.id" :label="item.label">
+                    <el-input v-if="item.type === 'number'" v-model.number="item.value" :placeholder="item.placeholder" />
+                    <el-input v-else v-model="item.value" :placeholder="item.placeholder" />
+                  </el-form-item>
+                </el-form>
+              </div>
+            </el-scrollbar>
+          </div>
+          <div class="element">
+            <el-scrollbar>
+              <div class="section">
+                <div class="dialog-header">
+                  <svg-icon name="function"></svg-icon>
+                  <span class="text">函数</span>
+                </div>
+                <div class="content-area">
+                  <div v-for="item in 10" :key="item" class="el-menu-item">
+                    <div class="container">
+                      <div class="code">SHA1</div>
+                      <div>SHA1加密</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-scrollbar>
+          </div>
+        </div>
+      </el-scrollbar>
       <div class="expression">
         <div class="header-text">表达式</div>
-        <div class="flex-grow-element">测试啊</div>
+        <div class="flex-grow-element">{{ currentExpression }}</div>
       </div>
       <div class="profile">
         <div class="header-text">预览</div>
@@ -82,11 +150,17 @@ const clickReturn = (value) => {
           测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊试啊
         </div>
       </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary">插 入</el-button>
+        </span>
+      </template>
     </el-dialog>
     <el-input v-model="input" class="w-50 m-2" style="width: 150px" placeholder="Pick a date">
       <template #suffix>
-        <el-button link :icon="MagicStick" @click="clickButton" />
-        <el-button link :icon="FullScreen" @click="clickButton" />
+        <el-button class="input-button" link :icon="MagicStick" @click="clickButton" />
+        <el-button class="input-button" link :icon="FullScreen" @click="clickButton" />
       </template>
     </el-input>
   </div>
@@ -101,8 +175,23 @@ const clickReturn = (value) => {
   .text {
     margin-left: 8px;
   }
+  .svg-icon {
+    font-size: 20px;
+  }
 }
-.el-button {
+.content {
+  display: flex;
+  .element-menu {
+    flex: 1;
+    min-width: 24%;
+  }
+  .element {
+    flex: 1;
+    min-width: 38%;
+    border-right: 1px solid var(--el-menu-border-color);
+  }
+}
+.input-button {
   margin-left: 0;
 }
 :deep(.el-input__wrapper) {
@@ -111,16 +200,20 @@ const clickReturn = (value) => {
 .container {
   display: flex;
   justify-content: center;
+  align-items: center;
   .code {
     flex: 1;
+  }
+  .input {
+    height: auto;
+    width: 100px;
   }
 }
 
 .section {
   flex: 1;
-  border-right: 1px solid var(--el-menu-border-color);
-  padding: 20px;
   height: 400px;
+  padding: 10px;
 }
 .expression {
   padding: 20px;
@@ -151,5 +244,9 @@ const clickReturn = (value) => {
   .flex-grow-element {
     flex-grow: 1;
   }
+}
+.content-area {
+  margin-top: 20px;
+  padding: 5px;
 }
 </style>
