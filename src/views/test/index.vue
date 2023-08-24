@@ -1,19 +1,33 @@
 <script lang="ts" setup>
-import { ref, computed, onMounted, nextTick } from "vue"
-import { MagicStick, FullScreen, Search } from "@element-plus/icons-vue"
+import { ref, computed, nextTick } from "vue"
+import { MagicStick, FullScreen } from "@element-plus/icons-vue"
 import SvgIcon from "@/components/SvgIcon/index.vue" // Svg Component
-import { ElDialog } from "element-plus"
+import { ElDialog, ElScrollbar } from "element-plus"
+
+interface FunctionListData {
+  keyword: string
+  name: string
+}
+
+interface ParamsData {
+  id: number
+  placeholder: string
+  value?: string | null
+  type: string
+  label: string
+}
 
 const input = ref("")
 const dialogVisible = ref(false)
-const expression = ref("") // 当前绑定的表达式
-const startExpression = ref("") // 表达式开始段
-const endExpression = ref("") // 表达式结束段
-const currentParameter = ref([]) // 当前入参
-const currentMenu = ref("") // 当前所选函数菜单
-const showfunctionNumber = ref(1) // 要展示的函数列表
-const functionList = ref([]) // 当前选中的函数列表
-const functionSelectList = ref([]) // 当前已选函数
+const expression = ref<string>("") // 当前绑定的表达式
+const startExpression = ref<string>("") // 表达式开始段
+const endExpression = ref<string>("") // 表达式结束段
+const currentParameter = ref<ParamsData[]>([]) // 当前入参
+const currentMenuList = ref<string[]>([]) // 当前所选函数菜单索引
+const showFunctionNumber = ref<number>(1) // 要展示的函数列表数量默认为1
+const functionList = ref<FunctionListData[]>([]) // 当前选中的函数列表
+const functionSelectList = ref<string[]>([]) // 当前已选函数
+/** 组装完成的表达式, 用于匹配动态赋值信息 */
 const currentExpression = computed(() => {
   return `
   ${startExpression.value}
@@ -35,11 +49,11 @@ const root = ref([
         keyword: "name",
         name: "姓名",
         children: [
-          { id: 1, placeholder: "测试一下", value: null, type: "number", label: "最小长度" },
-          { id: 2, placeholder: "测试一下", value: null, type: "number", label: "最大长度" }
+          { id: 1, placeholder: "测试一下", type: "number", label: "最小长度" },
+          { id: 2, placeholder: "测试一下", type: "number", label: "最大长度" }
         ]
       },
-      { id: 4, keyword: "date", name: "日期" }
+      { id: 4, keyword: "date", name: "日期", children: [] }
     ],
     functionList: [
       {
@@ -59,15 +73,17 @@ const root = ref([
     endExpression: "%}",
     keyword: "mock",
     children: [
-      { id: 5, keyword: "name", name: "姓名" },
-      { id: 6, keyword: "date", name: "日期" }
+      { id: 5, keyword: "date", name: "日期", children: [] },
+      { id: 6, keyword: "date", name: "日期", children: [] }
     ]
   }
 ])
 const clickButton = () => {
   dialogVisible.value = true
 }
-const clickReturn = (
+
+/** 点击子菜单的回调事件 */
+const clickSubmenu = (
   start: string,
   end: string,
   keyword: string,
@@ -75,34 +91,52 @@ const clickReturn = (
   id: number,
   childrenId: number
 ) => {
+  /** 将当前菜单的前后包裹表达式及子菜单的表达式赋值 */
   startExpression.value = start
   endExpression.value = end
   expression.value = `${keyword} '${childrenKeyword}'`
-  const foundRoot = root.value.find((item) => item.id === id)
+
+  /** 清空菜单索引和已选择的函数 */
   functionSelectList.value = []
+  currentMenuList.value = []
+  currentParameter.value = []
+
+  /** 寻找当前子菜单的入参输入及菜单的函数数据 */
+  const foundRoot = root.value.find((item) => item.id === id)
   if (foundRoot) {
     const foundChild = foundRoot.children.find((child) => child.id === childrenId)
     functionList.value = foundRoot.functionList || []
     if (foundChild) {
-      currentParameter.value = foundChild.children
+      currentParameter.value = JSON.parse(JSON.stringify(foundChild.children))
     }
   }
 }
 
-const functionClick = (keyword) => {
-  currentMenu.value = keyword
-  functionSelectList.value.push(keyword)
-  showfunctionNumber.value += 1
-  nextTick(() => {
-    const container = document.getElementById("testTow") as HTMLElement // 替换为你的容器的 ID
-    const containerWidth = container.scrollWidth
-    console.log(containerWidth, "2222")
-    container.scrollTo({
-      left: containerWidth,
-      top: 0,
-      behavior: "smooth"
+const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
+
+/** 点击绑定函数的事件 */
+const functionClick = (index: number, keyword: string) => {
+  /** 如果再次点击相同的函数, 则销毁其本身和其身后的所有函数绑定 */
+  if (functionSelectList.value[index + 1] == keyword) {
+    currentMenuList.value.splice(index, functionSelectList.value.length - index)
+    functionSelectList.value.splice(index + 1, functionSelectList.value.length - (index + 1))
+    showFunctionNumber.value = index
+    return
+  }
+  currentMenuList.value[index] = keyword
+  functionSelectList.value[index + 1] = keyword
+
+  /** 当点击为最后一个函数列表时，动态添加一个 */
+  if (index === showFunctionNumber.value) {
+    showFunctionNumber.value += 1
+
+    /** 数据渲染完成后将移动到最后一个函数列表 */
+    nextTick(() => {
+      const container = document.getElementById("dialogWidth") as HTMLElement // dialog 中容器的宽度
+      const containerWidth = container.scrollWidth
+      scrollbarRef.value!.setScrollLeft(containerWidth)
     })
-  })
+  }
 }
 </script>
 
@@ -115,8 +149,8 @@ const functionClick = (keyword) => {
           <span class="text">动态变量</span>
         </div>
       </template>
-      <el-scrollbar>
-        <div class="content" id="testTow">
+      <el-scrollbar ref="scrollbarRef">
+        <div class="content" id="dialogWidth">
           <div class="element-menu">
             <el-scrollbar wrap-class="scrollbar-wrapper">
               <el-menu style="height: 400px" unique-opened>
@@ -137,7 +171,7 @@ const functionClick = (keyword) => {
                     :key="child.id"
                     :index="child.id.toString()"
                     @click="
-                      clickReturn(
+                      clickSubmenu(
                         item.startExpression,
                         item.endExpression,
                         item.keyword,
@@ -178,7 +212,7 @@ const functionClick = (keyword) => {
               </div>
             </el-scrollbar>
           </div>
-          <div v-for="func in showfunctionNumber" :key="func" class="element">
+          <div v-for="index in showFunctionNumber" v-show="functionList.length" :key="index" class="element">
             <el-scrollbar>
               <div class="section">
                 <div class="dialog-header">
@@ -190,8 +224,8 @@ const functionClick = (keyword) => {
                     v-for="item in functionList"
                     :key="item.keyword"
                     class="el-menu-item"
-                    :class="{ 'is-active': item.keyword === currentMenu }"
-                    @click="functionClick(item.keyword)"
+                    :class="{ 'is-active': item.keyword === currentMenuList[index] }"
+                    @click="functionClick(index, item.keyword)"
                   >
                     <div class="container">
                       <div class="code">{{ item.keyword }}</div>
@@ -245,8 +279,6 @@ const functionClick = (keyword) => {
 }
 .content {
   display: flex;
-  overflow: auto;
-  white-space: nowrap;
   .element-menu {
     min-width: 24%;
   }
