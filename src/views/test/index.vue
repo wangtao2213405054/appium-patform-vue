@@ -182,11 +182,10 @@ const clickReturn = (start: string, end: string, keyword: string, childrenKeywor
 .content {
   display: flex;
   .element-menu {
-    flex: 1;
     min-width: 24%;
   }
   .element {
-    flex: 1;
+    flex: 0;
     min-width: 38%;
     border-right: 1px solid var(--el-menu-border-color);
   }
