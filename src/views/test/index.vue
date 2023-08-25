@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { ref, computed, nextTick } from "vue"
+import { ref, computed, nextTick, onMounted } from "vue"
 import { MagicStick, FullScreen } from "@element-plus/icons-vue"
 import SvgIcon from "@/components/SvgIcon/index.vue" // Svg Component
 import { ElDialog, ElScrollbar } from "element-plus"
+import { randomChineseText, randomLastName } from "@/utils/mock";
 
 interface FunctionListData {
   keyword: string
@@ -32,7 +33,7 @@ const currentExpression = computed(() => {
   return `
   ${startExpression.value}
   ${expression.value}
-  ${currentParameter.value ? currentParameter.value.map((field) => field.value && `,${field.value}`).join("") : ""}
+  ${currentParameter.value ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("") : ""}
   ${functionSelectList.value ? functionSelectList.value.map((field) => field && `|${field}`).join("") : ""}
   ${endExpression.value}`
 })
@@ -44,15 +45,6 @@ const root = ref([
     endExpression: "}}",
     keyword: "global",
     children: [
-      {
-        id: 3,
-        keyword: "name",
-        name: "姓名",
-        children: [
-          { id: 1, placeholder: "测试一下", type: "number", label: "最小长度" },
-          { id: 2, placeholder: "测试一下", type: "number", label: "最大长度" }
-        ]
-      },
       { id: 4, keyword: "date", name: "日期", children: [] }
     ],
     functionList: [
@@ -73,11 +65,21 @@ const root = ref([
     endExpression: "%}",
     keyword: "mock",
     children: [
-      { id: 5, keyword: "date", name: "日期", children: [] },
-      { id: 6, keyword: "date", name: "日期", children: [] }
+      {
+        id: 3,
+        keyword: "name",
+        name: "姓名",
+        children: [
+          { id: 1, placeholder: "测试一下", type: "number", label: "最小长度", expression: 'min' },
+          { id: 2, placeholder: "测试一下", type: "number", label: "最大长度", expression: 'max' }
+        ]
+      }
     ]
   }
 ])
+const mapping = ref({
+  mock: { name: randomChineseText }
+})
 const clickButton = () => {
   dialogVisible.value = true
 }
@@ -138,6 +140,46 @@ const functionClick = (index: number, keyword: string) => {
     })
   }
 }
+const decouple = (value:string) => {
+
+}
+onMounted(() => {
+  const data = "{{ global 'name' ,min:1,max:2,change:'ws' |length|lower }}"
+
+  const pattern = /\{\{\s*([^\s|]+)\s+('[^']*')(?:\s*,\s*([^|]+))?\s*(?:\|([^%]+))*\s*(?:\|([^%]+))*\s*\}\}/
+
+  const matches = data.match(pattern)
+
+  let mapVar = null
+  let functionNameVar = null
+  let functionArgs = {}
+  let functionVar = []
+
+  if (matches) {
+    mapVar = matches[1];
+    functionNameVar = matches[2].slice(1, -1)
+
+    // 匹配参数部分
+    if (matches[3]) {
+      const argsMatches = matches[3].trim().split(",")
+      argsMatches.forEach((item) => {
+        const [key, value] = item.split(":")
+        functionArgs[key] = value.includes("'") ? value.replace(/'/g, "") : parseInt(value)
+      })
+    }
+
+    // 匹配过滤器部分
+    if (matches[4]) {
+      functionVar = matches[4].trim().split('|')
+    }
+  }
+
+  console.log("Map Variable:", mapVar)
+  console.log("Name Variable:", functionNameVar)
+  console.log("Function Args:", functionArgs)
+  console.log("Function Variable:", functionVar)
+  console.log(randomChineseText(functionArgs))
+})
 </script>
 
 <template>
