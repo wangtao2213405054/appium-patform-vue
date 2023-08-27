@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ref, computed, nextTick, onMounted } from "vue"
+import { ref, computed, nextTick, onMounted, watch, inject } from "vue"
 import { MagicStick, FullScreen } from "@element-plus/icons-vue"
 import SvgIcon from "@/components/SvgIcon/index.vue" // Svg Component
 import { ElDialog, ElScrollbar } from "element-plus"
-import { randomChineseText, randomLastName } from "@/utils/mock";
+import { Socket } from "socket.io-client"
 
 interface FunctionListData {
   keyword: string
@@ -21,32 +21,41 @@ interface ParamsData {
 const input = ref("")
 const dialogVisible = ref(false)
 const expression = ref<string>("") // 当前绑定的表达式
-const startExpression = ref<string>("") // 表达式开始段
-const endExpression = ref<string>("") // 表达式结束段
 const currentParameter = ref<ParamsData[]>([]) // 当前入参
 const currentMenuList = ref<string[]>([]) // 当前所选函数菜单索引
 const showFunctionNumber = ref<number>(1) // 要展示的函数列表数量默认为1
 const functionList = ref<FunctionListData[]>([]) // 当前选中的函数列表
 const functionSelectList = ref<string[]>([]) // 当前已选函数
+const profile = ref<string>("") // 预览数据
 /** 组装完成的表达式, 用于匹配动态赋值信息 */
 const currentExpression = computed(() => {
-  return `
-  ${startExpression.value}
-  ${expression.value}
-  ${currentParameter.value ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("") : ""}
-  ${functionSelectList.value ? functionSelectList.value.map((field) => field && `|${field}`).join("") : ""}
-  ${endExpression.value}`
+  return `{{${expression.value}${
+    currentParameter.value
+      ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("")
+      : ""
+  }${functionSelectList.value ? functionSelectList.value.map((field) => field && `|${field}`).join("") : ""}}}`
+})
+
+const socket: Socket = inject("socket") as Socket
+let timer: number | undefined = undefined
+const loading = ref<boolean>(false)
+watch(currentExpression, (data) => {
+  window.clearTimeout(timer)
+  loading.value = true
+  timer = window.setTimeout(() => {
+    socket.emit("getMockData", { expression: data })
+  }, 500)
+})
+socket.on("reverseMockData", (data) => {
+  profile.value = data
+  loading.value = false
 })
 const root = ref([
   {
     id: 1,
     name: "全局变量",
-    startExpression: "{{",
-    endExpression: "}}",
     keyword: "global",
-    children: [
-      { id: 4, keyword: "date", name: "日期", children: [] }
-    ],
+    children: [{ id: 4, keyword: "date", name: "日期", children: [] }],
     functionList: [
       {
         keyword: "length",
@@ -61,8 +70,6 @@ const root = ref([
   {
     id: 2,
     name: "动态变量",
-    startExpression: "{%",
-    endExpression: "%}",
     keyword: "mock",
     children: [
       {
@@ -70,32 +77,26 @@ const root = ref([
         keyword: "name",
         name: "姓名",
         children: [
-          { id: 1, placeholder: "测试一下", type: "number", label: "最小长度", expression: 'min' },
-          { id: 2, placeholder: "测试一下", type: "number", label: "最大长度", expression: 'max' }
+          { id: 1, placeholder: "测试一下", type: "number", label: "最小长度", expression: "min" },
+          { id: 2, placeholder: "测试一下", type: "number", label: "最大长度", expression: "max" }
         ]
+      },
+      {
+        id: 11,
+        keyword: "cparagraph",
+        name: "中文大段文本",
+        children: [{ id: 10, placeholder: "文本长度", type: "number", label: "文本长度", expression: "length" }]
       }
     ]
   }
 ])
-const mapping = ref({
-  mock: { name: randomChineseText }
-})
 const clickButton = () => {
   dialogVisible.value = true
 }
 
 /** 点击子菜单的回调事件 */
-const clickSubmenu = (
-  start: string,
-  end: string,
-  keyword: string,
-  childrenKeyword: string,
-  id: number,
-  childrenId: number
-) => {
+const clickSubmenu = (keyword: string, childrenKeyword: string, id: number, childrenId: number) => {
   /** 将当前菜单的前后包裹表达式及子菜单的表达式赋值 */
-  startExpression.value = start
-  endExpression.value = end
   expression.value = `${keyword} '${childrenKeyword}'`
 
   /** 清空菜单索引和已选择的函数 */
@@ -140,9 +141,6 @@ const functionClick = (index: number, keyword: string) => {
     })
   }
 }
-const decouple = (value:string) => {
-
-}
 onMounted(() => {
   const data = "{{ global 'name' ,min:1,max:2,change:'ws' |length|lower }}"
 
@@ -152,11 +150,11 @@ onMounted(() => {
 
   let mapVar = null
   let functionNameVar = null
-  let functionArgs = {}
+  const functionArgs = {}
   let functionVar = []
 
   if (matches) {
-    mapVar = matches[1];
+    mapVar = matches[1]
     functionNameVar = matches[2].slice(1, -1)
 
     // 匹配参数部分
@@ -170,7 +168,7 @@ onMounted(() => {
 
     // 匹配过滤器部分
     if (matches[4]) {
-      functionVar = matches[4].trim().split('|')
+      functionVar = matches[4].trim().split("|")
     }
   }
 
@@ -178,7 +176,6 @@ onMounted(() => {
   console.log("Name Variable:", functionNameVar)
   console.log("Function Args:", functionArgs)
   console.log("Function Variable:", functionVar)
-  console.log(randomChineseText(functionArgs))
 })
 </script>
 
@@ -212,16 +209,7 @@ onMounted(() => {
                     v-for="child in item.children"
                     :key="child.id"
                     :index="child.id.toString()"
-                    @click="
-                      clickSubmenu(
-                        item.startExpression,
-                        item.endExpression,
-                        item.keyword,
-                        child.keyword,
-                        item.id,
-                        child.id
-                      )
-                    "
+                    @click="clickSubmenu(item.keyword, child.keyword, item.id, child.id)"
                   >
                     <template #title>
                       <div class="container">
@@ -286,9 +274,15 @@ onMounted(() => {
       </div>
       <div class="profile">
         <div class="header-text">预览</div>
-        <div class="flex-grow-element">
-          测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊测试啊试啊
-        </div>
+        <el-scrollbar>
+          <div class="flex-grow-element">
+            <span v-if="!loading">{{ profile }}</span>
+            <span v-else class="loading-hint">
+              <el-icon class="is-loading"><Loading /></el-icon>
+              <span>正在加载...</span>
+            </span>
+          </div>
+        </el-scrollbar>
       </div>
       <template #footer>
         <span class="dialog-footer">
@@ -322,11 +316,11 @@ onMounted(() => {
 .content {
   display: flex;
   .element-menu {
-    min-width: 24%;
+    min-width: 30%;
   }
   .element {
     flex: 0;
-    min-width: 38%;
+    min-width: 35%;
     border-right: 1px solid var(--el-menu-border-color);
   }
 }
@@ -360,7 +354,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   .header-text {
-    width: 90px;
+    min-width: 80px;
     font-size: 16px;
     font-weight: bold;
   }
@@ -376,16 +370,25 @@ onMounted(() => {
   display: flex;
   align-items: center;
   .header-text {
-    width: 90px;
+    min-width: 80px;
     font-weight: bold;
     font-size: 16px;
   }
   .flex-grow-element {
     flex-grow: 1;
+    max-height: 80px;
   }
 }
 .content-area {
   margin-top: 10px;
   padding: 5px;
+}
+.loading-hint {
+  display: flex;
+  place-items: center;
+  font-size: 15px;
+  .el-icon {
+    margin-right: 5px;
+  }
 }
 </style>
