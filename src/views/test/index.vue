@@ -23,9 +23,10 @@ const dialogVisible = ref(false)
 const expression = ref<string>("") // 当前绑定的表达式
 const currentParameter = ref<ParamsData[]>([]) // 当前入参
 const currentMenuList = ref<string[]>([]) // 当前所选函数菜单索引
-const showFunctionNumber = ref<number>(1) // 要展示的函数列表数量默认为1
+const showFunction = ref([]) // 要展示的函数列表数量默认为1
 const functionList = ref<FunctionListData[]>([]) // 当前选中的函数列表
 const functionSelectList = ref<string[]>([]) // 当前已选函数
+const functionSelectParams = ref([])
 const profile = ref<string>("") // 预览数据
 /** 组装完成的表达式, 用于匹配动态赋值信息 */
 const currentExpression = computed(() => {
@@ -33,9 +34,20 @@ const currentExpression = computed(() => {
     currentParameter.value
       ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("")
       : ""
-  }${functionSelectList.value ? functionSelectList.value.map((field) => field && `|${field}`).join("") : ""}}}`
+  }${functionSelectList.value ? functionSelectList.value.map((field) => {
+    let functionExpression = ""
+    if (field.children && field.children.length) {
+      field.children.forEach((item) => {
+        if (item.value) {
+          functionExpression += `,${item.expression}:${item.value}`
+        }
+      })
+    }
+    return field.keyword && `|${field.keyword}${functionExpression}`
+  }).join("") : ""}}}`
 })
 
+/** 从服务器获取数据 */
 const socket: Socket = inject("socket") as Socket
 let timer: number | undefined = undefined
 const loading = ref<boolean>(false)
@@ -50,22 +62,13 @@ socket.on("reverseMockData", (data) => {
   profile.value = data
   loading.value = false
 })
+
 const root = ref([
   {
     id: 1,
     name: "全局变量",
     keyword: "global",
-    children: [{ id: 4, keyword: "date", name: "日期", children: [] }],
-    functionList: [
-      {
-        keyword: "length",
-        name: "数据长度"
-      },
-      {
-        keyword: "lower",
-        name: "将所有字母变为小写"
-      }
-    ]
+    children: [{ id: 4, keyword: "date", name: "日期", children: [] }]
   },
   {
     id: 2,
@@ -87,6 +90,40 @@ const root = ref([
         name: "中文大段文本",
         children: [{ id: 10, placeholder: "文本长度", type: "number", label: "文本长度", expression: "length" }]
       }
+    ],
+    functionList: [
+      {
+        keyword: "length",
+        name: "数据长度"
+      },
+      {
+        keyword: "lower",
+        name: "将所有字母变为小写"
+      },
+      {
+        keyword: "upper",
+        name: "将所有字母变为大写"
+      },
+      {
+        keyword: "capitalize",
+        name: "首字母大写"
+      },
+      {
+        keyword: "title",
+        name: "单词首字母大写"
+      },
+      {
+        keyword: "strip",
+        name: "去除空白字符"
+      },
+      {
+        keyword: "section",
+        name: "数据切片",
+        children: [
+          { id: 20, placeholder: "起始位", element: "input", type: "number", expression: "start" },
+          { id: 21, placeholder: "结束位", element: "input", type: "number", expression: "end" }
+        ]
+      },
     ]
   }
 ])
@@ -103,10 +140,16 @@ const clickSubmenu = (keyword: string, childrenKeyword: string, id: number, chil
   functionSelectList.value = []
   currentMenuList.value = []
   currentParameter.value = []
+  showFunction.value = []
 
   /** 寻找当前子菜单的入参输入及菜单的函数数据 */
   const foundRoot = root.value.find((item) => item.id === id)
+
   if (foundRoot) {
+    if (foundRoot.functionList) {
+      functionSelectParams.value = JSON.parse(JSON.stringify(foundRoot.functionList))
+      showFunction.value = [JSON.parse(JSON.stringify(foundRoot.functionList))]
+    }
     const foundChild = foundRoot.children.find((child) => child.id === childrenId)
     functionList.value = foundRoot.functionList || []
     if (foundChild) {
@@ -118,20 +161,23 @@ const clickSubmenu = (keyword: string, childrenKeyword: string, id: number, chil
 const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
 
 /** 点击绑定函数的事件 */
-const functionClick = (index: number, keyword: string) => {
+const functionClick = (index: number, keyword: string, chanel=true) => {
   /** 如果再次点击相同的函数, 则销毁其本身和其身后的所有函数绑定 */
-  if (functionSelectList.value[index + 1] == keyword) {
+  if (chanel && functionSelectList.value[index + 1] && functionSelectList.value[index + 1].keyword == keyword) {
     currentMenuList.value.splice(index, functionSelectList.value.length - index)
     functionSelectList.value.splice(index + 1, functionSelectList.value.length - (index + 1))
-    showFunctionNumber.value = index
+    // showFunctionNumber.value = index
+    showFunction.value.splice(index, showFunction.value.length - index - 1)
     return
   }
   currentMenuList.value[index] = keyword
-  functionSelectList.value[index + 1] = keyword
+  const functionRoot = showFunction.value[index].find((item) => item.keyword === keyword)
+  functionSelectList.value[index + 1] = { keyword, children: functionRoot.children }
 
   /** 当点击为最后一个函数列表时，动态添加一个 */
-  if (index === showFunctionNumber.value) {
-    showFunctionNumber.value += 1
+  if (index === showFunction.value.length - 1) {
+    // showFunctionNumber.value += 1
+    showFunction.value.push(JSON.parse(JSON.stringify(functionSelectParams.value)))
 
     /** 数据渲染完成后将移动到最后一个函数列表 */
     nextTick(() => {
@@ -177,6 +223,9 @@ onMounted(() => {
   console.log("Function Args:", functionArgs)
   console.log("Function Variable:", functionVar)
 })
+const testChange = (data, index) => {
+  console.log(1111123, data, index)
+}
 </script>
 
 <template>
@@ -229,20 +278,21 @@ onMounted(() => {
                   <svg-icon name="params" />
                   <span class="text">入参</span>
                 </div>
-                <el-form class="content-area">
-                  <el-form-item v-for="item in currentParameter" :key="item.id" :label="item.label">
+                <div class="content-area">
+                  <div v-for="item in currentParameter" :key="item.id" class="container">
+                    <span class="code">{{ item.label }}</span>
                     <el-input
                       v-if="item.type === 'number'"
                       v-model.number="item.value"
                       :placeholder="item.placeholder"
                     />
                     <el-input v-else v-model="item.value" :placeholder="item.placeholder" />
-                  </el-form-item>
-                </el-form>
+                  </div>
+                </div>
               </div>
             </el-scrollbar>
           </div>
-          <div v-for="index in showFunctionNumber" v-show="functionList.length" :key="index" class="element">
+          <div v-for="(functionItem, index) in showFunction" :key="index" class="element">
             <el-scrollbar>
               <div class="section">
                 <div class="dialog-header">
@@ -251,13 +301,41 @@ onMounted(() => {
                 </div>
                 <div class="content-area">
                   <div
-                    v-for="item in functionList"
+                    v-for="item in functionItem"
                     :key="item.keyword"
                     class="el-menu-item"
                     :class="{ 'is-active': item.keyword === currentMenuList[index] }"
                     @click="functionClick(index, item.keyword)"
                   >
-                    <div class="container">
+                    <div v-if="item.children && item.children.length" class="container">
+                      <div class="code">{{ item.name }}</div>
+                      <div class="el-input">
+                        <div v-for="element in item.children">
+                          <el-input
+                            v-if="element.element === 'input' && element.type === 'number'"
+                            :placeholder="element.placeholder"
+                            v-model.number="element.value"
+                            @click.stop
+                            @focus="functionClick(index, item.keyword, false)"
+                          />
+                          <el-input
+                            v-else-if="element.element === 'input' && element.type === 'string'"
+                            :placeholder="element.placeholder"
+                            v-model="element.value"
+                            @click.stop
+                            @focus="functionClick(index, item.keyword, false)"
+                          />
+                          <el-input
+                            v-else
+                            :placeholder="element.placeholder"
+                            v-model="element.value"
+                            @click.stop
+                            @focus="functionClick(index, item.keyword, false)"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else class="container">
                       <div class="code">{{ item.keyword }}</div>
                       <div>{{ item.name }}</div>
                     </div>
@@ -341,6 +419,16 @@ onMounted(() => {
     height: auto;
     width: 100px;
   }
+  .el-input {
+    display: flex;
+    flex-wrap: wrap;
+    width: 150px;
+    margin-bottom: 3px;
+    margin-top: 3px;
+  }
+}
+.el-menu-item {
+  height: auto;
 }
 
 .section {
