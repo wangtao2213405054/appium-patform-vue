@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, nextTick, onMounted, watch, inject } from "vue"
+import { ref, computed, onMounted, watch, inject, onBeforeUnmount } from "vue"
 import { MagicStick, FullScreen } from "@element-plus/icons-vue"
 import SvgIcon from "@/components/SvgIcon/index.vue" // Svg Component
 import { ElDialog, ElScrollbar } from "element-plus"
@@ -16,6 +16,9 @@ interface ParamsData {
   value?: string | null
   type: string
   label: string
+  expression: string
+  children?: ParamsData[]
+  keyword?: string
 }
 
 const input = ref("")
@@ -25,7 +28,7 @@ const currentParameter = ref<ParamsData[]>([]) // 当前入参
 const currentMenuList = ref<string[]>([]) // 当前所选函数菜单索引
 const showFunction = ref([]) // 要展示的函数列表数量默认为1
 const functionList = ref<FunctionListData[]>([]) // 当前选中的函数列表
-const functionSelectList = ref<string[]>([]) // 当前已选函数
+const functionSelectList = ref<ParamsData[]>([]) // 当前已选函数
 const functionSelectParams = ref([])
 const profile = ref<string>("") // 预览数据
 /** 组装完成的表达式, 用于匹配动态赋值信息 */
@@ -34,17 +37,23 @@ const currentExpression = computed(() => {
     currentParameter.value
       ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("")
       : ""
-  }${functionSelectList.value ? functionSelectList.value.map((field) => {
-    let functionExpression = ""
-    if (field.children && field.children.length) {
-      field.children.forEach((item) => {
-        if (item.value) {
-          functionExpression += `,${item.expression}:${item.value}`
-        }
-      })
-    }
-    return field.keyword && `|${field.keyword}${functionExpression}`
-  }).join("") : ""}}}`
+  }${
+    functionSelectList.value
+      ? functionSelectList.value
+          .map((field) => {
+            let functionExpression = ""
+            if (field.children && field.children.length) {
+              field.children.forEach((item) => {
+                if (item.value) {
+                  functionExpression += `,${item.expression}:${item.value}`
+                }
+              })
+            }
+            return field.keyword && `|${field.keyword}${functionExpression}`
+          })
+          .join("")
+      : ""
+  }}}`
 })
 
 /** 从服务器获取数据 */
@@ -58,9 +67,18 @@ watch(currentExpression, (data) => {
     socket.emit("getMockData", { expression: data })
   }, 500)
 })
-socket.on("reverseMockData", (data) => {
-  profile.value = data
-  loading.value = false
+
+/** 当组件打开时挂载 reverseMockData Socket钩子 */
+onMounted(() => {
+  socket.on("reverseMockData", (data) => {
+    profile.value = data
+    loading.value = false
+  })
+})
+
+/** 当组件销毁时销毁 reverseMockData Socket 钩子 */
+onBeforeUnmount(() => {
+  socket.off("reverseMockData")
 })
 
 const root = ref([
@@ -68,7 +86,7 @@ const root = ref([
     id: 1,
     name: "全局变量",
     keyword: "global",
-    children: [{ id: 4, keyword: "date", name: "日期", children: [] }]
+    children: [{ id: 4, keyword: "date", name: "日期", label: "测试", expression: "date1", children: [] }]
   },
   {
     id: 2,
@@ -123,7 +141,7 @@ const root = ref([
           { id: 20, placeholder: "起始位", element: "input", type: "number", expression: "start" },
           { id: 21, placeholder: "结束位", element: "input", type: "number", expression: "end" }
         ]
-      },
+      }
     ]
   }
 ])
@@ -161,7 +179,7 @@ const clickSubmenu = (keyword: string, childrenKeyword: string, id: number, chil
 const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
 
 /** 点击绑定函数的事件 */
-const functionClick = (index: number, keyword: string, chanel=true) => {
+const functionClick = (index: number, keyword: string, chanel = true) => {
   /** 如果再次点击相同的函数, 则销毁其本身和其身后的所有函数绑定 */
   if (chanel && functionSelectList.value[index + 1] && functionSelectList.value[index + 1].keyword == keyword) {
     currentMenuList.value.splice(index, functionSelectList.value.length - index)
@@ -179,52 +197,33 @@ const functionClick = (index: number, keyword: string, chanel=true) => {
     // showFunctionNumber.value += 1
     showFunction.value.push(JSON.parse(JSON.stringify(functionSelectParams.value)))
 
+    const scrollableElement = document.getElementById("dialogWidth") as HTMLElement // dialog 中容器的宽度
+    const functionElement = document.getElementById("functionSection") as HTMLElement
+    const targetScrollLeft = scrollableElement.scrollWidth - functionElement.scrollWidth * 1.5
+
     /** 数据渲染完成后将移动到最后一个函数列表 */
-    nextTick(() => {
-      const container = document.getElementById("dialogWidth") as HTMLElement // dialog 中容器的宽度
-      const containerWidth = container.scrollWidth
-      scrollbarRef.value!.setScrollLeft(containerWidth)
-    })
+    const step = 10 // 每次滚动的距离
+    // 定义滚动的时间间隔（延迟）
+    const delay = 20 // 每次滚动之间的延迟时间（以毫秒为单位）
+    let currentScrollLeft = targetScrollLeft - functionElement.scrollWidth
+    console.log(targetScrollLeft, currentScrollLeft)
+    // 使用 setInterval 创建定时器
+    const scrollInterval = setInterval(() => {
+      // 计算下一步滚动后的位置
+      if (currentScrollLeft < targetScrollLeft) {
+        currentScrollLeft = Math.min(currentScrollLeft + step, targetScrollLeft)
+      } else {
+        currentScrollLeft = Math.max(currentScrollLeft - step, targetScrollLeft)
+      }
+      // 将计算后的位置应用于滚动条
+      scrollbarRef.value!.setScrollLeft(currentScrollLeft)
+
+      // 判断是否达到目标位置，如果是则清除定时器
+      if (currentScrollLeft === targetScrollLeft) {
+        clearInterval(scrollInterval)
+      }
+    }, delay)
   }
-}
-onMounted(() => {
-  const data = "{{ global 'name' ,min:1,max:2,change:'ws' |length|lower }}"
-
-  const pattern = /\{\{\s*([^\s|]+)\s+('[^']*')(?:\s*,\s*([^|]+))?\s*(?:\|([^%]+))*\s*(?:\|([^%]+))*\s*\}\}/
-
-  const matches = data.match(pattern)
-
-  let mapVar = null
-  let functionNameVar = null
-  const functionArgs = {}
-  let functionVar = []
-
-  if (matches) {
-    mapVar = matches[1]
-    functionNameVar = matches[2].slice(1, -1)
-
-    // 匹配参数部分
-    if (matches[3]) {
-      const argsMatches = matches[3].trim().split(",")
-      argsMatches.forEach((item) => {
-        const [key, value] = item.split(":")
-        functionArgs[key] = value.includes("'") ? value.replace(/'/g, "") : parseInt(value)
-      })
-    }
-
-    // 匹配过滤器部分
-    if (matches[4]) {
-      functionVar = matches[4].trim().split("|")
-    }
-  }
-
-  console.log("Map Variable:", mapVar)
-  console.log("Name Variable:", functionNameVar)
-  console.log("Function Args:", functionArgs)
-  console.log("Function Variable:", functionVar)
-})
-const testChange = (data, index) => {
-  console.log(1111123, data, index)
 }
 </script>
 
@@ -237,7 +236,7 @@ const testChange = (data, index) => {
           <span class="text">动态变量</span>
         </div>
       </template>
-      <el-scrollbar ref="scrollbarRef">
+      <el-scrollbar ref="scrollbarRef" id="scrollbarRef">
         <div class="content" id="dialogWidth">
           <div class="element-menu">
             <el-scrollbar wrap-class="scrollbar-wrapper">
@@ -294,7 +293,7 @@ const testChange = (data, index) => {
           </div>
           <div v-for="(functionItem, index) in showFunction" :key="index" class="element">
             <el-scrollbar>
-              <div class="section">
+              <div class="section" id="functionSection">
                 <div class="dialog-header">
                   <svg-icon name="function" />
                   <span class="text">函数</span>
@@ -310,7 +309,7 @@ const testChange = (data, index) => {
                     <div v-if="item.children && item.children.length" class="container">
                       <div class="code">{{ item.name }}</div>
                       <div class="el-input">
-                        <div v-for="element in item.children">
+                        <div v-for="element in item.children" :key="element.keyword">
                           <el-input
                             v-if="element.element === 'input' && element.type === 'number'"
                             :placeholder="element.placeholder"
