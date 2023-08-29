@@ -1,22 +1,63 @@
 <script setup lang="ts">
-import {ref, computed, onMounted, watch, inject, onBeforeUnmount, shallowRef} from "vue"
+import { ref, computed, onMounted, watch, inject, onBeforeUnmount, shallowRef } from "vue"
 import { ElDialog, ElScrollbar } from "element-plus"
-import { MagicStick } from "@element-plus/icons-vue"
+import { MagicStick, Search } from "@element-plus/icons-vue"
 import SvgIcon from "@/components/SvgIcon/index.vue"
 import { Socket } from "socket.io-client"
-
 
 interface Props {
   modelValue: boolean
 }
 
+/** 组件的结构体 */
+interface ElementMappingData {
+  placeholder: string
+  element: string
+  type: string
+  label?: string
+  expression: string
+  options?: OptionsData[]
+  value?: string | number | undefined
+}
+
+/** Select 选择器参数 */
+interface OptionsData {
+  key: string
+  value: string | number
+}
+
+/** 菜单数据 */
+interface VariableMenuData {
+  id: number
+  name: string
+  keyword: string
+  show?: boolean
+  children: ChildrenVariableMenuData[]
+  functionList: FunctionData[]
+}
+
+/** 子菜单数据 */
+interface ChildrenVariableMenuData {
+  id: number
+  name: string
+  keyword: string
+  children: ElementMappingData[]
+}
+
+/** 功能函数 */
+interface FunctionData {
+  keyword: string
+  name?: string
+  children?: ElementMappingData[]
+}
+
 const props = defineProps<Props>()
-const root = ref([
+const root = ref<VariableMenuData[]>([
   {
     id: 1,
     name: "全局变量",
     keyword: "global",
-    children: [{ id: 4, keyword: "date", name: "日期", label: "测试", expression: "date1", children: [] }]
+    children: [{ id: 4, keyword: "date", name: "日期", expression: "date1", children: [] }]
   },
   {
     id: 2,
@@ -28,15 +69,27 @@ const root = ref([
         keyword: "name",
         name: "姓名",
         children: [
-          { id: 1, placeholder: "测试一下", type: "number", label: "最小长度", expression: "min" },
-          { id: 2, placeholder: "测试一下", type: "number", label: "最大长度", expression: "max" }
+          { placeholder: "测试一下", element: "input", type: "number", label: "最小长度", expression: "min" },
+          { placeholder: "测试一下", element: "input", type: "number", label: "最大长度", expression: "max" },
+          {
+            placeholder: "测试一下",
+            element: "select",
+            label: "日期单位",
+            expression: "date",
+            options: [
+              { value: "s", label: "秒" },
+              { value: "ms", label: "毫秒" }
+            ]
+          }
         ]
       },
       {
         id: 11,
         keyword: "cparagraph",
         name: "中文大段文本",
-        children: [{ id: 10, placeholder: "文本长度", type: "number", label: "文本长度", expression: "length" }]
+        children: [
+          { placeholder: "文本长度", element: "input", type: "number", label: "文本长度", expression: "length" }
+        ]
       }
     ],
     functionList: [
@@ -68,8 +121,8 @@ const root = ref([
         keyword: "section",
         name: "数据切片",
         children: [
-          { id: 20, placeholder: "起始位", element: "input", type: "number", expression: "start" },
-          { id: 21, placeholder: "结束位", element: "input", type: "number", expression: "end" }
+          { placeholder: "起始位", element: "input", type: "number", expression: "start" },
+          { placeholder: "结束位", element: "input", type: "number", expression: "end" }
         ]
       }
     ]
@@ -78,35 +131,35 @@ const root = ref([
 
 const dialogVisible = shallowRef<string>(props.modelValue)
 const expression = ref<string>("") // 当前绑定的表达式
-const currentParameter = ref<ParamsData[]>([]) // 当前入参
+const currentParameter = ref<ElementMappingData[]>([]) // 当前入参
 const currentMenuList = ref<string[]>([]) // 当前所选函数菜单索引
-const showFunction = ref([]) // 要展示的函数列表数量默认为1
-const functionList = ref<FunctionListData[]>([]) // 当前选中的函数列表
-const functionSelectList = ref<ParamsData[]>([]) // 当前已选函数
-const functionSelectParams = ref([])
+const showFunction = ref<FunctionData[][]>([]) // 要展示的函数列表数量默认为1
+const functionList = ref<FunctionData[]>([]) // 当前选中的函数列表
+const functionSelectList = ref<FunctionData[]>([]) // 当前已选函数
+const functionSelectParams = ref<FunctionData[]>([])
 const profile = ref<string>("") // 预览数据
 /** 组装完成的表达式, 用于匹配动态赋值信息 */
 const currentExpression: string = computed(() => {
   return `{{${expression.value}${
-      currentParameter.value
-          ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("")
-          : ""
+    currentParameter.value
+      ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("")
+      : ""
   }${
-      functionSelectList.value
-          ? functionSelectList.value
-              .map((field) => {
-                let functionExpression = ""
-                if (field.children && field.children.length) {
-                  field.children.forEach((item) => {
-                    if (item.value) {
-                      functionExpression += `,${item.expression}:${item.value}`
-                    }
-                  })
+    functionSelectList.value
+      ? functionSelectList.value
+          .map((field) => {
+            let functionExpression = ""
+            if (field.children && field.children.length) {
+              field.children.forEach((item) => {
+                if (item.value) {
+                  functionExpression += `,${item.expression}:${item.value}`
                 }
-                return field.keyword && `|${field.keyword}${functionExpression}`
               })
-              .join("")
-          : ""
+            }
+            return field.keyword && `|${field.keyword}${functionExpression}`
+          })
+          .join("")
+      : ""
   }}}`
 })
 
@@ -146,7 +199,6 @@ const functionClick = (index: number, keyword: string, chanel = true) => {
   if (chanel && functionSelectList.value[index + 1] && functionSelectList.value[index + 1].keyword == keyword) {
     currentMenuList.value.splice(index, functionSelectList.value.length - index)
     functionSelectList.value.splice(index + 1, functionSelectList.value.length - (index + 1))
-    // showFunctionNumber.value = index
     showFunction.value.splice(index, showFunction.value.length - index - 1)
     return
   }
@@ -201,7 +253,6 @@ const insertionExpression = () => {
 }
 
 onMounted(() => {
-
   /** 当组件打开时挂载 reverseMockData Socket钩子 */
   socket.on("reverseMockData", (data) => {
     profile.value = data
@@ -209,10 +260,10 @@ onMounted(() => {
   })
   /** 监听父组件数据变化 */
   watch(
-      () => props.modelValue,
-      (data: boolean) => {
-        dialogVisible.value = data
-      }
+    () => props.modelValue,
+    (data: boolean) => {
+      dialogVisible.value = data
+    }
   )
 
   /** 组件中变量出现变化通知父组件 */
@@ -234,6 +285,36 @@ onMounted(() => {
 onBeforeUnmount(() => {
   socket.off("reverseMockData")
 })
+
+/** 用于数据菜单的数据过滤, 并展示对应的过滤信息 */
+const filterInput = ref<string>("")
+const filterMenuList = ref<ChildrenVariableMenuData[]>([])
+watch(filterInput, (data: string) => {
+  root.value.forEach((item) => {
+    if (item.show) {
+      item.children = filterMenuList.value.filter(
+        (item) => item.keyword.search(data) != -1 || item.name.search(data) != -1
+      )
+    }
+  })
+})
+/** 打开菜单时进行赋值, 用来展示当前菜单的状态信息 */
+const openMenu = (index) => {
+  root.value.forEach((item) => {
+    item.show = item.id.toString() === index
+    if (item.id.toString() === index) {
+      filterMenuList.value = item.children
+    }
+  })
+}
+/** 收起菜单时进行赋值, 用来关闭当前菜单的状态信息 */
+const closeMenu = (index) => {
+  root.value.forEach((item) => {
+    if (item.id.toString() === index) {
+      item.show = false
+    }
+  })
+}
 </script>
 
 <template>
@@ -248,24 +329,24 @@ onBeforeUnmount(() => {
       <div class="content" id="dialogWidth">
         <div class="element-menu">
           <el-scrollbar wrap-class="scrollbar-wrapper">
-            <el-menu style="height: 400px" unique-opened>
+            <el-menu style="height: 400px" unique-opened @open="openMenu" @close="closeMenu">
               <el-sub-menu v-for="item in root" :key="item.id" :index="item.id.toString()">
                 <template #title>
-                  <span class="code">{{ item.name }}</span>
-                  <!--  <div class="container">-->
-                  <!--   <span class="code">{{ item.name }}</span>-->
-                  <!--   <el-input class="input" v-model="input3" size="small" @click.stop>-->
-                  <!--    <template #suffix>-->
-                  <!--     <el-icon :size="14"><Search /></el-icon>-->
-                  <!--    </template>-->
-                  <!--   </el-input>-->
-                  <!--  </div>-->
+                  <span v-if="!item.show" class="code">{{ item.name }}</span>
+                  <div v-else v-show="item.show" class="container">
+                    <span class="code">{{ item.name }}</span>
+                    <el-input style="max-width: 80px" v-model="filterInput" size="small" @click.stop>
+                      <template #suffix>
+                        <el-icon style="margin-right: 0" :size="12"><Search /></el-icon>
+                      </template>
+                    </el-input>
+                  </div>
                 </template>
                 <el-menu-item
-                    v-for="child in item.children"
-                    :key="child.id"
-                    :index="child.id.toString()"
-                    @click="clickSubmenu(item.keyword, child.keyword, item.id, child.id)"
+                  v-for="child in item.children"
+                  :key="child.id"
+                  :index="child.id.toString()"
+                  @click="clickSubmenu(item.keyword, child.keyword, item.id, child.id)"
                 >
                   <template #title>
                     <div class="container">
@@ -286,14 +367,26 @@ onBeforeUnmount(() => {
                 <span class="text">入参</span>
               </div>
               <div class="content-area">
-                <div v-for="item in currentParameter" :key="item.id" class="container">
+                <div v-for="item in currentParameter" :key="item.expression" class="container">
                   <span class="code">{{ item.label }}</span>
                   <el-input
-                      v-if="item.type === 'number'"
-                      v-model.number="item.value"
-                      :placeholder="item.placeholder"
+                    v-if="item.element === 'input' && item.type === 'number'"
+                    v-model.number="item.value"
+                    :placeholder="item.placeholder"
                   />
-                  <el-input v-else v-model="item.value" :placeholder="item.placeholder" />
+                  <el-input
+                    v-else-if="item.element === 'input' && item.type === 'string'"
+                    v-model="item.value"
+                    :placeholder="item.placeholder"
+                  />
+                  <el-select v-else v-model="item.value" :placeholder="item.placeholder">
+                    <el-option
+                      v-for="option in item.options"
+                      :key="option.value"
+                      :label="option.label"
+                      :value="option.value"
+                    />
+                  </el-select>
                 </div>
               </div>
             </div>
@@ -308,37 +401,38 @@ onBeforeUnmount(() => {
               </div>
               <div class="content-area">
                 <div
-                    v-for="item in functionItem"
-                    :key="item.keyword"
-                    class="el-menu-item"
-                    :class="{ 'is-active': item.keyword === currentMenuList[index] }"
-                    @click="functionClick(index, item.keyword)"
+                  v-for="item in functionItem"
+                  :key="item.keyword"
+                  class="el-menu-item"
+                  :class="{ 'is-active': item.keyword === currentMenuList[index] }"
+                  @click="functionClick(index, item.keyword)"
                 >
                   <div v-if="item.children && item.children.length" class="container">
                     <div class="code">{{ item.name }}</div>
                     <div class="el-input">
                       <div v-for="element in item.children" :key="element.keyword">
                         <el-input
-                            v-if="element.element === 'input' && element.type === 'number'"
-                            :placeholder="element.placeholder"
-                            v-model.number="element.value"
-                            @click.stop
-                            @focus="functionClick(index, item.keyword, false)"
+                          v-if="element.element === 'input' && element.type === 'number'"
+                          :placeholder="element.placeholder"
+                          v-model.number="element.value"
+                          @click.stop
+                          @focus="functionClick(index, item.keyword, false)"
                         />
                         <el-input
-                            v-else-if="element.element === 'input' && element.type === 'string'"
-                            :placeholder="element.placeholder"
-                            v-model="element.value"
-                            @click.stop
-                            @focus="functionClick(index, item.keyword, false)"
+                          v-else-if="element.element === 'input' && element.type === 'string'"
+                          :placeholder="element.placeholder"
+                          v-model="element.value"
+                          @click.stop
+                          @focus="functionClick(index, item.keyword, false)"
                         />
-                        <el-input
-                            v-else
-                            :placeholder="element.placeholder"
-                            v-model="element.value"
-                            @click.stop
-                            @focus="functionClick(index, item.keyword, false)"
-                        />
+                        <el-select v-else v-model="item.value" :placeholder="item.placeholder" @click.stop>
+                          <el-option
+                            v-for="option in item.options"
+                            :key="option.value"
+                            :label="option.label"
+                            :value="option.value"
+                          />
+                        </el-select>
                       </div>
                     </div>
                   </div>
@@ -363,17 +457,17 @@ onBeforeUnmount(() => {
         <div class="flex-grow-element">
           <span v-if="!loading">{{ profile }}</span>
           <span v-else class="loading-hint">
-              <el-icon class="is-loading"><Loading /></el-icon>
-              <span>正在加载...</span>
-            </span>
+            <el-icon class="is-loading"><Loading /></el-icon>
+            <span>正在加载...</span>
+          </span>
         </div>
       </el-scrollbar>
     </div>
     <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="insertionExpression">插 入</el-button>
-        </span>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="insertionExpression">插 入</el-button>
+      </span>
     </template>
   </el-dialog>
 </template>
@@ -409,16 +503,15 @@ onBeforeUnmount(() => {
   .code {
     flex: 1;
   }
-  .input {
-    height: auto;
-    width: 100px;
-  }
   .el-input {
     display: flex;
     flex-wrap: wrap;
     width: 150px;
     margin-bottom: 3px;
     margin-top: 3px;
+  }
+  .el-select {
+    width: 150px;
   }
 }
 .el-menu-item {
