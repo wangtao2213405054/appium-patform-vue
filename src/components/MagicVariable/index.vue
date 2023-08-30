@@ -113,9 +113,7 @@ const changeValue = (value) => {
       </div>
       <template #footer>
         <div class="flex-container">
-          <el-button class="button" :size="'default'" type="warning" :icon="MagicStick" @click="clickButton"
-            >动态变量</el-button
-          >
+          <el-button class="button" type="warning" :icon="MagicStick" @click="clickButton">动态变量</el-button>
           <span>
             <el-button @click="magnifyVisible = false">取 消</el-button>
             <el-button type="primary" @click="notarizeMagnifyData">确 定</el-button>

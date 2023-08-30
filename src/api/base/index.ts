@@ -2,6 +2,7 @@ import { request } from "@/utils/service"
 import type * as Element from "./types/element"
 import type * as Dictionary from "./types/dictionary"
 import type * as Library from "./types/library"
+import type * as Dynamic from "./types/dynamic"
 
 export function apiGetElementList(data: Element.GetElementRequestData) {
   return request<Element.ElementListResponseData>({
@@ -70,6 +71,30 @@ export function apiEditLibraryInfo(data: Library.EditLibraryRequestData) {
 export function apiDeleteLibraryInfo(data: Library.DeleteLibraryRequestData) {
   return request<Library.LibraryEditResponseData>({
     url: "/conf/library/delete",
+    method: "POST",
+    data
+  })
+}
+
+export function apiGetDynamicList(data: Dynamic.GetDynamicRequestData) {
+  return request<Dynamic.DynamicListResponseData>({
+    url: "/conf/dynamic/list",
+    method: "POST",
+    data
+  })
+}
+
+export function apiEditDynamicInfo(data: Dynamic.EditDynamicRequestData) {
+  return request<Dynamic.DynamicEditResponseData>({
+    url: "/conf/dynamic/edit",
+    method: "POST",
+    data
+  })
+}
+
+export function apiDeleteDynamicInfo(data: Dynamic.DeleteDynamicRequestData) {
+  return request<Dynamic.DynamicEditResponseData>({
+    url: "/conf/dynamic/delete",
     method: "POST",
     data
   })

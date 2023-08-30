@@ -57,7 +57,7 @@ const root = ref<VariableMenuData[]>([
     id: 1,
     name: "全局变量",
     keyword: "global",
-    children: [{ id: 4, keyword: "date", name: "日期", expression: "date1", children: [] }]
+    children: [{ id: 4, keyword: "date", name: "日期", children: [] }]
   },
   {
     id: 2,
@@ -297,7 +297,12 @@ const profile = ref<string>("") // 预览数据
 const currentExpression: string = computed(() => {
   return `{{${expression.value}${
     currentParameter.value
-      ? currentParameter.value.map((field) => field.value && `,${field.expression}:${/^\d+$/.test(field.value) ? field.value : `'${field.value}'`}`).join("")
+      ? currentParameter.value
+          .map(
+            (field) =>
+              field.value && `,${field.expression}:${/^-?\d+$/.test(field.value) ? field.value : `'${field.value}'`}`
+          )
+          .join("")
       : ""
   }${
     functionSelectList.value
@@ -307,7 +312,9 @@ const currentExpression: string = computed(() => {
             if (field.children && field.children.length) {
               field.children.forEach((item) => {
                 if (item.value) {
-                  functionExpression += `,${item.expression}:${/^\d+$/.test(item.value) ? item.value : `'${item.value}'`}`
+                  functionExpression += `,${item.expression}:${
+                    /^-?\d+$/.test(item.value) ? item.value : `'${item.value}'`
+                  }`
                 }
               })
             }
