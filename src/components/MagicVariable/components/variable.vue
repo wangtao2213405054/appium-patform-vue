@@ -66,8 +66,8 @@ const root = ref<VariableMenuData[]>([
     children: [
       {
         id: 3,
-        keyword: "name",
-        name: "姓名",
+        keyword: "cname",
+        name: "中文姓名",
         children: [
           { placeholder: "测试一下", element: "input", type: "number", label: "最小长度", expression: "min" },
           { placeholder: "测试一下", element: "input", type: "number", label: "最大长度", expression: "max" },
@@ -89,6 +89,161 @@ const root = ref<VariableMenuData[]>([
         name: "中文大段文本",
         children: [
           { placeholder: "文本长度", element: "input", type: "number", label: "文本长度", expression: "length" }
+        ]
+      },
+      {
+        id: 12,
+        keyword: "cfirst",
+        name: "中文姓"
+      },
+      {
+        id: 13,
+        keyword: "clast",
+        name: "中文名"
+      },
+      {
+        id: 14,
+        keyword: "cphone",
+        name: "国内手机号"
+      },
+      {
+        id: 15,
+        keyword: "email",
+        name: "邮件"
+      },
+      {
+        id: 21,
+        keyword: "ccompany",
+        name: "中文公司"
+      },
+      {
+        id: 16,
+        keyword: "caddress",
+        name: "中文地址"
+      },
+      {
+        id: 17,
+        keyword: "datetime",
+        name: "日期时间",
+        children: [
+          {
+            placeholder: "%Y-%m-%d %H:%M:%S",
+            element: "input",
+            type: "string",
+            label: "时间格式",
+            expression: "formatting"
+          }
+        ]
+      },
+      {
+        id: 18,
+        keyword: "date",
+        name: "日期",
+        children: [
+          {
+            placeholder: "%Y-%m-%d",
+            element: "input",
+            type: "string",
+            label: "时间格式",
+            expression: "formatting"
+          }
+        ]
+      },
+      {
+        id: 19,
+        keyword: "time",
+        name: "时间",
+        children: [
+          {
+            placeholder: "%H:%M:%S",
+            element: "input",
+            type: "string",
+            label: "时间格式",
+            expression: "formatting"
+          }
+        ]
+      },
+      {
+        id: 20,
+        keyword: "timestamp",
+        name: "时间戳",
+        children: [
+          {
+            placeholder: "日期单位",
+            element: "select",
+            label: "日期单位",
+            expression: "unit",
+            options: [
+              { value: "s", label: "秒" },
+              { value: "ms", label: "毫秒" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 22,
+        keyword: "week",
+        name: "当前周",
+        children: [
+          {
+            placeholder: "日期单位",
+            element: "select",
+            label: "日期单位",
+            expression: "unit",
+            options: [
+              { value: "year", label: "年" },
+              { value: "month", label: "月" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 23,
+        keyword: "now",
+        name: "当前日期时间",
+        children: [
+          {
+            placeholder: "%Y-%m-%d %H:%M:%S",
+            element: "input",
+            type: "string",
+            label: "时间格式",
+            expression: "formatting"
+          },
+          {
+            placeholder: "正整数或负整数",
+            element: "input",
+            type: "number",
+            label: "偏移天",
+            expression: "days"
+          },
+          {
+            placeholder: "正整数或负整数",
+            element: "input",
+            type: "number",
+            label: "偏移周",
+            expression: "weeks"
+          },
+          {
+            placeholder: "正整数或负整数",
+            element: "input",
+            type: "number",
+            label: "偏移小时",
+            expression: "hours"
+          },
+          {
+            placeholder: "正整数或负整数",
+            element: "input",
+            type: "number",
+            label: "偏移分钟",
+            expression: "minutes"
+          },
+          {
+            placeholder: "正整数或负整数",
+            element: "input",
+            type: "number",
+            label: "偏移秒",
+            expression: "seconds"
+          }
         ]
       }
     ],
@@ -142,7 +297,7 @@ const profile = ref<string>("") // 预览数据
 const currentExpression: string = computed(() => {
   return `{{${expression.value}${
     currentParameter.value
-      ? currentParameter.value.map((field) => field.value && `,${field.expression}:${field.value}`).join("")
+      ? currentParameter.value.map((field) => field.value && `,${field.expression}:${/^\d+$/.test(field.value) ? field.value : `'${field.value}'`}`).join("")
       : ""
   }${
     functionSelectList.value
@@ -152,7 +307,7 @@ const currentExpression: string = computed(() => {
             if (field.children && field.children.length) {
               field.children.forEach((item) => {
                 if (item.value) {
-                  functionExpression += `,${item.expression}:${item.value}`
+                  functionExpression += `,${item.expression}:${/^\d+$/.test(item.value) ? item.value : `'${item.value}'`}`
                 }
               })
             }
@@ -184,7 +339,7 @@ const clickSubmenu = (keyword: string, childrenKeyword: string, id: number, chil
     }
     const foundChild = foundRoot.children.find((child) => child.id === childrenId)
     functionList.value = foundRoot.functionList || []
-    if (foundChild) {
+    if (foundChild && foundChild.children) {
       currentParameter.value = JSON.parse(JSON.stringify(foundChild.children))
     }
   }
@@ -243,6 +398,7 @@ const functionClick = (index: number, keyword: string, chanel = true) => {
 const socket: Socket = inject("socket") as Socket
 let timer: number | undefined = undefined
 const loading = ref<boolean>(false)
+let timeout: number | undefined = undefined
 
 const emit = defineEmits(["update:modelValue", "expression"])
 
@@ -257,6 +413,7 @@ onMounted(() => {
   socket.on("reverseMockData", (data) => {
     profile.value = data
     loading.value = false
+    window.clearTimeout(timeout)
   })
   /** 监听父组件数据变化 */
   watch(
@@ -277,6 +434,13 @@ onMounted(() => {
     loading.value = true
     timer = window.setTimeout(() => {
       socket.emit("getMockData", { expression: data })
+      /** 设置一个超时时间, 如果时间超时则取消 Loading */
+      timeout = window.setTimeout(() => {
+        if (loading.value) {
+          loading.value = false
+          profile.value = "加载数据失败..."
+        }
+      }, 5000)
     }, 500)
   })
 })
@@ -328,16 +492,16 @@ const closeMenu = (index) => {
     <el-scrollbar ref="scrollbarRef" id="scrollbarRef">
       <div class="content" id="dialogWidth">
         <div class="element-menu">
-          <el-scrollbar wrap-class="scrollbar-wrapper">
+          <el-scrollbar>
             <el-menu style="height: 400px" unique-opened @open="openMenu" @close="closeMenu">
               <el-sub-menu v-for="item in root" :key="item.id" :index="item.id.toString()">
                 <template #title>
                   <span v-if="!item.show" class="code">{{ item.name }}</span>
                   <div v-else v-show="item.show" class="container">
                     <span class="code">{{ item.name }}</span>
-                    <el-input style="max-width: 80px" v-model="filterInput" size="small" @click.stop>
+                    <el-input style="max-width: 90px" v-model="filterInput" size="small" @click.stop>
                       <template #suffix>
-                        <el-icon style="margin-right: 0" :size="12"><Search /></el-icon>
+                        <el-icon style="margin-right: 0" size="small"><Search /></el-icon>
                       </template>
                     </el-input>
                   </div>
@@ -489,6 +653,10 @@ const closeMenu = (index) => {
   display: flex;
   .element-menu {
     min-width: 30%;
+    border-right: 1px solid var(--el-menu-border-color);
+  }
+  .el-menu {
+    border-right: none;
   }
   .element {
     flex: 0;
@@ -506,12 +674,12 @@ const closeMenu = (index) => {
   .el-input {
     display: flex;
     flex-wrap: wrap;
-    width: 150px;
+    width: 180px;
     margin-bottom: 3px;
     margin-top: 3px;
   }
   .el-select {
-    width: 150px;
+    width: 180px;
   }
 }
 .el-menu-item {

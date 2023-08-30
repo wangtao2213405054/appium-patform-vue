@@ -7,7 +7,7 @@ const test = ref("")
 
 <template>
   <div>
-    <magic-variable v-model="test" />
+    <magic-variable v-model="test" placeholder="测试一下啦" />
   </div>
 </template>
 

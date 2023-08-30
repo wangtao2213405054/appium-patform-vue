@@ -7,6 +7,7 @@ import { Socket } from "socket.io-client"
 
 interface Props {
   modelValue: string | number
+  placeholder?: string
 }
 const props = defineProps<Props>()
 
@@ -19,6 +20,7 @@ const socket: Socket = inject("socket") as Socket
 const loading = ref<boolean>(false)
 const profile = ref<string>("")
 let timer: number | undefined = undefined
+let timeout: number | undefined = undefined
 
 watch(magnifyInput, (data: string) => {
   if (/{{.*?}}/.test(data)) {
@@ -26,6 +28,13 @@ watch(magnifyInput, (data: string) => {
     window.clearTimeout(timer)
     timer = window.setTimeout(() => {
       socket.emit("transitionStringData", data)
+      /** 设置一个超时时间, 如果时间超时则取消 Loading */
+      timeout = window.setTimeout(() => {
+        if (loading.value) {
+          loading.value = false
+          profile.value = "加载数据失败..."
+        }
+      }, 5000)
     }, 500)
   } else {
     profile.value = data
@@ -35,6 +44,7 @@ watch(magnifyInput, (data: string) => {
 socket.on("previewString", (data: string) => {
   profile.value = data
   loading.value = false
+  window.clearTimeout(timeout)
 })
 
 /** 点击魔法变量时的钩子, 用于打开魔法变量的弹窗 */
@@ -83,7 +93,12 @@ const changeValue = (value) => {
       @open="openMagnifyDialog"
       @close="closeMagnifyDialog"
     >
-      <el-input v-model="magnifyInput" type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" />
+      <el-input
+        v-model="magnifyInput"
+        type="textarea"
+        :placeholder="props.placeholder"
+        :autosize="{ minRows: 10, maxRows: 10 }"
+      />
       <div class="profile">
         <div class="header-text">预览</div>
         <el-scrollbar>
@@ -108,7 +123,7 @@ const changeValue = (value) => {
         </div>
       </template>
     </el-dialog>
-    <el-input v-model="input" style="width: 150px" placeholder="Pick a date" @input="changeValue">
+    <el-input v-model="input" style="width: 150px" :placeholder="props.placeholder" @input="changeValue">
       <template #suffix>
         <el-button class="input-button" link :icon="MagicStick" @click="clickButton" />
         <el-button class="input-button" link :icon="FullScreen" @click="magnifyVisible = true" />
@@ -128,9 +143,6 @@ const changeValue = (value) => {
 }
 .input-button {
   margin-left: 0;
-}
-:deep(.el-input__wrapper) {
-  padding: 1px 3px 1px 11px;
 }
 .profile {
   margin-top: 10px;
