@@ -4,294 +4,25 @@ import { ElDialog, ElScrollbar } from "element-plus"
 import { MagicStick, Search } from "@element-plus/icons-vue"
 import SvgIcon from "@/components/SvgIcon/index.vue"
 import { Socket } from "socket.io-client"
+import { useMockStore } from "@/store/modules/mock"
+import { DynamicInfoResponseData } from "@/api/base/types/dynamic"
+import { MagicVariableResponseData } from "@/api/base/types/magic"
 
 interface Props {
   modelValue: boolean
 }
 
-/** 组件的结构体 */
-interface ElementMappingData {
-  placeholder: string
-  element: string
-  type: string
-  label?: string
-  expression: string
-  options?: OptionsData[]
-  value?: string | number | undefined
-}
-
-/** Select 选择器参数 */
-interface OptionsData {
-  key: string
-  value: string | number
-}
-
-/** 菜单数据 */
-interface VariableMenuData {
-  id: number
-  name: string
-  keyword: string
-  show?: boolean
-  children: ChildrenVariableMenuData[]
-  functionList: FunctionData[]
-}
-
-/** 子菜单数据 */
-interface ChildrenVariableMenuData {
-  id: number
-  name: string
-  keyword: string
-  children: ElementMappingData[]
-}
-
-/** 功能函数 */
-interface FunctionData {
-  keyword: string
-  name?: string
-  children?: ElementMappingData[]
-}
-
 const props = defineProps<Props>()
-const root = ref<VariableMenuData[]>([
-  {
-    id: 1,
-    name: "全局变量",
-    keyword: "global",
-    children: [{ id: 4, keyword: "date", name: "日期", children: [] }]
-  },
-  {
-    id: 2,
-    name: "动态变量",
-    keyword: "mock",
-    children: [
-      {
-        id: 3,
-        keyword: "cname",
-        name: "中文姓名",
-        children: [
-          { placeholder: "测试一下", element: "input", type: "number", label: "最小长度", expression: "min" },
-          { placeholder: "测试一下", element: "input", type: "number", label: "最大长度", expression: "max" },
-          {
-            placeholder: "测试一下",
-            element: "select",
-            label: "日期单位",
-            expression: "date",
-            options: [
-              { value: "s", label: "秒" },
-              { value: "ms", label: "毫秒" }
-            ]
-          }
-        ]
-      },
-      {
-        id: 11,
-        keyword: "cparagraph",
-        name: "中文大段文本",
-        children: [
-          { placeholder: "文本长度", element: "input", type: "number", label: "文本长度", expression: "length" }
-        ]
-      },
-      {
-        id: 12,
-        keyword: "cfirst",
-        name: "中文姓"
-      },
-      {
-        id: 13,
-        keyword: "clast",
-        name: "中文名"
-      },
-      {
-        id: 14,
-        keyword: "cphone",
-        name: "国内手机号"
-      },
-      {
-        id: 15,
-        keyword: "email",
-        name: "邮件"
-      },
-      {
-        id: 21,
-        keyword: "ccompany",
-        name: "中文公司"
-      },
-      {
-        id: 16,
-        keyword: "caddress",
-        name: "中文地址"
-      },
-      {
-        id: 17,
-        keyword: "datetime",
-        name: "日期时间",
-        children: [
-          {
-            placeholder: "%Y-%m-%d %H:%M:%S",
-            element: "input",
-            type: "string",
-            label: "时间格式",
-            expression: "formatting"
-          }
-        ]
-      },
-      {
-        id: 18,
-        keyword: "date",
-        name: "日期",
-        children: [
-          {
-            placeholder: "%Y-%m-%d",
-            element: "input",
-            type: "string",
-            label: "时间格式",
-            expression: "formatting"
-          }
-        ]
-      },
-      {
-        id: 19,
-        keyword: "time",
-        name: "时间",
-        children: [
-          {
-            placeholder: "%H:%M:%S",
-            element: "input",
-            type: "string",
-            label: "时间格式",
-            expression: "formatting"
-          }
-        ]
-      },
-      {
-        id: 20,
-        keyword: "timestamp",
-        name: "时间戳",
-        children: [
-          {
-            placeholder: "日期单位",
-            element: "select",
-            label: "日期单位",
-            expression: "unit",
-            options: [
-              { value: "s", label: "秒" },
-              { value: "ms", label: "毫秒" }
-            ]
-          }
-        ]
-      },
-      {
-        id: 22,
-        keyword: "week",
-        name: "当前周",
-        children: [
-          {
-            placeholder: "日期单位",
-            element: "select",
-            label: "日期单位",
-            expression: "unit",
-            options: [
-              { value: "year", label: "年" },
-              { value: "month", label: "月" }
-            ]
-          }
-        ]
-      },
-      {
-        id: 23,
-        keyword: "now",
-        name: "当前日期时间",
-        children: [
-          {
-            placeholder: "%Y-%m-%d %H:%M:%S",
-            element: "input",
-            type: "string",
-            label: "时间格式",
-            expression: "formatting"
-          },
-          {
-            placeholder: "正整数或负整数",
-            element: "input",
-            type: "number",
-            label: "偏移天",
-            expression: "days"
-          },
-          {
-            placeholder: "正整数或负整数",
-            element: "input",
-            type: "number",
-            label: "偏移周",
-            expression: "weeks"
-          },
-          {
-            placeholder: "正整数或负整数",
-            element: "input",
-            type: "number",
-            label: "偏移小时",
-            expression: "hours"
-          },
-          {
-            placeholder: "正整数或负整数",
-            element: "input",
-            type: "number",
-            label: "偏移分钟",
-            expression: "minutes"
-          },
-          {
-            placeholder: "正整数或负整数",
-            element: "input",
-            type: "number",
-            label: "偏移秒",
-            expression: "seconds"
-          }
-        ]
-      }
-    ],
-    functionList: [
-      {
-        keyword: "length",
-        name: "数据长度"
-      },
-      {
-        keyword: "lower",
-        name: "将所有字母变为小写"
-      },
-      {
-        keyword: "upper",
-        name: "将所有字母变为大写"
-      },
-      {
-        keyword: "capitalize",
-        name: "首字母大写"
-      },
-      {
-        keyword: "title",
-        name: "单词首字母大写"
-      },
-      {
-        keyword: "strip",
-        name: "去除空白字符"
-      },
-      {
-        keyword: "section",
-        name: "数据切片",
-        children: [
-          { placeholder: "起始位", element: "input", type: "number", expression: "start" },
-          { placeholder: "结束位", element: "input", type: "number", expression: "end" }
-        ]
-      }
-    ]
-  }
-])
+const faker = useMockStore()
 
 const dialogVisible = shallowRef<string>(props.modelValue)
 const expression = ref<string>("") // 当前绑定的表达式
-const currentParameter = ref<ElementMappingData[]>([]) // 当前入参
+const currentParameter = ref<DynamicInfoResponseData[]>([]) // 当前入参
 const currentMenuList = ref<string[]>([]) // 当前所选函数菜单索引
-const showFunction = ref<FunctionData[][]>([]) // 要展示的函数列表数量默认为1
-const functionList = ref<FunctionData[]>([]) // 当前选中的函数列表
-const functionSelectList = ref<FunctionData[]>([]) // 当前已选函数
-const functionSelectParams = ref<FunctionData[]>([])
+const showFunction = ref<MagicVariableResponseData[][]>([]) // 要展示的函数列表数量默认为1
+const functionList = ref<MagicVariableResponseData[]>([]) // 当前选中的函数列表
+const functionSelectList = ref<MagicVariableResponseData[]>([]) // 当前已选函数
+const functionSelectParams = ref<MagicVariableResponseData[]>([])
 const profile = ref<string>("") // 预览数据
 /** 组装完成的表达式, 用于匹配动态赋值信息 */
 const currentExpression: string = computed(() => {
@@ -337,7 +68,7 @@ const clickSubmenu = (keyword: string, childrenKeyword: string, id: number, chil
   showFunction.value = []
 
   /** 寻找当前子菜单的入参输入及菜单的函数数据 */
-  const foundRoot = root.value.find((item) => item.id === id)
+  const foundRoot = faker.mockList.find((item) => item.id === id)
 
   if (foundRoot) {
     if (foundRoot.functionList) {
@@ -346,8 +77,8 @@ const clickSubmenu = (keyword: string, childrenKeyword: string, id: number, chil
     }
     const foundChild = foundRoot.children.find((child) => child.id === childrenId)
     functionList.value = foundRoot.functionList || []
-    if (foundChild && foundChild.children) {
-      currentParameter.value = JSON.parse(JSON.stringify(foundChild.children))
+    if (foundChild && foundChild.params) {
+      currentParameter.value = JSON.parse(JSON.stringify(foundChild.params))
     }
   }
 }
@@ -366,7 +97,7 @@ const functionClick = (index: number, keyword: string, chanel = true) => {
   }
   currentMenuList.value[index] = keyword
   const functionRoot = showFunction.value[index].find((item) => item.keyword === keyword)
-  functionSelectList.value[index + 1] = { keyword, children: functionRoot.children }
+  functionSelectList.value[index + 1] = { keyword, params: functionRoot.params }
 
   /** 当点击为最后一个函数列表时，动态添加一个 */
   if (index === showFunction.value.length - 1) {
@@ -459,9 +190,9 @@ onBeforeUnmount(() => {
 
 /** 用于数据菜单的数据过滤, 并展示对应的过滤信息 */
 const filterInput = ref<string>("")
-const filterMenuList = ref<ChildrenVariableMenuData[]>([])
+const filterMenuList = ref<MagicVariableResponseData[]>([])
 watch(filterInput, (data: string) => {
-  root.value.forEach((item) => {
+  faker.mockList.forEach((item) => {
     if (item.show) {
       item.children = filterMenuList.value.filter(
         (item) => item.keyword.search(data) != -1 || item.name.search(data) != -1
@@ -471,7 +202,7 @@ watch(filterInput, (data: string) => {
 })
 /** 打开菜单时进行赋值, 用来展示当前菜单的状态信息 */
 const openMenu = (index) => {
-  root.value.forEach((item) => {
+  faker.mockList.forEach((item) => {
     item.show = item.id.toString() === index
     if (item.id.toString() === index) {
       filterMenuList.value = item.children
@@ -480,7 +211,7 @@ const openMenu = (index) => {
 }
 /** 收起菜单时进行赋值, 用来关闭当前菜单的状态信息 */
 const closeMenu = (index) => {
-  root.value.forEach((item) => {
+  faker.mockList.forEach((item) => {
     if (item.id.toString() === index) {
       item.show = false
     }
@@ -501,7 +232,7 @@ const closeMenu = (index) => {
         <div class="element-menu">
           <el-scrollbar>
             <el-menu style="height: 400px" unique-opened @open="openMenu" @close="closeMenu">
-              <el-sub-menu v-for="item in root" :key="item.id" :index="item.id.toString()">
+              <el-sub-menu v-for="item in faker.mockList" :key="item.id" :index="item.id.toString()">
                 <template #title>
                   <span v-if="!item.show" class="code">{{ item.name }}</span>
                   <div v-else v-show="item.show" class="container">
@@ -539,14 +270,14 @@ const closeMenu = (index) => {
               </div>
               <div class="content-area">
                 <div v-for="item in currentParameter" :key="item.expression" class="container">
-                  <span class="code">{{ item.label }}</span>
+                  <span class="code">{{ item.name }}</span>
                   <el-input
-                    v-if="item.element === 'input' && item.type === 'number'"
+                    v-if="item.element === 'input' && item.type === 'Integer'"
                     v-model.number="item.value"
                     :placeholder="item.placeholder"
                   />
                   <el-input
-                    v-else-if="item.element === 'input' && item.type === 'string'"
+                    v-else-if="item.element === 'input' && item.type === 'String'"
                     v-model="item.value"
                     :placeholder="item.placeholder"
                   />
@@ -578,27 +309,27 @@ const closeMenu = (index) => {
                   :class="{ 'is-active': item.keyword === currentMenuList[index] }"
                   @click="functionClick(index, item.keyword)"
                 >
-                  <div v-if="item.children && item.children.length" class="container">
+                  <div v-if="item.params && item.params.length" class="container">
                     <div class="code">{{ item.name }}</div>
                     <div class="el-input">
-                      <div v-for="element in item.children" :key="element.keyword">
+                      <div v-for="element in item.params" :key="element.id">
                         <el-input
-                          v-if="element.element === 'input' && element.type === 'number'"
+                          v-if="element.element === 'input' && element.type === 'Integer'"
                           :placeholder="element.placeholder"
                           v-model.number="element.value"
                           @click.stop
                           @focus="functionClick(index, item.keyword, false)"
                         />
                         <el-input
-                          v-else-if="element.element === 'input' && element.type === 'string'"
+                          v-else-if="element.element === 'input' && element.type === 'String'"
                           :placeholder="element.placeholder"
                           v-model="element.value"
                           @click.stop
                           @focus="functionClick(index, item.keyword, false)"
                         />
-                        <el-select v-else v-model="item.value" :placeholder="item.placeholder" @click.stop>
+                        <el-select v-else v-model="element.value" :placeholder="element.placeholder" @click.stop>
                           <el-option
-                            v-for="option in item.options"
+                            v-for="option in element.options"
                             :key="option.value"
                             :label="option.label"
                             :value="option.value"
@@ -681,12 +412,12 @@ const closeMenu = (index) => {
   .el-input {
     display: flex;
     flex-wrap: wrap;
-    width: 180px;
+    width: 190px;
     margin-bottom: 3px;
     margin-top: 3px;
   }
   .el-select {
-    width: 180px;
+    width: 190px;
   }
 }
 .el-menu-item {

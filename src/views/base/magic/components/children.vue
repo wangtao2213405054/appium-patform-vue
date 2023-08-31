@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, computed } from "vue"
 import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance, FormRules } from "element-plus"
 import { Edit, Delete, Search, Refresh, Plus } from "@element-plus/icons-vue"
-import {apiDeleteMagicInfo, apiEditMagicInfo, apiGetDynamicList, apiGetMagicList} from "@/api/base"
+import { apiDeleteMagicInfo, apiEditMagicInfo, apiGetDynamicList, apiGetMagicList } from "@/api/base"
 import { checkPermission } from "@/utils/permission"
 import { EditMagicRequestData, GetMagicRequestData, MagicInfoResponseData } from "@/api/base/types/magic"
 import { DynamicInfoResponseData } from "@/api/base/types/dynamic"
@@ -14,7 +14,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const title = ref<string>(props.type === 'menu' ? '添加功能' : '添加函数')
+const title = ref<string>(props.type === "menu" ? "添加功能" : "添加函数")
 const dialogVisible = ref<boolean>(false)
 const loading = ref<boolean>(false)
 const selectLoading = ref<boolean>(false)
@@ -36,11 +36,11 @@ const addForm: EditMagicRequestData = reactive({
 })
 const addFormRules: FormRules = {
   name: [
-    { required: true, message: `请输入${props.type === 'menu' ? '功能': '函数'}名称`, trigger: "blur" },
+    { required: true, message: `请输入${props.type === "menu" ? "功能" : "函数"}名称`, trigger: "blur" },
     { min: 2, max: 32, message: "长度在 2 到 32 个字符", trigger: "blur" }
   ],
   keyword: [
-    { required: true, message: `请输入${props.type === 'menu' ? '功能': '函数'}映射`, trigger: "blur" },
+    { required: true, message: `请输入${props.type === "menu" ? "功能" : "函数"}映射`, trigger: "blur" },
     { min: 1, max: 64, message: "长度在 1 到 64 个字符", trigger: "blur" }
   ]
 }
@@ -99,11 +99,14 @@ const getMagicElementList = async (query: string) => {
 // 删除魔法菜单
 const deleteMagicInfo = async (id: number) => {
   const clickConfirmResult = await ElMessageBox.confirm(
-      `此操作将永久删除该${props.type === 'menu' ? '功能' : '函数'}, 是否继续?`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).catch((err) => err)
+    `此操作将永久删除该${props.type === "menu" ? "功能" : "函数"}, 是否继续?`,
+    "提示",
+    {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    }
+  ).catch((err) => err)
   if (clickConfirmResult !== "confirm") {
     return ElMessage.info("取消删除")
   }
@@ -122,7 +125,7 @@ const updateButton = async (row: MagicInfoResponseData) => {
   addForm.nodeId = row.nodeId
   addForm.params = row.params
   addForm.type = row.type
-  title.value = props.type === 'menu' ? '修改功能' : '修改函数'
+  title.value = props.type === "menu" ? "修改功能" : "修改函数"
   dialogVisible.value = true
   if (row.params.length) {
     const { items } = (await apiGetDynamicList({ page: 1, pageSize: 20, ids: row.params })).data
@@ -132,7 +135,7 @@ const updateButton = async (row: MagicInfoResponseData) => {
 
 // 新建 Button
 const openButton = () => {
-  title.value = props.type === 'menu' ? '添加功能' : '添加函数'
+  title.value = props.type === "menu" ? "添加功能" : "添加函数"
   dialogVisible.value = true
 }
 
@@ -223,12 +226,7 @@ const actionWidth = computed(() => {
             :remote-method="getMagicElementList"
             :loading="selectLoading"
           >
-            <el-option
-              v-for="item in magicElementList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            />
+            <el-option v-for="item in magicElementList" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="备注" prop="desc">
@@ -242,8 +240,7 @@ const actionWidth = computed(() => {
         </span>
       </template>
     </el-dialog>
-    <el-dialog :title="functionTitle" v-model="libraryDialogVisible" width="50%">
-    </el-dialog>
+    <el-dialog :title="functionTitle" v-model="libraryDialogVisible" width="50%" />
     <el-form :model="requestForm" inline>
       <el-form-item>
         <el-input v-model="requestForm.keyword" placeholder="输入名称/编码查询" clearable />
@@ -282,26 +279,26 @@ const actionWidth = computed(() => {
       <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center" fixed="right">
         <template #default="scope">
           <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateButton(scope.row)"
-          >编辑</el-button
+            >编辑</el-button
           >
           <el-button
-              v-if="deletePermission"
-              :icon="Delete"
-              type="danger"
-              link
-              @click.stop="deleteMagicInfo(scope.row.id)"
-          >删除</el-button
+            v-if="deletePermission"
+            :icon="Delete"
+            type="danger"
+            link
+            @click.stop="deleteMagicInfo(scope.row.id)"
+            >删除</el-button
           >
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
-        class="pagination-container"
-        background
-        :page-size="requestForm.pageSize"
-        layout="total, prev, pager, next"
-        :total="requestForm.total"
-        @current-change="handleCurrentChange"
+      class="pagination-container"
+      background
+      :page-size="requestForm.pageSize"
+      layout="total, prev, pager, next"
+      :total="requestForm.total"
+      @current-change="handleCurrentChange"
     />
   </el-card>
 </template>

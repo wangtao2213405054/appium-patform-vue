@@ -7,6 +7,7 @@ import asyncRouteSettings from "@/config/async-route"
 import isWhiteList from "@/config/white-list"
 import NProgress from "nprogress"
 import "nprogress/nprogress.css"
+import { useMockStoreHook } from "@/store/modules/mock"
 
 NProgress.configure({ showSpinner: false })
 
@@ -14,6 +15,7 @@ router.beforeEach(async (to, _from, next) => {
   NProgress.start()
   const userStore = useUserStoreHook()
   const permissionStore = usePermissionStoreHook()
+  const mockStore = useMockStoreHook()
   // 判断该用户是否登录
   if (getToken()) {
     if (to.path === "/login") {
@@ -34,6 +36,8 @@ router.beforeEach(async (to, _from, next) => {
           if (asyncRouteSettings.open) {
             // 注意：角色必须是一个数组！ 例如: ['admin'] 或 ['developer', 'editor']
             await userStore.getInfo()
+            // 获取 Mock 对象列表
+            await mockStore.getMockList()
             const roles = userStore.roles
             // 根据角色生成可访问的 Routes（可访问路由 = 常驻路由 + 有访问权限的动态路由）
             permissionStore.setRoutes(roles)

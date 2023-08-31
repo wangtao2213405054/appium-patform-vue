@@ -124,3 +124,10 @@ export function apiDeleteMagicInfo(data: Magic.DeleteMagicRequestData) {
     data
   })
 }
+
+export function apiGetMagicVariable() {
+  return request<Magic.MagicVariableListResponseData>({
+    url: "/conf/magic/variable",
+    method: "GET"
+  })
+}

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from "vue"
 import { ElDialog, ElMessage, ElMessageBox, ElPagination, FormInstance, FormRules } from "element-plus"
-import { Edit, Delete, Search, Refresh, Plus, Collection, SetUp, TrophyBase } from "@element-plus/icons-vue"
+import { Edit, Delete, Search, Refresh, Plus, SetUp, TrophyBase } from "@element-plus/icons-vue"
 import { apiDeleteMagicInfo, apiEditMagicInfo, apiGetMagicList } from "@/api/base"
 import { checkPermission } from "@/utils/permission"
 import { EditMagicRequestData, GetMagicRequestData, MagicInfoResponseData } from "@/api/base/types/magic"
@@ -144,7 +144,7 @@ const handleCurrentChange = (newPage: number) => {
 
 // 打开魔法菜单数据页面
 const openChildren = (row: MagicInfoResponseData, type: "menu" | "function") => {
-  functionTitle.value = `【${row.name}】${type === 'menu' ? '功能列表' : '函数列表'}`
+  functionTitle.value = `【${row.name}】${type === "menu" ? "功能列表" : "函数列表"}`
   childrenDialogVisible.value = true
   childrenRequestId.value = row.id
   childrenRequestType.value = type
@@ -233,43 +233,33 @@ const actionWidth = computed(() => {
       <el-table-column prop="updateTime" label="更新时间" width="160px" align="center" />
       <el-table-column v-if="actionWidth !== '0'" label="操作" :width="actionWidth" align="center" fixed="right">
         <template #default="scope">
-          <el-button
-            :icon="SetUp"
-            type="primary"
-            link
-            @click.stop="openChildren(scope.row, 'menu')"
-          >
+          <el-button :icon="SetUp" type="primary" link @click.stop="openChildren(scope.row, 'menu')">
             功能管理
           </el-button>
-          <el-button
-            :icon="TrophyBase"
-            type="primary"
-            link
-            @click.stop="openChildren(scope.row, 'function')"
-          >
+          <el-button :icon="TrophyBase" type="primary" link @click.stop="openChildren(scope.row, 'function')">
             函数管理
           </el-button>
           <el-button v-if="editPermission" :icon="Edit" type="primary" link @click.stop="updateButton(scope.row)"
-          >编辑</el-button
+            >编辑</el-button
           >
           <el-button
-              v-if="deletePermission"
-              :icon="Delete"
-              type="danger"
-              link
-              @click.stop="deleteMagicInfo(scope.row.id)"
-          >删除</el-button
+            v-if="deletePermission"
+            :icon="Delete"
+            type="danger"
+            link
+            @click.stop="deleteMagicInfo(scope.row.id)"
+            >删除</el-button
           >
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
-        class="pagination-container"
-        background
-        :page-size="requestForm.pageSize"
-        layout="total, prev, pager, next"
-        :total="requestForm.total"
-        @current-change="handleCurrentChange"
+      class="pagination-container"
+      background
+      :page-size="requestForm.pageSize"
+      layout="total, prev, pager, next"
+      :total="requestForm.total"
+      @current-change="handleCurrentChange"
     />
   </el-card>
 </template>

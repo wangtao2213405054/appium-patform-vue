@@ -18,6 +18,7 @@ export interface DynamicInfoResponseData {
   placeholder: string
   expression: string
   options: OptionsResponseData[]
+  value?: string | number
 }
 
 export interface OptionsResponseData {
