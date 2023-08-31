@@ -43,6 +43,16 @@ const base: RouteRecordRaw = {
         svgIcon: "crown",
         roles: ["BaseDynamic"]
       }
+    },
+    {
+      path: "magic",
+      component: () => import("@/views/base/magic/index.vue"),
+      name: "BaseMagic",
+      meta: {
+        title: "魔法变量",
+        svgIcon: "magic",
+        roles: ["BaseMagic"]
+      }
     }
   ]
 }

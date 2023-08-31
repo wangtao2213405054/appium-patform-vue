@@ -3,6 +3,7 @@ import type * as Element from "./types/element"
 import type * as Dictionary from "./types/dictionary"
 import type * as Library from "./types/library"
 import type * as Dynamic from "./types/dynamic"
+import type * as Magic from "./types/magic"
 
 export function apiGetElementList(data: Element.GetElementRequestData) {
   return request<Element.ElementListResponseData>({
@@ -95,6 +96,30 @@ export function apiEditDynamicInfo(data: Dynamic.EditDynamicRequestData) {
 export function apiDeleteDynamicInfo(data: Dynamic.DeleteDynamicRequestData) {
   return request<Dynamic.DynamicEditResponseData>({
     url: "/conf/dynamic/delete",
+    method: "POST",
+    data
+  })
+}
+
+export function apiGetMagicList(data: Magic.GetMagicRequestData) {
+  return request<Magic.MagicListResponseData>({
+    url: "/conf/magic/list",
+    method: "POST",
+    data
+  })
+}
+
+export function apiEditMagicInfo(data: Magic.EditMagicRequestData) {
+  return request<Magic.MagicEditResponseData>({
+    url: "/conf/magic/edit",
+    method: "POST",
+    data
+  })
+}
+
+export function apiDeleteMagicInfo(data: Magic.DeleteMagicRequestData) {
+  return request<Magic.MagicEditResponseData>({
+    url: "/conf/magic/delete",
     method: "POST",
     data
   })

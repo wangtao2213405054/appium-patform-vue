@@ -4,6 +4,7 @@ export interface GetDynamicRequestData {
   page?: number // 页码
   pageSize?: number // 每页大小
   keyword?: string // 查询条件
+  ids?: number[]
 }
 
 // 动态组件信息结构体
