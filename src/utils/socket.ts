@@ -3,6 +3,9 @@ import { io, Socket } from "socket.io-client"
 import { getToken } from "@/utils/cache/cookies"
 import { ElMessage, ElNotification } from "element-plus"
 import { apiGetSocketDomainInfo } from "@/api/conf"
+import { useMockStoreHook } from "@/store/modules/mock"
+
+const faker = useMockStoreHook()
 
 export async function initSocket(app: any) {
   const token = getToken()
@@ -61,6 +64,10 @@ export async function initSocket(app: any) {
   // 断开事件
   socket.on("disconnect", () => {
     console.log("socket断开连接")
+  })
+  // 更新全局魔法变量数据
+  socket.on("updateMagicVariable", () => {
+    faker.getMockList()
   })
 }
 
