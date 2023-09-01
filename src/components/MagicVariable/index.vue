@@ -121,7 +121,7 @@ const changeValue = (value) => {
         </div>
       </template>
     </el-dialog>
-    <el-input v-model="input" style="width: 150px" :placeholder="props.placeholder" @input="changeValue">
+    <el-input v-model="input" style="width: 150px" :placeholder="props.placeholder" @input="changeValue" clearable>
       <template #suffix>
         <el-button class="input-button" link :icon="MagicStick" @click="clickButton" />
         <el-button class="input-button" link :icon="FullScreen" @click="magnifyVisible = true" />

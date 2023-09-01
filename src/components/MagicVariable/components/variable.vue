@@ -40,8 +40,8 @@ const currentExpression: string = computed(() => {
       ? functionSelectList.value
           .map((field) => {
             let functionExpression = ""
-            if (field.children && field.children.length) {
-              field.children.forEach((item) => {
+            if (field.params && field.params.length) {
+              field.params.forEach((item) => {
                 if (item.value) {
                   functionExpression += `,${item.expression}:${
                     /^-?\d+$/.test(item.value) ? item.value : `'${item.value}'`
@@ -220,7 +220,7 @@ const closeMenu = (index) => {
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" width="70%">
+  <el-dialog v-model="dialogVisible" width="80%">
     <template #header>
       <div class="dialog-header">
         <el-icon><MagicStick /></el-icon>
@@ -310,7 +310,11 @@ const closeMenu = (index) => {
                   @click="functionClick(index, item.keyword)"
                 >
                   <div v-if="item.params && item.params.length" class="container">
-                    <div class="code">{{ item.name }}</div>
+                    <div class="code">
+                      <el-tooltip effect="dark" :content="item.desc" placement="top">
+                        {{ item.name }}
+                      </el-tooltip>
+                    </div>
                     <div class="el-input">
                       <div v-for="element in item.params" :key="element.id">
                         <el-input
@@ -340,7 +344,11 @@ const closeMenu = (index) => {
                   </div>
                   <div v-else class="container">
                     <div class="code">{{ item.keyword }}</div>
-                    <div>{{ item.name }}</div>
+                    <div>
+                      <el-tooltip effect="dark" :content="item.desc" placement="top">
+                        {{ item.name }}
+                      </el-tooltip>
+                    </div>
                   </div>
                 </div>
               </div>

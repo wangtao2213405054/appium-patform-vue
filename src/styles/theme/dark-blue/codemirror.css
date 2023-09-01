@@ -3,4 +3,5 @@ html.dark-blue {
     --codemirror-title-background-color: #21252b;
     --codemirror-border-color: #4C4D4F;
     --background-image: url("@/assets/blueBackground.jpg");
+    --el-menu-bg-color: transparent;
 }
