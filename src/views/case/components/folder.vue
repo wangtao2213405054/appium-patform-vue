@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {ref, onMounted, reactive} from "vue"
-import {ElDialog, ElForm, FormInstance, FormRules} from "element-plus"
+import { ref, onMounted, reactive } from "vue"
+import { ElDialog, ElForm, FormInstance, FormRules } from "element-plus"
 import { MoreFilled, Plus, FolderAdd, FolderDelete, Delete } from "@element-plus/icons-vue"
 import svgIcon from "@/components/SvgIcon/index.vue"
-import {apiEditFolderInfo, apiGetFolderList} from "@/api/business";
+import { apiEditFolderInfo, apiGetFolderList } from "@/api/business"
 
 const props = {
   value: "id",
@@ -33,7 +33,14 @@ const addFormRules: FormRules = {
 
 /** 添加文件夹 */
 const addFolder = () => {
-  title.value = '添加模块'
+  title.value = "添加模块"
+  dialogVisible.value = true
+}
+
+/** 添加子节点文件夹 */
+const addChildFolder = (id: number) => {
+  addForm.nodeId = id
+  title.value = "添加模块"
   dialogVisible.value = true
 }
 
@@ -41,7 +48,8 @@ const addFolder = () => {
 const submitForm = () => {
   addFormRef.value?.validate(async (valid: boolean, fields) => {
     if (valid) {
-      await apiEditFolderInfo(addForm)
+      const folder = (await apiEditFolderInfo(addForm)).data
+      console.log(folder, "222")
       dialogVisible.value = false
       await getData()
     } else {
@@ -57,7 +65,6 @@ const getData = async () => {
 onMounted(() => {
   getData()
 })
-
 </script>
 
 <template>
@@ -69,10 +76,10 @@ onMounted(() => {
         </el-form-item>
       </el-form>
       <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-      </span>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+        </span>
       </template>
     </el-dialog>
     <div class="container">
@@ -80,14 +87,14 @@ onMounted(() => {
       <el-button :icon="Plus" type="success" @click="addFolder">添加</el-button>
     </div>
     <el-scrollbar>
-      <el-tree ref="treeRef" :data="data" :props="props" class="box-height">
+      <el-tree ref="treeRef" node-key="id" :data="data" :props="props" class="box-height">
         <template #default="{ node, data }">
           <span class="custom-tree-node">
             <span style="font-size: 14px">
               <svg-icon :name="node.expanded ? 'folder-open' : 'folder'" style="margin-right: 5px" />
               <span>{{ node.label }}</span>
             </span>
-            <span style="display: none" class="button">
+            <span style="visibility: hidden" class="button">
               <el-dropdown class="more" placement="bottom-start">
                 <el-icon><MoreFilled /></el-icon>
                 <template #dropdown>
@@ -104,7 +111,7 @@ onMounted(() => {
                       <svg-icon name="move" class="tree-icon" />
                       移动到
                     </el-dropdown-item>
-                    <el-dropdown-item divided>
+                    <el-dropdown-item divided @click.prevent="addChildFolder(data.id)">
                       <svg-icon name="folder-add" class="tree-icon" />
                       添加子目录
                     </el-dropdown-item>
@@ -151,7 +158,7 @@ onMounted(() => {
 :deep(.el-tree) {
   .el-tree-node__content:hover {
     .button {
-      display: inline-block !important;
+      visibility: visible !important;
     }
   }
 }
