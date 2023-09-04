@@ -1,144 +1,125 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import { ElTreeV2 } from "element-plus"
-import { Plus } from "@element-plus/icons-vue"
-import type { TreeNode } from "element-plus/es/components/tree-v2/src/types"
+import {ref, onMounted, reactive} from "vue"
+import {ElDialog, ElForm, FormInstance, FormRules} from "element-plus"
+import { MoreFilled, Plus, FolderAdd, FolderDelete, Delete } from "@element-plus/icons-vue"
 import svgIcon from "@/components/SvgIcon/index.vue"
+import {apiEditFolderInfo, apiGetFolderList} from "@/api/business";
 
-interface Tree {
-  id: string
-  label: string
-  children?: Tree[]
-}
-
-const getKey = (prefix: string, id: number) => {
-  return `${prefix}-${id}`
-}
-
-const createData = (maxDeep: number, maxChildren: number, minNodesNumber: number, deep = 1, key = "node"): Tree[] => {
-  let id = 0
-  return Array.from({ length: minNodesNumber })
-    .fill(deep)
-    .map(() => {
-      const childrenNumber = deep === maxDeep ? 0 : Math.round(Math.random() * maxChildren)
-      const nodeKey = getKey(key, ++id)
-      return {
-        id: nodeKey,
-        label: nodeKey,
-        children: childrenNumber ? createData(maxDeep, maxChildren, childrenNumber, deep + 1, nodeKey) : undefined
-      }
-    })
-}
-
-const query = ref("")
-const treeRef = ref<InstanceType<typeof ElTreeV2>>()
-const data = createData(4, 30, 5)
 const props = {
   value: "id",
-  label: "label",
+  label: "name",
   children: "children"
 }
 
-const onQueryChanged = (query: string) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  treeRef.value!.filter(query)
-}
-const filterMethod = (query: string, node: TreeNode) => {
-  return node.label!.includes(query)
+const dialogVisible = ref<boolean>(false)
+const title = ref<string>("")
+
+const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
+const data = ref([])
+const addFormRef = ref<FormInstance | null>(null)
+const addForm = reactive({
+  nodeId: 0,
+  id: null,
+  name: "",
+  type: "folder",
+  projectId: projectId
+})
+const addFormRules: FormRules = {
+  name: [
+    { required: true, message: "请输入模块名称", trigger: "blur" },
+    { min: 1, max: 20, message: "长度在 1 到 20 个字符", trigger: "blur" }
+  ]
 }
 
-const test = (node, data) => {
-  console.log(node, data, "22")
+/** 添加文件夹 */
+const addFolder = () => {
+  title.value = '添加模块'
+  dialogVisible.value = true
 }
+
+// 提交表单
+const submitForm = () => {
+  addFormRef.value?.validate(async (valid: boolean, fields) => {
+    if (valid) {
+      await apiEditFolderInfo(addForm)
+      dialogVisible.value = false
+      await getData()
+    } else {
+      console.error("表单校验不通过", fields)
+    }
+  })
+}
+
+const getData = async () => {
+  data.value = (await apiGetFolderList({ projectId })).data
+}
+
+onMounted(() => {
+  getData()
+})
+
 </script>
 
 <template>
   <div>
+    <el-dialog v-model="dialogVisible" :title="title" width="30%">
+      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px">
+        <el-form-item label="模块名称" prop="name">
+          <el-input v-model="addForm.name" placeholder="请输入模块名称" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+      </span>
+      </template>
+    </el-dialog>
     <div class="container">
-      <el-input v-model="query" placeholder="Please enter keyword" @input="onQueryChanged" />
-      <el-button :icon="Plus" type="success">添加</el-button>
+      <el-input placeholder="Please enter keyword" />
+      <el-button :icon="Plus" type="success" @click="addFolder">添加</el-button>
     </div>
-    <el-tree-v2 ref="treeRef" :data="data" :props="props" :filter-method="filterMethod" :height="1600">
-      <template #default="{ node, data }">
-        <svg-icon name="folder" style="margin-right: 5px" />
-        <span @click="test(node, data)">{{ node.label }}</span>
-      </template>
-    </el-tree-v2>
-    <el-tree
-      ref="tree"
-      class="folderTree"
-      :data="modulesList"
-      accordion
-      :props="defaultProps"
-      highlight-current
-      node-key="id"
-      :indent="12"
-      :load="loadNode"
-      lazy
-      :expand-on-click-node="false"
-      :filter-node-method="filterNode"
-      @node-click="queryModuleApi"
-    >
-      <template #default="{ node, data }">
-        <div @mouseenter="mouseenter(data)" @mouseleave="mouseleave(data)">
-          <span>
-            <svg-icon :name="node.expanded ? 'coke-icon-folder-open' : 'coke-icon-folder'" style="margin-right: 5px" />
-            <span style="color: #606266">{{ data.name }}</span>
+    <el-scrollbar>
+      <el-tree ref="treeRef" :data="data" :props="props" class="box-height">
+        <template #default="{ node, data }">
+          <span class="custom-tree-node">
+            <span style="font-size: 14px">
+              <svg-icon :name="node.expanded ? 'folder-open' : 'folder'" style="margin-right: 5px" />
+              <span>{{ node.label }}</span>
+            </span>
+            <span style="display: none" class="button">
+              <el-dropdown class="more" placement="bottom-start">
+                <el-icon><MoreFilled /></el-icon>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>
+                      <svg-icon name="case-add" class="tree-icon" />
+                      添加用例
+                    </el-dropdown-item>
+                    <el-dropdown-item divided>
+                      <svg-icon name="rename" class="tree-icon" />
+                      重命名
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <svg-icon name="move" class="tree-icon" />
+                      移动到
+                    </el-dropdown-item>
+                    <el-dropdown-item divided>
+                      <svg-icon name="folder-add" class="tree-icon" />
+                      添加子目录
+                    </el-dropdown-item>
+                    <el-dropdown-item divided>
+                      <svg-icon name="folder-delete" class="tree-icon" />
+                      删除
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </span>
           </span>
-          <span v-show="data['show']">
-            <el-tooltip
-              v-if="node.level < 2"
-              content="添加子分组"
-              :open-delay="200"
-              :enterable="false"
-              placement="top-start"
-            >
-              <el-button
-                link
-                size="small"
-                icon="el-icon-plus"
-                circle
-                class="round"
-                style="color: #606266"
-                @click.stop="createModule(data.id)"
-              />
-            </el-tooltip>
-            <el-dropdown placement="bottom-start">
-              <el-button
-                link
-                size="small"
-                icon="el-icon-more"
-                circle
-                class="round"
-                style="color: #606266"
-                @click.stop
-              />
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-edit" style="color: #409eff" @click.prevent="updateModule(data)"
-                  >编辑</el-dropdown-item
-                >
-                <el-dropdown-item
-                  v-if="node.level < 2"
-                  icon="el-icon-folder-add"
-                  divided
-                  style="color: #67c23a"
-                  @click.prevent="createModule(data.id)"
-                  >添加子分组</el-dropdown-item
-                >
-                <el-dropdown-item
-                  icon="el-icon-delete"
-                  divided
-                  style="color: #f56c6c"
-                  @click.prevent="deleteModuleInfo(data.id)"
-                  >删除</el-dropdown-item
-                >
-              </el-dropdown-menu>
-            </el-dropdown>
-          </span>
-        </div>
-      </template>
-    </el-tree>
+        </template>
+      </el-tree>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -147,11 +128,38 @@ const test = (node, data) => {
   display: flex; /* 使用Flexbox布局 */
   justify-content: space-between; /* 元素之间平均分布空间，使它们左右分布 */
   margin-bottom: 5px;
+  align-items: center;
   .el-button {
     margin-left: 5px;
   }
 }
 .box-height {
-  height: calc(100vh - var(--v3-header-height));
+  height: calc(100vh - var(--v3-header-height) - 60px);
+}
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+.tree-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+:deep(.el-tree) {
+  .el-tree-node__content:hover {
+    .button {
+      display: inline-block !important;
+    }
+  }
+}
+.more {
+  padding: 4px;
+}
+.more:hover {
+  background-color: var(--el-text-color-disabled);
+  border-radius: 4px;
 }
 </style>
