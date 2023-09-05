@@ -4,6 +4,8 @@ import { ElDialog, ElForm, FormInstance, FormRules, ElTree, ElMessageBox, ElMess
 import { MoreFilled, Plus } from "@element-plus/icons-vue"
 import svgIcon from "@/components/SvgIcon/index.vue"
 import { apiDeleteFolderInfo, apiEditFolderInfo, apiGetFolderList } from "@/api/business"
+import type Node from "element-plus/es/components/tree/src/model/node"
+import type { AllowDropType } from "element-plus/es/components/tree/src/tree.type"
 
 const props = {
   value: "id",
@@ -105,7 +107,7 @@ const deleteTreeNode = async (id: number) => {
 
 /** 数据过滤 */
 const filterText = ref<string>("")
-watch(filterText, (value) => {
+watch(filterText, (value: string) => {
   treeRef.value!.filter(value)
 })
 
@@ -122,6 +124,49 @@ const getFolderTree = async () => {
 onMounted(() => {
   getFolderTree()
 })
+
+const emit = defineEmits(["testcase"])
+
+const addCase = (id: number) => {
+  emit("testcase", id)
+}
+
+/** 拖动时的钩子, 测试用例不能拖动至层级1中 */
+const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
+  /** 非文件夹的节点不能进入第一层 */
+  if (draggingNode.data.type !== "folder" && dropNode.level === 1) return
+  /** 当层级为一时, 判断同级是否存在相同名称的节点, 不同的数据文件类型可以同时存在相同的名称 */
+  if (
+    type !== "inner" &&
+    dropNode.level === 1 &&
+    dropNode.parent?.data.filter((item) => item.name === draggingNode.data.name && item.type === draggingNode.data.type)
+  )
+    return
+  /** 当层级不为一时, 判断父节点的子节点中是否存在相同名称的节点, 不同的数据文件类型可以同时存在相同的名称 */
+  if (
+    type !== "inner" &&
+    dropNode.level !== 1 &&
+    dropNode.parent?.data.children?.filter(
+      (item) => item.name === draggingNode.data.name && item.type === draggingNode.data.type
+    )
+  )
+    return
+  /** 当类型为插入时, 判断要插入的节点中是否存在相同的名称, 不同的数据文件类型可以同时存在相同的名称 */
+  if (
+    type == "inner" &&
+    !dropNode.data.children?.filter(
+      (item) => item.name === draggingNode.data.name && item.type === draggingNode.data.type
+    )
+  )
+    return
+  console.log(draggingNode, dropNode, type)
+  return true
+}
+
+/** 拖拽成功后通知服务器变更文件位置 */
+const dropToServer = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
+  console.log(draggingNode, dropNode, type)
+}
 </script>
 
 <template>
@@ -148,9 +193,12 @@ onMounted(() => {
         ref="treeRef"
         class="box-height"
         node-key="id"
+        draggable
         :data="data"
         :props="props"
         :filter-node-method="filterNode"
+        :allow-drop="allowDrop"
+        @node-drop="dropToServer"
       >
         <template #default="{ node, data }">
           <span class="custom-tree-node">
@@ -163,7 +211,7 @@ onMounted(() => {
                 <el-icon @click.stop><MoreFilled /></el-icon>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item>
+                    <el-dropdown-item @click.prevent="addCase(data.id)">
                       <svg-icon name="case-add" class="tree-icon" />
                       添加用例
                     </el-dropdown-item>

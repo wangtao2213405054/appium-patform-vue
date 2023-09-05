@@ -1,32 +1,33 @@
 <script setup lang="ts">
 import Folder from "./components/folder.vue"
-import { ref } from 'vue'
+import { ref } from "vue"
 
-let tabIndex = 2
-const editableTabsValue = ref('Config')
-const editableTabs = ref([
-  {
-    title: 'Tab 1',
-    name: '1',
-    content: 'Tab 1 content',
-  },
-  {
-    title: 'Tab 2',
-    name: '2',
-    content: 'Tab 2 content',
-  },
-])
-
-const addTab = (targetName: string) => {
-  const newTabName = `${++tabIndex}`
-  editableTabs.value.push({
-    title: 'New Tab',
-    name: newTabName,
-    content: 'New Tab content',
-  })
-  editableTabsValue.value = newTabName
+interface TabContent {
+  title: string
+  name: number
+  content: any
 }
-const removeTab = (targetName: string) => {
+
+const editableTabsValue = ref<number>(0)
+const editableTabs = ref<TabContent[]>([])
+
+/** 添加 Tab */
+const addTab = (title: string, id: number, content: any = null) => {
+  for (let i = 0; i < editableTabs.value.length; i++) {
+    if (id === editableTabs.value[i].name) {
+      editableTabsValue.value = id
+      return
+    }
+  }
+  editableTabs.value.push({
+    title: title,
+    name: id,
+    content: content
+  })
+  editableTabsValue.value = id
+}
+/** 删除 Tab */
+const removeTab = (targetName: number) => {
   const tabs = editableTabs.value
   let activeName = editableTabsValue.value
   if (activeName === targetName) {
@@ -35,6 +36,8 @@ const removeTab = (targetName: string) => {
         const nextTab = tabs[index + 1] || tabs[index - 1]
         if (nextTab) {
           activeName = nextTab.name
+        } else {
+          activeName = 0
         }
       }
     })
@@ -43,35 +46,25 @@ const removeTab = (targetName: string) => {
   editableTabsValue.value = activeName
   editableTabs.value = tabs.filter((tab) => tab.name !== targetName)
 }
+/** 添加测试用例的钩子 */
+const addTestcase = (id: number) => {
+  console.log(id, 222)
+  addTab("新建用例", -1)
+}
 </script>
 
 <template>
   <div>
     <el-row>
       <el-col class="box-height" :span="6" :xs="24">
-        <folder />
+        <folder @testcase="addTestcase" />
       </el-col>
       <el-col class="box-height" :span="18" :xs="24">
-        <el-tabs
-            v-model="editableTabsValue"
-            type="border-card"
-            class="demo-tabs"
-            @tab-remove="removeTab"
-        >
-          <el-tab-pane label="Config" name="Config" stretch>
-            <div style="margin-bottom: 20px">
-              <el-button size="small" @click="addTab(editableTabsValue)">
-                add tab
-              </el-button>
-            </div>
+        <el-tabs v-model="editableTabsValue" type="border-card" class="demo-tabs" @tab-remove="removeTab">
+          <el-tab-pane label="Config" :name="0" stretch>
+            <div>Test</div>
           </el-tab-pane>
-          <el-tab-pane
-              v-for="item in editableTabs"
-              :key="item.name"
-              :label="item.title"
-              :name="item.name"
-              closable
-          >
+          <el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name" closable>
             {{ item.content }}
           </el-tab-pane>
         </el-tabs>
@@ -84,7 +77,7 @@ const removeTab = (targetName: string) => {
 .box-height {
   background-color: var(--el-bg-color-overlay);
   height: calc(100vh - var(--v3-header-height));
-  border-right: 1px solid var(--el-menu-border-color)
+  border-right: 1px solid var(--el-menu-border-color);
 }
 .el-tabs--border-card {
   border: none;
