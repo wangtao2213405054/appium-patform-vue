@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue"
-import { ElDialog, ElForm, FormInstance, FormRules } from "element-plus"
-import { MoreFilled, Plus, FolderAdd, FolderDelete, Delete } from "@element-plus/icons-vue"
+import { ref, onMounted, reactive, watch } from "vue"
+import { ElDialog, ElForm, FormInstance, FormRules, ElTree, ElMessageBox, ElMessage } from "element-plus"
+import { MoreFilled, Plus } from "@element-plus/icons-vue"
 import svgIcon from "@/components/SvgIcon/index.vue"
-import { apiEditFolderInfo, apiGetFolderList } from "@/api/business"
+import { apiDeleteFolderInfo, apiEditFolderInfo, apiGetFolderList } from "@/api/business"
 
 const props = {
   value: "id",
@@ -17,11 +17,11 @@ const title = ref<string>("")
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
 const data = ref([])
 const addFormRef = ref<FormInstance | null>(null)
+const treeRef = ref<InstanceType<typeof ElTree>>()
 const addForm = reactive({
   nodeId: 0,
   id: null,
   name: "",
-  type: "folder",
   projectId: projectId
 })
 const addFormRules: FormRules = {
@@ -44,32 +44,89 @@ const addChildFolder = (id: number) => {
   dialogVisible.value = true
 }
 
-// 提交表单
+/** 重命名 */
+const rename = (id: number, parent: number) => {
+  addForm.id = id
+  addForm.nodeId = parent
+  title.value = "重命名"
+  dialogVisible.value = true
+}
+
+/** 关闭弹窗 */
+const closeDialog = () => {
+  addForm.id = null
+  addForm.name = ""
+  addForm.nodeId = 0
+  addFormRef.value?.clearValidate()
+}
+
+/** 提交表单 */
 const submitForm = () => {
   addFormRef.value?.validate(async (valid: boolean, fields) => {
     if (valid) {
       const folder = (await apiEditFolderInfo(addForm)).data
-      console.log(folder, "222")
+      // 新增文件夹
+      if (!addForm.id) {
+        // 新增时添加一个节点, 如果存在父节点则展开这个节点
+        const node = treeRef.value?.getNode(addForm.nodeId)
+        treeRef.value?.append(folder, node)
+        if (node) {
+          node.expanded = true
+        }
+      } else {
+        // 修改文件夹
+        const node = treeRef.value?.getNode(addForm.id)
+        node.data.name = folder.name
+      }
+
       dialogVisible.value = false
-      await getData()
     } else {
       console.error("表单校验不通过", fields)
     }
   })
 }
 
-const getData = async () => {
+/** 删除文件夹节点信息 */
+const deleteTreeNode = async (id: number) => {
+  const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该文件夹, 是否继续?", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    lockScroll: false
+  }).catch((err) => err)
+
+  if (clickConfirmResult !== "confirm") {
+    return ElMessage.info("取消删除")
+  }
+
+  await apiDeleteFolderInfo({ id })
+  treeRef.value?.remove(id)
+}
+
+/** 数据过滤 */
+const filterText = ref<string>("")
+watch(filterText, (value) => {
+  treeRef.value!.filter(value)
+})
+
+const filterNode = (value: string, data) => {
+  if (!value) return true
+  return data.name.includes(value)
+}
+
+/** 获取文件数 */
+const getFolderTree = async () => {
   data.value = (await apiGetFolderList({ projectId })).data
 }
 
 onMounted(() => {
-  getData()
+  getFolderTree()
 })
 </script>
 
 <template>
   <div>
-    <el-dialog v-model="dialogVisible" :title="title" width="30%">
+    <el-dialog v-model="dialogVisible" :title="title" width="30%" @close="closeDialog">
       <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px">
         <el-form-item label="模块名称" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入模块名称" />
@@ -83,27 +140,34 @@ onMounted(() => {
       </template>
     </el-dialog>
     <div class="container">
-      <el-input placeholder="Please enter keyword" />
+      <el-input v-model="filterText" placeholder="输入关键字过滤" />
       <el-button :icon="Plus" type="success" @click="addFolder">添加</el-button>
     </div>
     <el-scrollbar>
-      <el-tree ref="treeRef" node-key="id" :data="data" :props="props" class="box-height">
+      <el-tree
+        ref="treeRef"
+        class="box-height"
+        node-key="id"
+        :data="data"
+        :props="props"
+        :filter-node-method="filterNode"
+      >
         <template #default="{ node, data }">
           <span class="custom-tree-node">
-            <span style="font-size: 14px">
+            <span class="tree-text">
               <svg-icon :name="node.expanded ? 'folder-open' : 'folder'" style="margin-right: 5px" />
               <span>{{ node.label }}</span>
             </span>
             <span style="visibility: hidden" class="button">
               <el-dropdown class="more" placement="bottom-start">
-                <el-icon><MoreFilled /></el-icon>
+                <el-icon @click.stop><MoreFilled /></el-icon>
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
                       <svg-icon name="case-add" class="tree-icon" />
                       添加用例
                     </el-dropdown-item>
-                    <el-dropdown-item divided>
+                    <el-dropdown-item divided @click.prevent="rename(data.id, data.nodeId)">
                       <svg-icon name="rename" class="tree-icon" />
                       重命名
                     </el-dropdown-item>
@@ -115,7 +179,7 @@ onMounted(() => {
                       <svg-icon name="folder-add" class="tree-icon" />
                       添加子目录
                     </el-dropdown-item>
-                    <el-dropdown-item divided>
+                    <el-dropdown-item divided @click.prevent="deleteTreeNode(data.id)">
                       <svg-icon name="folder-delete" class="tree-icon" />
                       删除
                     </el-dropdown-item>
@@ -135,13 +199,14 @@ onMounted(() => {
   display: flex; /* 使用Flexbox布局 */
   justify-content: space-between; /* 元素之间平均分布空间，使它们左右分布 */
   margin-bottom: 5px;
+  padding: 6px;
   align-items: center;
   .el-button {
     margin-left: 5px;
   }
 }
 .box-height {
-  height: calc(100vh - var(--v3-header-height) - 60px);
+  height: calc(100vh - var(--v3-header-height) - 55px);
 }
 .custom-tree-node {
   flex: 1;
@@ -168,5 +233,10 @@ onMounted(() => {
 .more:hover {
   background-color: var(--el-text-color-disabled);
   border-radius: 4px;
+}
+.tree-text {
+  display: flex; /* 使用Flexbox布局 */
+  justify-content: flex-start; /* 元素之间平均分布空间，使它们左右分布 */
+  align-items: center;
 }
 </style>
