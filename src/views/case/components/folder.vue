@@ -3,7 +3,7 @@ import { ref, onMounted, reactive, watch } from "vue"
 import { ElDialog, ElForm, FormInstance, FormRules, ElTree, ElMessageBox, ElMessage } from "element-plus"
 import { MoreFilled, Plus } from "@element-plus/icons-vue"
 import svgIcon from "@/components/SvgIcon/index.vue"
-import { apiDeleteFolderInfo, apiEditFolderInfo, apiGetFolderList } from "@/api/business"
+import {apiDeleteFolderInfo, apiEditFolderInfo, apiGetFolderList, apiMoveFolderInfo} from "@/api/business"
 import type Node from "element-plus/es/components/tree/src/model/node"
 import type { AllowDropType } from "element-plus/es/components/tree/src/tree.type"
 
@@ -47,9 +47,10 @@ const addChildFolder = (id: number) => {
 }
 
 /** 重命名 */
-const rename = (id: number, parent: number) => {
+const rename = (id: number, parent: number, name: string) => {
   addForm.id = id
   addForm.nodeId = parent
+  addForm.name = name
   title.value = "重命名"
   dialogVisible.value = true
 }
@@ -133,39 +134,34 @@ const addCase = (id: number) => {
 
 /** 拖动时的钩子, 测试用例不能拖动至层级1中 */
 const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
-  /** 非文件夹的节点不能进入第一层 */
-  if (draggingNode.data.type !== "folder" && dropNode.level === 1) return
-  /** 当层级为一时, 判断同级是否存在相同名称的节点, 不同的数据文件类型可以同时存在相同的名称 */
-  if (
-    type !== "inner" &&
-    dropNode.level === 1 &&
-    dropNode.parent?.data.filter((item) => item.name === draggingNode.data.name && item.type === draggingNode.data.type)
+  const isInsertType = type === "inner"
+  const isFolderType = draggingNode.data.type === "folder"
+
+  // 获取适用的节点数组
+  let nodesToCheck
+  if (isInsertType) {
+    nodesToCheck = dropNode.data.children || []
+  } else {
+    if (dropNode.level === 1) {
+      // 当文件类型非文件夹时，不能放置在根目录
+      if (!isFolderType) return false
+      nodesToCheck = dropNode.parent?.data || []
+    } else {
+      nodesToCheck = dropNode.parent?.data.children || []
+    }
+  }
+
+  // 检查是否存在相同名称和类型的节点
+  return !nodesToCheck.some(node =>
+      draggingNode.data.id !== node.id &&
+      draggingNode.data.name === node.name &&
+      draggingNode.data.type === node.type
   )
-    return
-  /** 当层级不为一时, 判断父节点的子节点中是否存在相同名称的节点, 不同的数据文件类型可以同时存在相同的名称 */
-  if (
-    type !== "inner" &&
-    dropNode.level !== 1 &&
-    dropNode.parent?.data.children?.filter(
-      (item) => item.name === draggingNode.data.name && item.type === draggingNode.data.type
-    )
-  )
-    return
-  /** 当类型为插入时, 判断要插入的节点中是否存在相同的名称, 不同的数据文件类型可以同时存在相同的名称 */
-  if (
-    type == "inner" &&
-    !dropNode.data.children?.filter(
-      (item) => item.name === draggingNode.data.name && item.type === draggingNode.data.type
-    )
-  )
-    return
-  console.log(draggingNode, dropNode, type)
-  return true
 }
 
 /** 拖拽成功后通知服务器变更文件位置 */
 const dropToServer = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
-  console.log(draggingNode, dropNode, type)
+  apiMoveFolderInfo({ id: draggingNode.data.id, nodeId: dropNode.data.id, position: type })
 }
 </script>
 
@@ -215,7 +211,7 @@ const dropToServer = (draggingNode: Node, dropNode: Node, type: AllowDropType) =
                       <svg-icon name="case-add" class="tree-icon" />
                       添加用例
                     </el-dropdown-item>
-                    <el-dropdown-item divided @click.prevent="rename(data.id, data.nodeId)">
+                    <el-dropdown-item divided @click.prevent="rename(data.id, data.nodeId, data.name)">
                       <svg-icon name="rename" class="tree-icon" />
                       重命名
                     </el-dropdown-item>

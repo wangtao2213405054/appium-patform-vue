@@ -51,6 +51,14 @@ export function apiDeleteFolderInfo(data: Folder.DeleteFolderRequestData) {
   })
 }
 
+export function apiMoveFolderInfo(data: Folder.MoveFolderRequestData) {
+  return request<Folder.FolderEditResponseData>({
+    url: "/business/folder/move",
+    method: "POST",
+    data
+  })
+}
+
 export function apiGetCaseList(data: Case.GetCaseRequestData) {
   return request<Case.CaseListResponseData>({
     url: "/business/Case/list",

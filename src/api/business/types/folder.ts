@@ -23,6 +23,13 @@ export interface EditFolderRequestData {
   name: string
 }
 
+// 移动文件夹结构体
+export interface MoveFolderRequestData {
+  id: number | null // 文件夹id
+  nodeId: number
+  position: string
+}
+
 // 删除文件夹的结构体
 export interface DeleteFolderRequestData {
   id: number // 文件夹id
