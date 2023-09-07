@@ -4,6 +4,7 @@ export interface GetFolderRequestData {
   page: number // 页码
   pageSize: number // 每页大小
   name?: string // 查询条件
+  type?: "folder" | "case"
   projectId: number
 }
 
@@ -13,13 +14,17 @@ export interface FolderInfoResponseData {
   updateTime: string
   id: number // 文件夹id
   name: string
+  type?: "folder" | "case"
   projectId: number
+  children: FolderInfoResponseData[]
 }
 
 // 编辑文件夹的结构体
 export interface EditFolderRequestData {
   id: number | null // 文件夹id
   projectId: number
+  type?: "folder" | "case"
+  nodeId: number
   name: string
 }
 
@@ -27,7 +32,7 @@ export interface EditFolderRequestData {
 export interface MoveFolderRequestData {
   id: number | null // 文件夹id
   nodeId: number
-  position: string
+  position: 'before' | 'after' | 'inner'
 }
 
 // 删除文件夹的结构体
@@ -44,4 +49,6 @@ export type FolderListResponseData = ApiResponseData<{
   totalPage: number
 }>
 
-export type FolderEditResponseData = ApiResponseData<{}>
+export type FolderDefaultResponseData = ApiResponseData<{}>
+
+export type FolderEditResponseData = ApiResponseData<FolderInfoResponseData>

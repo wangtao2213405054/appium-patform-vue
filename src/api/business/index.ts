@@ -2,6 +2,7 @@ import { request } from "@/utils/service"
 import type * as Project from "./types/project"
 import type * as Folder from "./types/folder"
 import type * as Case from "./types/case"
+import {FolderDefaultResponseData} from "./types/folder";
 
 export function apiGetProjectList(data: Project.GetProjectRequestData) {
   return request<Project.ProjectListResponseData>({
@@ -44,7 +45,7 @@ export function apiEditFolderInfo(data: Folder.EditFolderRequestData) {
 }
 
 export function apiDeleteFolderInfo(data: Folder.DeleteFolderRequestData) {
-  return request<Folder.FolderEditResponseData>({
+  return request<Folder.FolderDefaultResponseData>({
     url: "/business/folder/delete",
     method: "POST",
     data
@@ -52,7 +53,7 @@ export function apiDeleteFolderInfo(data: Folder.DeleteFolderRequestData) {
 }
 
 export function apiMoveFolderInfo(data: Folder.MoveFolderRequestData) {
-  return request<Folder.FolderEditResponseData>({
+  return request<Folder.FolderDefaultResponseData>({
     url: "/business/folder/move",
     method: "POST",
     data

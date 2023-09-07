@@ -6,6 +6,8 @@ import svgIcon from "@/components/SvgIcon/index.vue"
 import {apiDeleteFolderInfo, apiEditFolderInfo, apiGetFolderList, apiMoveFolderInfo} from "@/api/business"
 import type Node from "element-plus/es/components/tree/src/model/node"
 import type { AllowDropType } from "element-plus/es/components/tree/src/tree.type"
+import { NodeDropType } from "element-plus/es/components/tree/src/tree.type"
+import { EditFolderRequestData, FolderInfoResponseData } from "@/api/business/types/folder"
 
 const props = {
   value: "id",
@@ -17,10 +19,10 @@ const dialogVisible = ref<boolean>(false)
 const title = ref<string>("")
 
 const projectId = JSON.parse(localStorage.getItem("projectId") || "0")
-const data = ref([])
+const folderList = ref<FolderInfoResponseData[]>([])
 const addFormRef = ref<FormInstance | null>(null)
 const treeRef = ref<InstanceType<typeof ElTree>>()
-const addForm = reactive({
+const addForm = reactive<EditFolderRequestData>({
   nodeId: 0,
   id: null,
   name: "",
@@ -119,7 +121,7 @@ const filterNode = (value: string, data) => {
 
 /** 获取文件数 */
 const getFolderTree = async () => {
-  data.value = (await apiGetFolderList({ projectId })).data
+  folderList.value = (await apiGetFolderList({ projectId })).data
 }
 
 onMounted(() => {
@@ -160,7 +162,7 @@ const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
 }
 
 /** 拖拽成功后通知服务器变更文件位置 */
-const dropToServer = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
+const dropToServer = (draggingNode: Node, dropNode: Node, type: NodeDropType) => {
   apiMoveFolderInfo({ id: draggingNode.data.id, nodeId: dropNode.data.id, position: type })
 }
 </script>
@@ -190,7 +192,7 @@ const dropToServer = (draggingNode: Node, dropNode: Node, type: AllowDropType) =
         class="box-height"
         node-key="id"
         draggable
-        :data="data"
+        :data="folderList"
         :props="props"
         :filter-node-method="filterNode"
         :allow-drop="allowDrop"
