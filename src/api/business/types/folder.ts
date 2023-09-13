@@ -13,6 +13,7 @@ export interface FolderInfoResponseData {
   name: string
   type?: "folder" | "case"
   projectId: number
+  nodeId: number
   children: FolderInfoResponseData[]
 }
 
@@ -29,7 +30,7 @@ export interface EditFolderRequestData {
 export interface MoveFolderRequestData {
   id: number | null // 文件夹id
   nodeId: number
-  position: 'before' | 'after' | 'inner'
+  position: 'before' | 'after' | 'inner' | 'none'
 }
 
 // 删除文件夹的结构体

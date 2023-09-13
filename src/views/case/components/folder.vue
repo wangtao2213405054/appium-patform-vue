@@ -73,14 +73,14 @@ const submitForm = () => {
       // 新增文件夹
       if (!addForm.id) {
         // 新增时添加一个节点, 如果存在父节点则展开这个节点
-        const node = treeRef.value?.getNode(addForm.nodeId)
+        const node = treeRef.value?.getNode(addForm.nodeId) as Node
         treeRef.value?.append(folder, node)
         if (node) {
           node.expanded = true
         }
       } else {
         // 修改文件夹
-        const node = treeRef.value?.getNode(addForm.id)
+        const node = treeRef.value?.getNode(addForm.id) as Node
         node.data.name = folder.name
       }
 
@@ -92,7 +92,7 @@ const submitForm = () => {
 }
 
 /** 删除文件夹节点信息 */
-const deleteTreeNode = async (id: number) => {
+const deleteTreeNode = async (data: FolderInfoResponseData) => {
   const clickConfirmResult = await ElMessageBox.confirm("此操作将永久删除该文件夹, 是否继续?", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
@@ -104,8 +104,8 @@ const deleteTreeNode = async (id: number) => {
     return ElMessage.info("取消删除")
   }
 
-  await apiDeleteFolderInfo({ id })
-  treeRef.value?.remove(id)
+  await apiDeleteFolderInfo({ id: data.id })
+  treeRef.value?.remove(data)
 }
 
 /** 数据过滤 */
@@ -114,9 +114,14 @@ watch(filterText, (value: string) => {
   treeRef.value!.filter(value)
 })
 
-const filterNode = (value: string, data: FolderInfoResponseData) => {
+interface Tree {
+  [key: string]: string
+}
+
+const filterNode = (value: string, data: Tree) => {
+  console.log(data, 1111)
   if (!value) return true
-  return data.name.includes(value)
+  return data.name!.includes(value)
 }
 
 /** 获取文件数 */
@@ -147,7 +152,7 @@ const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
     if (dropNode.level === 1) {
       // 当文件类型非文件夹时，不能放置在根目录
       if (!isFolderType) return false
-      nodesToCheck = dropNode.parent?.data || []
+      nodesToCheck = dropNode.parent?.data as FolderInfoResponseData[] || []
     } else {
       nodesToCheck = dropNode.parent?.data.children || []
     }
@@ -225,7 +230,7 @@ const dropToServer = (draggingNode: Node, dropNode: Node, type: NodeDropType) =>
                       <svg-icon name="folder-add" class="tree-icon" />
                       添加子目录
                     </el-dropdown-item>
-                    <el-dropdown-item divided @click.prevent="deleteTreeNode(data.id)">
+                    <el-dropdown-item divided @click.prevent="deleteTreeNode(data)">
                       <svg-icon name="folder-delete" class="tree-icon" />
                       删除
                     </el-dropdown-item>
