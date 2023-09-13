@@ -321,7 +321,7 @@ const actionWidth = computed(() => {
       <el-table-column label="设备状态" width="120px" align="center">
         <template #default="scope">
           <div v-for="item in dict['workerStatus']" :key="item.name">
-            <el-tag v-if="scope.row.status === item.id" :type="item.type" disable-transitions>
+            <el-tag v-if="scope.row.status === item.value" :type="item.type" disable-transitions>
               {{ item.name }}
             </el-tag>
           </div>

@@ -113,8 +113,8 @@ const closeDialog = () => {
   addForm.expression = ""
   addForm.placeholder = ""
   addForm.options = []
-  addForm.type = undefined
-  addForm.element = undefined
+  addForm.type = ""
+  addForm.element = ""
   addFormRef.value?.clearValidate()
 }
 
@@ -146,7 +146,7 @@ const addOptions = () => {
 }
 
 // 删除指定数据
-const deleteOptions = (index) => {
+const deleteOptions = (index: number) => {
   addForm.options.splice(index, 1)
 }
 
