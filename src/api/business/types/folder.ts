@@ -1,8 +1,5 @@
 // 获取文件夹列表的结构体
 export interface GetFolderRequestData {
-  total?: number
-  page: number // 页码
-  pageSize: number // 每页大小
   name?: string // 查询条件
   type?: "folder" | "case"
   projectId: number
@@ -41,13 +38,7 @@ export interface DeleteFolderRequestData {
 }
 
 // 获取文件夹列表的结构体
-export type FolderListResponseData = ApiResponseData<{
-  items: FolderInfoResponseData[]
-  page: number
-  pageSize: number
-  total: number
-  totalPage: number
-}>
+export type FolderListResponseData = ApiResponseData<FolderInfoResponseData[]>
 
 export type FolderDefaultResponseData = ApiResponseData<{}>
 

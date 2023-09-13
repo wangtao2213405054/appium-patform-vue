@@ -114,7 +114,7 @@ watch(filterText, (value: string) => {
   treeRef.value!.filter(value)
 })
 
-const filterNode = (value: string, data) => {
+const filterNode = (value: string, data: FolderInfoResponseData) => {
   if (!value) return true
   return data.name.includes(value)
 }
@@ -140,7 +140,7 @@ const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
   const isFolderType = draggingNode.data.type === "folder"
 
   // 获取适用的节点数组
-  let nodesToCheck
+  let nodesToCheck: FolderInfoResponseData[]
   if (isInsertType) {
     nodesToCheck = dropNode.data.children || []
   } else {
