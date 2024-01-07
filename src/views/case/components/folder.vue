@@ -3,7 +3,7 @@ import { ref, onMounted, reactive, watch } from "vue"
 import { ElDialog, ElForm, FormInstance, FormRules, ElTree, ElMessageBox, ElMessage } from "element-plus"
 import { MoreFilled, Plus } from "@element-plus/icons-vue"
 import svgIcon from "@/components/SvgIcon/index.vue"
-import {apiDeleteFolderInfo, apiEditFolderInfo, apiGetFolderList, apiMoveFolderInfo} from "@/api/business"
+import { apiDeleteFolderInfo, apiEditFolderInfo, apiGetFolderList, apiMoveFolderInfo } from "@/api/business"
 import type Node from "element-plus/es/components/tree/src/model/node"
 import type { AllowDropType } from "element-plus/es/components/tree/src/tree.type"
 import { NodeDropType } from "element-plus/es/components/tree/src/tree.type"
@@ -159,10 +159,9 @@ const allowDrop = (draggingNode: Node, dropNode: Node, type: AllowDropType) => {
   }
 
   // 检查是否存在相同名称和类型的节点
-  return !nodesToCheck.some(node =>
-      draggingNode.data.id !== node.id &&
-      draggingNode.data.name === node.name &&
-      draggingNode.data.type === node.type
+  return !nodesToCheck.some(
+    (node) =>
+      draggingNode.data.id !== node.id && draggingNode.data.name === node.name && draggingNode.data.type === node.type
   )
 }
 

@@ -63,15 +63,24 @@ export const constantRoutes: RouteRecordRaw[] = [
     path: "/test",
     component: Layouts,
     redirect: "/test/index",
+    name: "Test1",
     children: [
       {
         path: "index",
         component: () => import("@/views/test/index.vue"),
         name: "Test",
         meta: {
-          title: "测试",
-          svgIcon: "dashboard",
-          affix: true
+          title: "啊啊啊啊啊",
+          svgIcon: "dashboard"
+        }
+      },
+      {
+        path: "columnar",
+        component: () => import("@/views/test/columnar.vue"),
+        name: "Columnar",
+        meta: {
+          title: "柱状图",
+          svgIcon: "dashboard"
         }
       }
     ]
